@@ -4,8 +4,9 @@ import Navbar from './components/navbar'
 import Quickstart from './components/Quickstart'
 import Packages from './components/Packages'
 import PackageDashboard from './components/PackageDashboard'
-import Dashboard from './components/Dashboard'
 import { Route, Routes } from 'react-router-dom'
+import Dashboard from './components/Dashboard'
+import CountryMaster from './pages/CountryMaster'
 
 const PageRoute = () => {
 
@@ -16,9 +17,10 @@ const PageRoute = () => {
         <Sidebar />
         <Routes>
           <Route path={''} element={<Quickstart />} />
-          <Route path="/home/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/packages" element={<Packages />} /> {/* Add the Package route */}
           <Route path="/home/packageDashboard" element={<PackageDashboard />} />
+          <Route path="/home/master-list" element={<CountryMaster />} />
           {/* Add other routes as needed */}
         </Routes>
       </div>

@@ -121,7 +121,6 @@ const State = ({ isOpen, onClose }) => {
     e.preventDefault();
 
 
-    console.log(countryId)
     const formDataToSend = new FormData();
     formDataToSend.append('stateName', formData.stateName);
     formDataToSend.append('code', formData.code);

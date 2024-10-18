@@ -17,7 +17,7 @@ const BodyHeader = () => {
   return (
     // <div className="flex flex-col w-full ml-10 p-0">
     // <div className="flex-auto">
-    <div className="flex justify-center bg-gray-100 py-4 shadow-md">
+    <div className=" bg-gray-100 py-4 px-10 shadow-md">
       <div className="flex space-x-4 justify-between md:space-x-10">
         <Link to="/home">
           <button
@@ -27,25 +27,26 @@ const BodyHeader = () => {
           </button>
         </Link>
 
-        <div className='m-0 p-0'>
-          <Link to="/home">
+        <div className='flex m-0 p-0 gap-8'>
+          <Link to="/home" className={` pb-1 ${activeTab === '/home' ? 'border-b-4 border-red-700' : ''
+            }`}>
             <button
-              className={`header-button text-black font-medium text-sm md:text-base ${activeTab === '/home' ? 'border-b-4 border-red-700' : ''
-                }`}
+              className={`header-button text-black font-medium text-sm md:text-base`}
             >
               Quickstart
             </button>
           </Link>
 
-          <Link to="/home/dashboard">
+          <Link to="/home/dashboard" className={` pb-1 ${activeTab === '/home/dashboard' ? 'border-b-4 border-red-700' : ''
+            }`}>
             <button
-              className={`header-button text-black font-medium text-sm md:text-base ${activeTab === '/home/dashboard' ? 'border-b-4 border-red-700' : ''
-                }`}
+              className={`header-button text-black font-medium text-sm md:text-base`}
             >
               Dashboard
             </button>
           </Link>
         </div>
+        <p></p>
         {/* </div> */}
       </div>
     </div>

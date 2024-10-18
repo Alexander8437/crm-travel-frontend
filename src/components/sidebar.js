@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Import Link for routing
 import { FaHome, FaListAlt, FaUserTie } from "react-icons/fa";
 import { FaListUl } from "react-icons/fa";
+import { IoListSharp } from "react-icons/io5";
 import { FiPackage } from "react-icons/fi"; // Packages icon
 import { TbChecklist } from "react-icons/tb"; // Bookings icon
 import { IoIosPeople } from "react-icons/io"; // My Teams icon
@@ -11,6 +12,8 @@ import Country from '../pages/Country';
 import State from '../pages/State';
 import Destination from '../pages/Destination';
 import Hotel from '../pages/Hotel';
+import Roles from '../pages/Roles';
+import NewMember from '../pages/NewMember';
 
 const Sidebar = () => {
   const [showQuickstart, setShowQuickstart] = useState(false);
@@ -18,10 +21,18 @@ const Sidebar = () => {
   const [addState, setAddState] = useState(false);
   const [addDestination, setAddDestination] = useState(false);
   const [addHotel, setAddHotel] = useState(false);
+  const [addRole, setAddRole] = useState(false);
+  const [addNewMember, setAddNewMember] = useState(false)
 
 
   const showCountry = () => {
     setAddCountry(true)
+  }
+  const showNewMember = () => {
+    setAddNewMember(true)
+  }
+  const showRole = () => {
+    setAddRole(true)
   }
   const showState = () => {
     setAddState(true)
@@ -123,8 +134,8 @@ const Sidebar = () => {
           style={{ width: '340px' }}>
           <div className='flex flex-col'>
             <p>My Teams</p>
-            <button class="w-full px-4 py-2 bg-gray-300 cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md text-justify">Roles & Permission</button>
-            <button class="w-full px-4 py-2 bg-gray-300 cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">New Members</button>
+            <button class="w-full px-4 py-2 bg-gray-300 cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md text-justify" onClick={showRole}>Roles & Permission</button>
+            <button class="w-full px-4 py-2 bg-gray-300 cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify" onClick={showNewMember}>New Members</button>
             <button class="w-full px-4 py-2 bg-gray-300 cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">Member Board</button>
           </div>
         </div>
@@ -165,6 +176,11 @@ const Sidebar = () => {
           style={{ width: '340px' }}>
           <div className='flex flex-col'>
             <p>Masters</p>
+            <Link to='/home/master-list'>
+              <p className='py-2 my-4 border-b-2 flex items-center gap-4'>
+                <FaListUl size='18px' />
+                All Master</p>
+            </Link>
             <div className='flex mt-10 gap-4'>
               <button className="w-full px-4 py-2 bg-gray-300 cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
                 onClick={showCountry}>Country</button>
@@ -193,14 +209,20 @@ const Sidebar = () => {
     <div className='submenu-menu' style={{ right: addCountry ? '0' : '-100%' }}>
       <Country isOpen={addCountry} onClose={() => setAddCountry(false)} />
     </div>
-    <div className='submenu-menu' style={{ right: addState ? '0' : '-140%' }}>
+    <div className='submenu-menu' style={{ right: addState ? '0' : '-100%' }}>
       <State isOpen={addState} onClose={() => setAddState(false)} />
     </div>
-    <div className='submenu-menu' style={{ right: addDestination ? '0' : '-140%' }}>
+    <div className='submenu-menu' style={{ right: addDestination ? '0' : '-100%' }}>
       <Destination isOpen={addDestination} onClose={() => setAddDestination(false)} />
     </div>
-    <div className='submenu-menu' style={{ right: addHotel ? '0' : '-140%' }}>
+    <div className='submenu-menu' style={{ right: addHotel ? '0' : '-100%' }}>
       <Hotel isOpen={addHotel} onClose={() => setAddHotel(false)} />
+    </div>
+    <div className='submenu-menu' style={{ right: addRole ? '0' : '-100%' }}>
+      <Roles isOpen={addRole} onClose={() => setAddRole(false)} />
+    </div>
+    <div className='submenu-menu' style={{ right: addNewMember ? '0' : '-100%' }}>
+      <NewMember isOpen={addNewMember} onClose={() => setAddNewMember(false)} />
     </div>
   </>);
 };

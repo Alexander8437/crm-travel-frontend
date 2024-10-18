@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../apiConfig/config';
 import axios from 'axios';
@@ -6,7 +6,7 @@ import axios from 'axios';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState('');
   const navigate = useNavigate()
 
   async function generateKey() {
@@ -59,32 +59,47 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrors('');
 
-    axios.post(`${api.baseUrl}/signin`, {
-      username,
-      password
-    })
-      .then(async (response) => {
-        const token = response.data.accessToken;
-        await saveEncryptedToken(token);
-        navigate('/home')
+    if (username !== '' && password !== '') {
+      axios.post(`${api.baseUrl}/signin`, {
+        username,
+        password
       })
-      .catch(error => {
-        setError(error);
-        console.log(error)
-      });
+        .then(async (response) => {
+          const token = response.data.accessToken;
+          await saveEncryptedToken(token);
+          navigate('/home')
+        })
+        .catch(error => {
+          setErrors(error.response.data.error.message);
+        })
+    } else {
+      setErrors('username & password cannot empty.')
+    }
   }
+
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   return (
     <div className="min-h-screen flex">
       {/* Left side of the page (hidden on small screens) */}
-      <div className="flex-1 hidden lg:flex bg-cover bg-center" style={{ backgroundImage: `url('./assets/images/login/travel.png')` }}>
+      <div className="login-backgroundImage flex-1 hidden lg:flex bg-cover bg-center" style={{
+        backgroundImage: `url('./assets/images/login/travel.png')`, backgroundRepeat: 'no-repeat',
+        backgroundSize: '100%',
+        backgroundPosition: 'top right'
+      }}>
         {/* Add other content on the left side here if needed */}
       </div>
 
       {/* Right side of the page (hidden on small screens) */}
-      <div className="flex-1 hidden lg:flex relative flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: `url('./assets/images/login/travel.png')` }}>
+      <div className="flex-1 hidden lg:flex relative flex items-center justify-center bg-cover bg-center" style={{
+        backgroundImage: `url('./assets/images/login/travel.png')`, backgroundRepeat: 'no-repeat',
+        backgroundSize: '100%',
+        backgroundPosition: 'top right'
+      }}>
         {/* Three red lines from the top */}
         <div className="absolute top-0 w-full flex justify-center">
           <div className="h-40 w-3 bg-red-600"></div>
@@ -114,6 +129,8 @@ function Login() {
               <img src="/assets/images/login/logo2.jpg" alt="Motherson" className="h-12" />
             </div>
             <form onSubmit={handleLogin}>
+
+              {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''}
               <div className="mb-6">
                 <label className="block text-gray-700">Username</label>
                 <input
@@ -121,7 +138,10 @@ function Login() {
                   placeholder="Enter Your Username"
                   className="border border-gray-300 p-2 w-60 rounded"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setErrors('')
+                  }}
                 />
               </div>
               <div className="mb-6">
@@ -131,7 +151,10 @@ function Login() {
                   placeholder="Enter Your Password"
                   className="border border-gray-300 p-2 w-60 rounded"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrors('');
+                  }}
                 />
               </div>
               <button type="submit" className="bg-red-600 text-white p-2 w-60 rounded">Log In</button>
@@ -164,6 +187,7 @@ function Login() {
             <img src="/logo2.jpg" alt="Motherson" className="h-12" />
           </div>
           <form onSubmit={handleLogin}>
+            {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''}
             <div className="mb-6">
               <label className="block text-gray-700">Username</label>
               <input
@@ -171,7 +195,10 @@ function Login() {
                 placeholder="Enter Your Username"
                 className="border border-gray-300 p-2 w-full rounded"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setErrors('')
+                }}
               />
             </div>
             <div className="mb-6">
@@ -181,7 +208,10 @@ function Login() {
                 placeholder="Enter Your Password"
                 className="border border-gray-300 p-2 w-full rounded"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors('')
+                }}
               />
             </div>
             <button type="submit" className="bg-red-600 text-white p-2 w-full rounded">Log In</button>
