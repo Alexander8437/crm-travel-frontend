@@ -6,8 +6,8 @@ const CountryMaster = () => {
 
   const [countryDetails, setCountryDetails] = useState([])
 
-  const fetchData = async () => {
-    await axios.get(`${api.baseUrl}/country/get`)
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/country/get`)
       .then(response => {
         setCountryDetails(response.data);
         console.log(response.data)
@@ -15,10 +15,6 @@ const CountryMaster = () => {
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
-  }
-
-  useEffect(() => {
-    fetchData()
     console.log("fi")
   }, []);
 

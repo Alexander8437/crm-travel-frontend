@@ -71,17 +71,17 @@ const Roles = ({ isOpen, onClose }) => {
     },
   });
 
-  const handleToggle = (section, action) => {
+  const handleToggle = (module, action) => {
     setPermissions((prevPermissions) => {
-      const newActions = {
-        ...prevPermissions[section].actions,
-        [action]: !prevPermissions[section].actions[action],
+      const updatedActions = {
+        ...prevPermissions[module].actions,
+        [action]: !prevPermissions[module].actions[action],
       };
       return {
         ...prevPermissions,
-        [section]: {
-          ...prevPermissions[section],
-          actions: newActions,
+        [module]: {
+          ...prevPermissions[module],
+          actions: updatedActions,
         },
       };
     });
@@ -131,35 +131,49 @@ const Roles = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const selectedPermissions = Object.keys(permissions).reduce((acc, module) => {
+      const selectedActions = Object.entries(permissions[module].actions)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([action]) => ({ "action": action }));
+
+      if (selectedActions.length > 0) {
+        acc.push({
+          module,
+          actions: selectedActions,
+        });
+      }
+      return acc;
+    }, []);
+
     const payload = {
       name: roleName.toUpperCase(),
       description: description,
-      permissions: Object.entries(permissions).map(([module, data]) => ({
-        module,
-        actions: Object.entries(data.actions)
-          .filter(([, selected]) => selected)
-          .map(([action]) => action),
-      })),
+      // permissions: Object.entries(permissions).map(([module, data]) => ({
+      //   module,
+      //   actions: Object.entries(data.actions)
+      //     .filter(([, selected]) => selected)
+      //     .map(([action]) => action),
+      // })),
+      "permissions": selectedPermissions
     };
 
     console.log(payload)
-    if (roleName) {
-      await axios.post(`${api.baseUrl}/all`,
-        payload, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
+    // if (roleName) {
+    await axios.post(`${api.baseUrl}/all`,
+      payload, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(async (response) => {
+        console.log(response.data);
+        alert('roles created...')
       })
-        .then(async (response) => {
-          console.log(response.data);
-          alert('roles created...')
-        })
-        .catch(error => console.error(error));
+      .catch(error => console.error(error));
 
-    } else {
-      alert('Role name cant be empty')
-    }
-    ;
+    // } else {
+    //   alert('Role name cant be empty')
+    // }
   }
 
 
@@ -167,13 +181,13 @@ const Roles = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
-        } mt-4 sm:mt-8 md:mt-12 lg:w-[800px] sm:w-[400px] md:w-[600px]`}
+      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[950px]"
+        } mt-4 sm:mt-8 md:mt-12 lg:w-[900px] sm:w-[400px] md:w-[700px]`}
     >
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-[12px] left-[-22px] text-white bg-red-500 square w-10 h-10 py-auto  border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
+        className="absolute top-[12px] left-[-22px] text-white bg-red-700 square w-10 h-10 py-auto  border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
       >
         X
       </button>
@@ -188,12 +202,12 @@ const Roles = ({ isOpen, onClose }) => {
       {/* Page content */}
       <div className="grid grid-cols-12 gap-4 p-4 h-[calc(100vh-160px)]">
         {/* Left side content */}
-        <div className="col-span-9 overflow-y-auto">
+        <div className="col-span-9 overflow-y-auto overflow-x-hidden">
           {currentPage === 1 ? (
             /* Basic Information page */
-            <form>
+            <form className="w-full">
               <div className="mb-6">
-                <h3 className="bg-red-500 text-white p-2 rounded">
+                <h3 className="bg-red-700 text-white p-2 rounded">
                   Basic Information
                 </h3>
               </div>
@@ -225,7 +239,7 @@ const Roles = ({ isOpen, onClose }) => {
                   </label>
                   <textarea
                     id="description"
-                    className="m-1 p-2 w-full border rounded resize-none"
+                    className="mt-1 p-2 w-full border rounded "
                     placeholder="Enter description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -236,32 +250,33 @@ const Roles = ({ isOpen, onClose }) => {
             </form>
           ) : (
             /* Select All Permissions page */
-            <div>
-              <h3 className="bg-red-500 text-white p-2 rounded mb-4">
+            <>
+              <h3 className="bg-red-700 text-white p-2 rounded mb-4">
                 Select all permissions
               </h3>
 
               {/* Dashboard Permissions */}
-              <div className="mb-6">
-                {Object.entries(permissions).map(([section, { actions }]) => (
-                  <div className="flex items-center justify-between bg-gray-100 p-2 rounded mb-2">
-                    <div key={section} style={{ marginTop: '20px' }}>
+              {Object.entries(permissions).map(([section, { actions }]) => (
+                <div className="w-full mb-2 mr-4">
+                  <div className="flex items-center justify-between bg-gray-100 p-2 rounded mb-2 mr-4">
+                    <div key={section} className="w-full gap-2" style={{ marginTop: '20px' }}>
                       <h4>Select all of {section}</h4>
                       <button
                         type="button"
                         onClick={() => handleSelectAll(section)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
+                        className="bg-red-700 text-white px-2 py-1 rounded my-2"
                       // style={{
                       //   backgroundColor: permissions[section].selected ? 'lightgreen' : 'lightcoral',
                       // }}
                       >
                         Select All
                       </button>
-                      <div
-                      // style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'space-between' }}
-                      >
+                      {/* // style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'space-between' }} */}
+
+                      <div className="flex w-full gap-4 mb-2">
                         {Object.keys(actions).map((action) => (
-                          <label key={action}>
+
+                          <label key={action} className="flex w-full gap-2 my-2 items-center">
                             <input
                               type="checkbox"
                               className="h-4 w-5"
@@ -272,15 +287,17 @@ const Roles = ({ isOpen, onClose }) => {
                                 type="checkbox"
                                 checked={actions[action]}
                                 onChange={() => handleToggle(section, action)}
-                              /> */}
+                                /> */}
                             {action.replace(/([A-Z])/g, ' $1').trim()}
                           </label>
                         ))}
                       </div>
                     </div>
                   </div>
-                ))}
-                {/* <h4 className="font-medium">Select all of Dashboard</h4>
+                </div>
+              ))}
+
+              {/* <h4 className="font-medium">Select all of Dashboard</h4>
                   <button
                     className="bg-red-500 text-white px-2 py-1 rounded"
                     onClick={() => handleSelectAll(setDashboardPermissions)}
@@ -460,13 +477,14 @@ const Roles = ({ isOpen, onClose }) => {
                     </label>
                   ))}
                 </div> */}
-              </div>
-            </div>
+              {/* </div> */}
+            </>
           )}
         </div>
+        {/* // </div> */}
         {/* Right side "Roles Information" section */}
         <div className="col-span-3 bg-gray-100 p-2 rounded h-[200px] overflow-y-auto">
-          <h3 className="bg-red-500 text-white p-2 rounded">
+          <h3 className="bg-red-700 text-white p-2 rounded">
             Roles Information
           </h3>
           <div className="mt-4 space-y-4">
@@ -476,7 +494,7 @@ const Roles = ({ isOpen, onClose }) => {
                 id="basicInformation"
                 name="permission"
                 className="mr-2"
-                checked={currentPage === 1} // Radio button selected when on Basic Information page
+                checked={currentPage === 1 || currentPage === 2} // Radio button selected when on Basic Information page
               />
               <label htmlFor="basicInformation">Basic Information</label>
             </div>
@@ -507,7 +525,7 @@ const Roles = ({ isOpen, onClose }) => {
             </button>
             <button
               type="button"
-              className="bg-red-600 text-white px-4 py-2 rounded shadow"
+              className="bg-red-700 text-white px-4 py-2 rounded shadow"
               onClick={handleNext}
             >
               Next
@@ -518,7 +536,7 @@ const Roles = ({ isOpen, onClose }) => {
           <div className="flex justify-start space-x-4">
             <button
               type="button"
-              className="bg-red-600 text-white px-4 py-2 rounded shadow"
+              className="bg-red-700 text-white px-4 py-2 rounded shadow"
               onClick={handlePrev}
               disabled={currentPage === 1} // Disable if on the first page
             >
@@ -526,14 +544,14 @@ const Roles = ({ isOpen, onClose }) => {
             </button>
             <button
               type="button"
-              className="bg-red-600 text-white px-4 py-2 rounded shadow"
+              className="bg-red-700 text-white px-4 py-2 rounded shadow"
               onClick={handleSubmit}
             >
               Submit
             </button>
             <button
               type="button"
-              className="bg-red-600 text-white px-4 py-2 rounded shadow"
+              className="bg-red-700 text-white px-4 py-2 rounded shadow"
             >
               Reset
             </button>
@@ -541,6 +559,7 @@ const Roles = ({ isOpen, onClose }) => {
         )}
       </div>
     </div>
+
   );
 };
 

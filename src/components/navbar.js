@@ -8,7 +8,6 @@ import axios from "axios";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState({})
   const navigate = useNavigate()
   // const [user] = useState({
   //   username: "Aditi",
@@ -16,6 +15,7 @@ const Navbar = () => {
   //   roles: "Admin",
   // });
 
+  const [user, setUser] = useState({})
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
 
@@ -79,12 +79,12 @@ const Navbar = () => {
   return (
     <div className="flex flex-col md:flex-row">
       {/* Make Navbar sticky */}
-      <div className="fixed top-0 left-0 w-full h-12 z-50 bg-[#db272e] p-2 flex justify-between items-center ">
+      <div className="fixed top-0 left-0 w-full h-12 z-50 bg-gradient-to-r from-[#db272e] to-[#5b2727] p-2 flex justify-between items-center ">
         <div className="flex-1 flex justify-between items-center">
           {/* Left: Logo + Plus Icon + Search Icon */}
           <div className="flex items-center ml-6 space-x-4 md:space-x-8">
             <img
-              src="./assets/images/motherson_logo.png"
+              src="/assets/images/motherson_logo.png"
               alt="Logo"
               className="w-auto h-6 md:w-auto md:h-6 filter brightness-0 invert"
             />
@@ -106,11 +106,11 @@ const Navbar = () => {
             ${isOpen ? "block" : "hidden"} md:flex`}>
             <FaEnvelope className="w-7 h-7 p-1 cursor-pointer 
             hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FaBell className="w-6 h-6 border border-white rounded-full p-1 cursor-pointer 
+            <FaBell className="w-7 h-7 p-1 cursor-pointer 
             hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FaCommentAlt className="w-6 h-6 border border-white rounded-full p-1 cursor-pointer 
+            <FaCommentAlt className="w-7 h-7 p-1 cursor-pointer 
             hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FaQuestionCircle className="w-6 h-6 border border-white rounded-full p-1 
+            <FaQuestionCircle className="w-7 h-7 p-1 
             cursor-pointer hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
 
             <div className="relative">
@@ -124,7 +124,7 @@ const Navbar = () => {
 
               {/* Dropdown Menu */}
               {isOpen && (
-                <div className="absolute right-0 w-72 bg-[#db272e] bg-opacity-90 text-white 
+                <div className="absolute right-0 w-72 bg-gradient-to-b from-[#db272e] to-[#5b2727]  bg-opacity-90 text-white 
                 rounded-lg shadow-lg mt-2 mr-4">
                   <div className="flex items-center space-x-2 border-b border-red-500 p-2">
                     <div className="bg-green-500 h-8 w-8 text-white text-center rounded-full">

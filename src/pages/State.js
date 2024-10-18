@@ -151,8 +151,6 @@ const State = ({ isOpen, onClose }) => {
         setSelectedOption(null)
       })
       .catch(error => console.error(error));
-
-
   }
 
   return (
@@ -163,7 +161,7 @@ const State = ({ isOpen, onClose }) => {
       {/* "X" button positioned outside the form box */}
       <button
         onClick={onClose}
-        className="absolute top-[12px] left-[-40px]  text-white bg-red-700 square w-10 h-10 p-auto rounded-sm border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
+        className="absolute top-[12px] left-[-22px]  text-white  bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
       >
         X
       </button>
@@ -261,23 +259,23 @@ const State = ({ isOpen, onClose }) => {
       {/* Line with shadow above the buttons */}
       <div className="flex justify-between items-center p-3 bg-white shadow-lg rounded w-full fixed bottom-12">
         <div className="flex justify-start space-x-4">
-          <button type="button" className="bg-red-600 text-white px-4 py-2 rounded shadow"
+          <button type="button" className="bg-red-700 text-white px-4 py-2 rounded shadow"
             onClick={handleSubmit}>
             Submit
           </button>
           <button
             type="button"
             // onClick={handleReset}
-            className="bg-red-600 text-white px-4 py-2 rounded shadow"
+            className="bg-red-700 text-white px-4 py-2 rounded shadow"
           >
             Reset
           </button>
         </div>
       </div>
     </div>
+
   );
 };
 
 
 export default State;
-

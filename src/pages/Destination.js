@@ -254,7 +254,7 @@ const Destination = ({ isOpen, onClose }) => {
       {/* "X" button positioned outside the form box */}
       <button
         onClick={onClose}
-        className="absolute top-[12px] left-[-22px]  text-gray-500 bg-gray-200 square w-10 h-10 py-auto rounded-full border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
+        className="absolute top-[12px] left-[-22px]  text-white  bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
       >
         X
       </button>
@@ -266,7 +266,7 @@ const Destination = ({ isOpen, onClose }) => {
 
       <form className="p-4 overflow-y-auto h-[calc(100vh-160px)]">
         <div className="mb-6">
-          <h3 className="bg-red-500 text-white p-2 rounded">
+          <h3 className="bg-red-700 text-white p-2 rounded">
             Basic Information
           </h3>
         </div>
@@ -400,7 +400,7 @@ const Destination = ({ isOpen, onClose }) => {
         <div className="flex justify-start space-x-4">
           <button
             type="button"
-            className="bg-red-600 text-white px-4 py-2 rounded shadow"
+            className="bg-red-700 text-white px-4 py-2 rounded shadow"
             onClick={handleSubmit}
           >
             Submit
@@ -408,13 +408,14 @@ const Destination = ({ isOpen, onClose }) => {
           <button
             type="button"
             // onClick={handleReset}
-            className="bg-red-600 text-white px-4 py-2 rounded shadow"
+            className="bg-red-700 text-white px-4 py-2 rounded shadow"
           >
             Reset
           </button>
         </div>
       </div>
     </div>
+
   );
 };
 
