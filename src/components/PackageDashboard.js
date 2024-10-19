@@ -53,7 +53,7 @@ const PackageDashboard = () => {
   }, []);
 
   return (
-    <div className="myteams-container mx-4 md:mx-8 lg:mx-6 mt-2">
+    <div className="myteams-container w-full md:mx-8 lg:mx-6 mt-2" style={{ marginLeft: "100px" }}>
       {/* Top Navigation Section */}
       <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-3 border-b border-gray-300 mb-5">
         <h2 className="text-lg font-semibold">Packages</h2>
@@ -313,7 +313,7 @@ const PackageDashboard = () => {
           <p className="text-gray-600 font-bold">Confirmed</p>
           <p className="text-lg">7 Tasks 0/0</p>
         </div>
-        
+
         <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-md">
           <p className="text-gray-600 font-bold">In Progress</p>
           <p className="text-lg">5 Tasks 0/0</p>

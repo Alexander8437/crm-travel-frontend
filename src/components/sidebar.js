@@ -113,9 +113,11 @@ const Sidebar = () => {
               <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
                 Ouick Package
               </button>
-              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
-                Packages Dashboard
-              </button>
+              <Link to='/home/packageDashboard'>
+                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
+                  Packages Dashboard
+                </button>
+              </Link>
               {/* </Link> */}
             </div>
           </div>

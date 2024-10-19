@@ -19,7 +19,7 @@ const PageRoute = () => {
           <Route path={''} element={<Quickstart />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/packages" element={<Packages />} /> {/* Add the Package route */}
-          <Route path="/home/packageDashboard" element={<PackageDashboard />} />
+          <Route path="/packageDashboard" element={<PackageDashboard />} />
           <Route path="/home/master-list" element={<CountryMaster />} />
           {/* Add other routes as needed */}
         </Routes>
