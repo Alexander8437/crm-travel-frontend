@@ -9,11 +9,6 @@ import axios from "axios";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate()
-  // const [user] = useState({
-  //   username: "Aditi",
-  //   email: "Aditishahi2000@gmail.com",
-  //   roles: "Admin",
-  // });
 
   const [user, setUser] = useState({})
   async function decryptToken(encryptedToken, key, iv) {

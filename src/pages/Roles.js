@@ -71,6 +71,70 @@ const Roles = ({ isOpen, onClose }) => {
     },
   });
 
+  const handleReset = () => {
+    setPermissions({
+      Dashboard: { selected: false, actions: { Dashboard: false } },
+      Packages: {
+        selected: false,
+        actions: {
+          View: false,
+          Add: false,
+          Edit: false,
+          Delete: false,
+        },
+      },
+      Bookings: {
+        selected: false,
+        actions: {
+          View: false,
+          Add: false,
+          Edit: false,
+          Delete: false,
+        },
+      },
+
+      MyTeams: {
+        selected: false,
+        actions: {
+          View: false,
+          Add: false,
+          Edit: false,
+          Delete: false,
+        },
+      },
+      Report: {
+        selected: false,
+        actions: {
+          View: false,
+          Add: false,
+          Edit: false,
+          Delete: false,
+        },
+      },
+      Sales: {
+        selected: false,
+        actions: {
+          View: false,
+          Add: false,
+          Edit: false,
+          Delete: false,
+        },
+      },
+      Master: {
+        selected: false,
+        actions: {
+          View: false,
+          Add: false,
+          Edit: false,
+          Delete: false,
+        },
+      },
+    });
+    setRoleName('');
+    setDescription('')
+    setCurrentPage(1)
+  }
+
   const handleToggle = (module, action) => {
     setPermissions((prevPermissions) => {
       const updatedActions = {
@@ -134,7 +198,7 @@ const Roles = ({ isOpen, onClose }) => {
     const selectedPermissions = Object.keys(permissions).reduce((acc, module) => {
       const selectedActions = Object.entries(permissions[module].actions)
         .filter(([_, isSelected]) => isSelected)
-        .map(([action]) => ({ "action": action }));
+        .map(([action]) => action);
 
       if (selectedActions.length > 0) {
         acc.push({
@@ -148,28 +212,140 @@ const Roles = ({ isOpen, onClose }) => {
     const payload = {
       name: roleName.toUpperCase(),
       description: description,
-      // permissions: Object.entries(permissions).map(([module, data]) => ({
-      //   module,
-      //   actions: Object.entries(data.actions)
-      //     .filter(([, selected]) => selected)
-      //     .map(([action]) => action),
-      // })),
       "permissions": selectedPermissions
     };
-
     console.log(payload)
-    // if (roleName) {
-    await axios.post(`${api.baseUrl}/all`,
-      payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-      .then(async (response) => {
-        console.log(response.data);
-        alert('roles created...')
-      })
-      .catch(error => console.error(error));
+    // setPermissions({
+    //   Dashboard: { selected: false, actions: { Dashboard: false } },
+    //   Packages: {
+    //     selected: false,
+    //     actions: {
+    //       View: false,
+    //       Add: false,
+    //       Edit: false,
+    //       Delete: false,
+    //     },
+    //   },
+    //   Bookings: {
+    //     selected: false,
+    //     actions: {
+    //       View: false,
+    //       Add: false,
+    //       Edit: false,
+    //       Delete: false,
+    //     },
+    //   },
+
+    //   MyTeams: {
+    //     selected: false,
+    //     actions: {
+    //       View: false,
+    //       Add: false,
+    //       Edit: false,
+    //       Delete: false,
+    //     },
+    //   },
+    //   Report: {
+    //     selected: false,
+    //     actions: {
+    //       View: false,
+    //       Add: false,
+    //       Edit: false,
+    //       Delete: false,
+    //     },
+    //   },
+    //   Sales: {
+    //     selected: false,
+    //     actions: {
+    //       View: false,
+    //       Add: false,
+    //       Edit: false,
+    //       Delete: false,
+    //     },
+    //   },
+    //   Master: {
+    //     selected: false,
+    //     actions: {
+    //       View: false,
+    //       Add: false,
+    //       Edit: false,
+    //       Delete: false,
+    //     },
+    //   },
+    // });
+    // await axios.post(`${api.baseUrl}/all`,
+    //   payload, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   }
+    // })
+    //   .then(async (response) => {
+    //     console.log(response.data)
+    //     alert(response.data.message);
+    //     setPermissions({
+    //       Dashboard: { selected: false, actions: { Dashboard: false } },
+    //       Packages: {
+    //         selected: false,
+    //         actions: {
+    //           View: false,
+    //           Add: false,
+    //           Edit: false,
+    //           Delete: false,
+    //         },
+    //       },
+    //       Bookings: {
+    //         selected: false,
+    //         actions: {
+    //           View: false,
+    //           Add: false,
+    //           Edit: false,
+    //           Delete: false,
+    //         },
+    //       },
+
+    //       MyTeams: {
+    //         selected: false,
+    //         actions: {
+    //           View: false,
+    //           Add: false,
+    //           Edit: false,
+    //           Delete: false,
+    //         },
+    //       },
+    //       Report: {
+    //         selected: false,
+    //         actions: {
+    //           View: false,
+    //           Add: false,
+    //           Edit: false,
+    //           Delete: false,
+    //         },
+    //       },
+    //       Sales: {
+    //         selected: false,
+    //         actions: {
+    //           View: false,
+    //           Add: false,
+    //           Edit: false,
+    //           Delete: false,
+    //         },
+    //       },
+    //       Master: {
+    //         selected: false,
+    //         actions: {
+    //           View: false,
+    //           Add: false,
+    //           Edit: false,
+    //           Delete: false,
+    //         },
+    //       },
+    //     });
+    // setRoleName('')
+    // setDescription('')
+    //   setCurrentPage(1)
+
+    // })
+    // .catch(error => console.error(error));
 
     // } else {
     //   alert('Role name cant be empty')
@@ -186,7 +362,7 @@ const Roles = ({ isOpen, onClose }) => {
     >
       {/* Close button */}
       <button
-        onClick={onClose}
+        onClick={() => onClose(true)}
         className="absolute top-[12px] left-[-22px] text-white bg-red-700 square w-10 h-10 py-auto  border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
       >
         X
@@ -552,6 +728,7 @@ const Roles = ({ isOpen, onClose }) => {
             <button
               type="button"
               className="bg-red-700 text-white px-4 py-2 rounded shadow"
+              onClick={handleReset}
             >
               Reset
             </button>

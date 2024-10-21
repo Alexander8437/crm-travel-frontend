@@ -11,13 +11,13 @@
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: red;
+    background: rgb(157, 153, 153);
     /* border-radius: 10px; */
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: #b30000;
+    background: #d48282;
   }
 }
 
@@ -46,4 +46,8 @@
   background-size: 40px auto;
   background-position: top right;
   z-index: 2;
+}
+
+.sidebar-icons:hover {
+  color: white;
 }

@@ -3,10 +3,10 @@ import Select from "react-select";
 import api from "../apiConfig/config";
 import axios from "axios";
 
-const roleOptions = [
-  { value: "admin", label: "Admin" },
-  { value: "user", label: "User" },
-];
+// const roleOptions = [
+//   { value: "admin", label: "Admin" },
+//   { value: "user", label: "User" },
+// ];
 
 const NewMember = ({ isOpen, onClose }) => {
   const [role, setRole] = useState([])
@@ -87,23 +87,20 @@ const NewMember = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
-        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[800px]`}
+      className={`fixed top-12 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
+        }  w-full sm:w-[calc(100%-120px)] md:w-[800px]`}
     >
       {/* "X" button positioned outside the form box */}
-      <button
-        onClick={() => onClose(true)}
-        className="absolute top-[12px] left-[-22px]  text-white  bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
-      >
+      <button className="absolute top-[12px] left-[-22px] text-white bg-red-700 square w-10 h-10 py-auto  border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900" onClick={() => onClose(true)}>
         X
       </button>
       <div className="flex justify-between items-center p-4 pl-8 bg-white shadow-md">
         <h2 className="text-lg font-bold text-black">New Member</h2>
       </div>
       {/* Line below the title with shadow */}
-      <div className="border-b border-gray-300 shadow-sm"></div>
+      {/* <div className="border-b border-gray-300 shadow-sm"></div> */}
 
-      <form className="p-3">
+      <form className="p-4">
         <div className="mb-4">
           <h3 className="bg-red-700 text-white p-2 rounded text-sm sm:text-base">
             Basic Information
@@ -121,7 +118,7 @@ const NewMember = ({ isOpen, onClose }) => {
               name="role"
               value={formData.role}
               onChange={handleRoleChange}
-              options={roleOptions}
+              options={role}
               className="w-full"
               placeholder="Select..."
             />

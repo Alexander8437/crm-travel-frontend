@@ -8,7 +8,7 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
-const PackageDashboard = () => {
+const PackageDashboards = () => {
   // States for toggling dropdowns
   const [workflowDropdown, setWorkflowDropdown] = useState(false);
   const [createTaskDropdown, setCreateTaskDropdown] = useState(false);
@@ -53,7 +53,7 @@ const PackageDashboard = () => {
   }, []);
 
   return (
-    <div className="myteams-container w-full md:mx-8 lg:mx-6 mt-2" style={{ marginLeft: "100px" }}>
+    <div className="myteams-container w-screen md:mx-8 lg:mx-6 mt-2" style={{ marginLeft: "100px" }}>
       {/* Top Navigation Section */}
       <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-3 border-b border-gray-300 mb-5">
         <h2 className="text-lg font-semibold">Packages</h2>
@@ -503,4 +503,4 @@ const PackageDashboard = () => {
   );
 };
 
-export default PackageDashboard;
+export default PackageDashboards;

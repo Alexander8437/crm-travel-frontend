@@ -17,11 +17,11 @@ const BodyHeader = () => {
   return (
     // <div className="flex flex-col w-full ml-10 p-0">
     // <div className="flex-auto">
-    <div className=" bg-gray-100 py-4 px-10 shadow-md">
+    <div className=" bg-gray-100 px-10 py-0 shadow-md">
       <div className="flex space-x-4 justify-between md:space-x-10">
         <Link to="/home">
           <button
-            className={`header-button text-black font-medium text-sm md:text-base`}
+            className={`header-button text-black font-medium text-sm md:text-base py-2`}
           >
             Home
           </button>
@@ -31,7 +31,7 @@ const BodyHeader = () => {
           <Link to="/home" className={` pb-1 ${activeTab === '/home' ? 'border-b-4 border-red-700' : ''
             }`}>
             <button
-              className={`header-button text-black font-medium text-sm md:text-base`}
+              className={`header-button text-black font-medium text-sm md:text-base py-2 px-2`}
             >
               Quickstart
             </button>
@@ -40,7 +40,7 @@ const BodyHeader = () => {
           <Link to="/home/dashboard" className={` pb-1 ${activeTab === '/home/dashboard' ? 'border-b-4 border-red-700' : ''
             }`}>
             <button
-              className={`header-button text-black font-medium text-sm md:text-base`}
+              className={`header-button text-black font-medium text-sm md:text-base px-2 py-2`}
             >
               Dashboard
             </button>
