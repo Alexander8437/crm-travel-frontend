@@ -1,17 +1,36 @@
 import React, { useState } from "react";
 import Select, { components } from 'react-select';
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
+
 
 const NewPackageForm = ({ isOpen, onClose }) => {
   const [selectedDestinations, setSelectedDestinations] = useState([]);
+  const [editorData, setEditorData] = useState("");
   const [selectedItineraries, setSelectedItineraries] = useState([]);
   const [selectedInclusions, setSelectedInclusions] = useState([]);
   const [selectedExclusions, setSelectedExclusions] = useState([]);
+  const [state, setState] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    },
+  ]);
+
+  const handleSelect = (ranges) => {
+    console.log(ranges); // Check the selected date ranges in the console
+    setState([ranges.selection]);
+  };
+
   const [formData, setFormData] = useState({
-    packageName: '',
+    packageTitle: '',
+    packageCode: '',
     noOfDays: '',
     noOfNights: '',
     packageType: '',
-    packageDescription: '',
+    Description: '',
   });
 
   // Sample destinations for testing
@@ -62,6 +81,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     );
   };
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -91,9 +111,10 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     selectedDestinations.map(option => option.label).join(', ');
   };
 
+
   return (
     <div className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"} mt-4 sm:mt-8 md:mt-12 lg:w-[800px] sm:w-[400px] md:w-[500px] z-50`}>
-      <button onClick={onClose} className="absolute top-[12px] left-[-22px] text-white bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900">X</button>
+      <button onClick={onClose} className="absolute top-[12px] left-[-22px] font-semibold text-white text-sm bg-red-700 square px-3  py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700">X</button>
       <div className="flex justify-between items-center p-4 pl-8 bg-white shadow-md">
         <h2 className="text-lg font-bold text-black">New Package</h2>
       </div>
@@ -103,34 +124,50 @@ const NewPackageForm = ({ isOpen, onClose }) => {
         <div className="mb-6">
           <h3 className="bg-red-700 text-white p-2 rounded">Basic Package Details</h3>
         </div>
-        <div className="mb-4">
-          <label htmlFor="destinations" className="block text-sm font-medium">Destinations</label>
-          <Select
-            className="mt-1 w-full border rounded"
-            value={selectedDestinations}
-            onChange={handleChange}
-            options={destinations}
-            isMulti
-            components={{ Option: CustomOption }}
-            closeMenuOnSelect={false}
-            hideSelectedOptions={false}
-            isClearable={true}
-          />
-        </div>
-        <div className="flex justify-between mb-4">
-          <div>
+        <div className="flex gap-2 w-full">
+
+          <div className="mb-4 w-1/2">
             <label htmlFor="destinations" className="block text-sm font-medium">Destinations</label>
+            <Select
+              className="mt-1 w-full border h-full rounded"
+              value={selectedDestinations}
+              onChange={handleChange}
+              options={destinations}
+              isMulti
+              components={{ Option: CustomOption }}
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              isClearable={true}
+            />
+          </div>
+          <div className="mb-4 w-1/2">
+            <label htmlFor="destinations" className="block text-sm font-medium">Package Title</label>
             <input
               type="text"
               id="packageName"
-              name="packageName"
-              value={formData.packageName}
+              name="packageTitle"
+              value={formData.packageTitle}
               onChange={handleInputChange}
               className="mt-1 p-2 w-full border rounded"
-              placeholder="Enter Package Name"
+              placeholder="Enter Package Title..."
             />
+
           </div>
-          <div>
+        </div>
+        <div className="flex justify-between mb-4 w-full gap-2">
+          {/* <div className="w-1/3">
+            <label htmlFor="destinations" className="block text-sm font-medium">Package Code</label>
+            <input
+              type="text"
+              id="packageCode"
+              name="packageCode"
+              value={formData.packageCode}
+              onChange={handleInputChange}
+              className="mt-1 p-2 w-full border rounded"
+              placeholder="Enter Package Code..."
+            />
+          </div> */}
+          <div className="w-1/2">
             <label htmlFor="destinations" className="block text-sm font-medium">No of Days</label>
             <input
               type="number"
@@ -142,7 +179,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               placeholder="No of Days"
             />
           </div>
-          <div>
+          <div className="w-1/2">
             <label htmlFor="destinations" className="block text-sm font-medium">No of Nights</label>
             <input
               type="number"
@@ -156,15 +193,28 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           </div>
         </div>
         <div className="mb-6">
-          <label htmlFor="destinations" className="block text-sm font-medium">Package Description</label>
-          <input
-            type="text"
-            id="packageDescription"
-            name="packageDescription"
-            value={formData.packageDescription}
-            onChange={handleInputChange}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Package Name"
+          <label htmlFor="description" className="block text-sm font-medium">
+            Description
+          </label>
+          <CKEditor
+            editor={ClassicEditor}
+            data={editorData}
+            config={{
+              toolbar: [
+                "heading",
+                "|",
+                "bold",
+                "italic",
+                "link",
+                "bulletedList",
+                "numberedList",
+                "blockQuote",
+              ],
+            }}
+            onChange={(event, editor) => {
+              const data = editor.getData();
+              setEditorData(data);
+            }}
           />
         </div>
         <div className="mb-4">
@@ -184,6 +234,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             isClearable={true}
           />
         </div>
+
         <div className="mb-6">
           <h3 className="bg-red-700 text-white p-2 rounded">Inclusions/Exclusions</h3>
         </div>
@@ -242,7 +293,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             placeholder="No of Nights"
           />
         </div>
-        <div className="flex justify-between mb-6">
+        <div className="flex justify-between mb-6 gap-2">
           <div className="w-1/2">
             <label htmlFor="destinations" className="block text-sm font-medium">Valid From</label>
             <input
@@ -271,7 +322,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
         <div className="mb-4">
           <h3 className="bg-red-700 text-white p-2 rounded">Package Price</h3>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2 mb-4">
           <div className="w-1/3">
             <label htmlFor="destinations" className="block text-sm font-medium">Actual Price</label>
             <input

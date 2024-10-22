@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { IoMenu, IoClose, IoSearch } from "react-icons/io5";
 import { FaEnvelope, FaBell, FaCommentAlt, FaQuestionCircle, FaUserAlt, FaCog, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { TfiEmail } from "react-icons/tfi";
+import { FaRegBell } from "react-icons/fa";
+import { FiMessageSquare } from "react-icons/fi";
+import { IoMdHelpCircleOutline } from "react-icons/io";
 import Sidebar from "./sidebar"; // Make sure to adjust the import according to your file structure
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../apiConfig/config";
 import axios from "axios";
 
@@ -78,11 +82,13 @@ const Navbar = () => {
         <div className="flex-1 flex justify-between items-center">
           {/* Left: Logo + Plus Icon + Search Icon */}
           <div className="flex items-center ml-6 space-x-4 md:space-x-8">
-            <img
-              src="/assets/images/motherson_logo.png"
-              alt="Logo"
-              className="w-auto h-6 md:w-auto md:h-6 filter brightness-0 invert"
-            />
+            <Link to='/home'>
+              <img
+                src="/assets/images/motherson_logo.png"
+                alt="Logo"
+                className="w-auto h-6 md:w-auto md:h-6 filter brightness-0 invert"
+              />
+            </Link>
             <span className="text-white text-3xl md:text-3xl">+</span>
             <div className="hidden md:flex items-center">
               <IoSearch className="text-white w-6 h-6" />
@@ -97,16 +103,16 @@ const Navbar = () => {
           </div>
 
           {/* Right: Profile and Icons */}
-          <div className={`flex items-center space-x-4 md:space-x-8 text-white 
+          <div className={`flex items-center space-x-4 md:space-x-8 text-gray-200
             ${isOpen ? "block" : "hidden"} md:flex`}>
-            <FaEnvelope className="w-7 h-7 p-1 cursor-pointer 
+            <div className="m-0 p-0 hover:text-blue-100">
+              <TfiEmail className="w-7 h-7 p-1 cursor-pointer " />
+            </div>
+            <FaRegBell className="w-7 h-7 p-1 cursor-pointer 
             hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FaBell className="w-7 h-7 p-1 cursor-pointer 
-            hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FaCommentAlt className="w-7 h-7 p-1 cursor-pointer 
-            hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FaQuestionCircle className="w-7 h-7 p-1 
-            cursor-pointer hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
+            <FiMessageSquare className="w-7 h-7 p-1 cursor-pointer hover:border-white" />
+            <IoMdHelpCircleOutline className="w-7 h-10 p-1 hover:text-black
+            cursor-pointer hover:border-white" />
 
             <div className="relative">
               <div

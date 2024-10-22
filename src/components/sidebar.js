@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Import Link for routing
 import { FaHome, FaListAlt, FaUserTie } from "react-icons/fa";
 import { FaListUl } from "react-icons/fa";
-import { IoListSharp } from "react-icons/io5";
 import { FiPackage } from "react-icons/fi"; // Packages icon
 import { TbChecklist } from "react-icons/tb"; // Bookings icon
 import { IoIosPeople } from "react-icons/io"; // My Teams icon
@@ -19,8 +18,6 @@ import NewPackageForm from '../pages/NewPacakgeForm';
 
 const Sidebar = () => {
   const [homeStyle, setHomeStyle] = useState([])
-  const [showQuickstart, setShowQuickstart] = useState(false);
-  const [addCountry, setAddCountry] = useState(false);
   const [addState, setAddState] = useState(false);
   const [addDestination, setAddDestination] = useState(false);
   const [addHotel, setAddHotel] = useState(false);
@@ -28,11 +25,9 @@ const Sidebar = () => {
   const [addNewMember, setAddNewMember] = useState(false)
   const [addItinerary, setAddItinerary] = useState(false)
   const [addNewPackage, setAddNewPackage] = useState(false)
+  const [addData, setAddData] = useState([])
 
 
-  const showCountry = () => {
-    setAddCountry(true)
-  }
   const showNewMember = () => {
     setAddNewMember(true)
   }
@@ -40,7 +35,8 @@ const Sidebar = () => {
     setAddRole(true)
   }
   const showState = () => {
-    setAddState(true)
+    setAddData([])
+    setAddData(['state'])
   }
   const showDestination = () => {
     setAddDestination(true)
@@ -55,6 +51,8 @@ const Sidebar = () => {
   const showNewPackage = () => {
     setAddNewPackage(true)
   }
+
+
   return (
     <>
       <div
@@ -126,7 +124,10 @@ const Sidebar = () => {
                 </h6>
               </div>
               <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md text-justify"
-                onClick={showNewPackage}
+                onClick={() => {
+                  setAddData([]);
+                  setAddData(['NewPackageForm'])
+                }}
               >
                 New Package
               </button>
@@ -234,13 +235,19 @@ const Sidebar = () => {
 
                 <button
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify"
-                  onClick={showRole}
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Roles'])
+                  }}
                 >
                   Roles & Permission
                 </button>
                 <button
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify"
-                  onClick={showNewMember}
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['NewMember'])
+                  }}
                 >
                   New Member
                 </button>
@@ -309,13 +316,19 @@ const Sidebar = () => {
               <div className="flex mt-10 gap-4">
                 <button
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
-                  onClick={showCountry}
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Country'])
+                  }}
                 >
                   Country
                 </button>
                 <button
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20 "
-                  onClick={showState}
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['State'])
+                  }}
                 >
                   State
                 </button>
@@ -323,13 +336,19 @@ const Sidebar = () => {
               <div className="flex gap-4">
                 <button
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
-                  onClick={showDestination}
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Destination'])
+                  }}
                 >
                   Destinations
                 </button>
                 <button
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
-                  onClick={showHotel}
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Hotel'])
+                  }}
                 >
                   Hotels
                 </button>
@@ -347,7 +366,10 @@ const Sidebar = () => {
                   Vendors
                 </button>
                 <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
-                  onClick={showItinerary}>
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Itinerary'])
+                  }}>
                   Itinerary
                 </button>
               </div>
@@ -356,43 +378,29 @@ const Sidebar = () => {
         </div>
       </div>
       <div
-        className="submenu-menu"
-        style={{ right: addCountry ? "0" : "-100%" }}
-      >
-        <Country isOpen={addCountry} onClose={() => setAddCountry(false)} />
+        className="submenu-menu" style={{ right: addData[0] === 'Country' ? "0" : "-100%" }}>
+        <Country isOpen={addData[0] === 'Country'} onClose={() => setAddData([])} />
       </div>
-      <div className="submenu-menu" style={{ right: addState ? "0" : "-100%" }}>
-        <State isOpen={addState} onClose={() => setAddState(false)} />
+      <div className="submenu-menu" style={{ right: addData[0] === 'State' ? "0" : "-100%" }}>
+        <State isOpen={addData[0] === 'State'} onClose={() => setAddData([])} />
       </div>
-      <div
-        className="submenu-menu"
-        style={{ right: addDestination ? "0" : "-100%" }}
-      >
-        <Destination
-          isOpen={addDestination}
-          onClose={() => setAddDestination(false)}
-        />
+      <div className="submenu-menu" style={{ right: addData[0] === 'Destination' ? "0" : "-100%" }}>
+        <Destination isOpen={addData[0] === 'Destination'} onClose={() => setAddData([])} />
       </div>
-      <div className="submenu-menu" style={{ right: addHotel ? "0" : "-100%" }}>
-        <Hotel isOpen={addHotel} onClose={() => setAddHotel(false)} />
+      <div className="submenu-menu" style={{ right: addData[0] === 'Hotel' ? "0" : "-100%" }}>
+        <Hotel isOpen={addData[0] === 'Hotel'} onClose={() => setAddData([])} />
       </div>
-      <div className="submenu-menu" style={{ right: addRole ? "0" : "-100%" }}>
-        <Roles isOpen={addRole} onClose={() => setAddRole(false)} />
+      <div className="submenu-menu" style={{ right: addData[0] === 'Roles' ? "0" : "-100%" }}>
+        <Roles isOpen={addData[0] === 'Roles'} onClose={() => setAddData([])} />
       </div>
-      <div
-        className="submenu-menu"
-        style={{ right: addNewMember ? "0" : "-100%" }}
-      >
-        <NewMember
-          isOpen={addNewMember}
-          onClose={() => setAddNewMember(false)}
-        />
+      <div className="submenu-menu" style={{ right: addData[0] === 'NewMember' ? "0" : "-100%" }}>
+        <NewMember isOpen={addData[0] === 'NewMember'} onClose={() => setAddData([])} />
       </div>
-      <div className="submenu-menu" style={{ right: addRole ? "0" : "-100%" }}>
-        <Itinerary isOpen={addItinerary} onClose={() => setAddItinerary(false)} />
+      <div className="submenu-menu" style={{ right: addData[0] === 'Itinerary' ? "0" : "-100%" }}>
+        <Itinerary isOpen={addData[0] === 'Itinerary'} onClose={() => setAddData([])} />
       </div>
-      <div className="submenu-menu" style={{ right: addNewPackage ? "0" : "-100%" }}>
-        <NewPackageForm isOpen={addNewPackage} onClose={() => setAddNewPackage(false)} />
+      <div className="submenu-menu" style={{ right: addData[0] === 'NewPackageForm' ? "0" : "-100%" }}>
+        <NewPackageForm isOpen={addData[0] === 'NewPackageForm'} onClose={() => setAddData([])} />
       </div>
     </>
   );

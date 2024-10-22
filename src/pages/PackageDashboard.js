@@ -9,11 +9,11 @@ const PackageDashboard = () => {
 
   return (
     <div
-      className="myteams-container w-full md:mx-8 lg:mx-6 mt-2"
-      style={{ marginLeft: "100px" }}
+      className="myteams-container w-full ml-20"
+    // style={{ marginLeft: "100px" }}
     >
-      <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-3 border-b border-gray-300 mb-5">
-        <main className="bg-gray-100 flex-1 p-6">
+      <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 border-b border-gray-300 mb-5">
+        <main className="bg-gray-100 flex-1 p-4">
           <PackageDashboardTab
             isListViewSelected={isListViewSelected}
             setIsListViewSelected={setIsListViewSelected}

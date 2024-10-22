@@ -198,13 +198,12 @@ const Itinerary = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${
-        isOpen ? "translate-x-0" : "translate-x-[850px]"
-      } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[800px]`}
+      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
+        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[800px]`}
     >
       <button
         onClick={() => onClose(true)}
-        className="absolute top-[12px] left-[-22px] text-white bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
+        className="absolute top-[12px] left-[-22px] font-semibold text-white text-sm bg-red-700 square px-3  py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700"
       >
         X
       </button>
@@ -253,7 +252,7 @@ const Itinerary = ({ isOpen, onClose }) => {
                   }}
                   className=" text-white p-2 rounded font-bold">
                   -
-                  </button>
+                </button>
               </div>
 
               <div className="mb-4">
@@ -364,22 +363,22 @@ const Itinerary = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-         {/* Submit and Reset Buttons */}
-      <div className="flex justify-between items-center p-3 bg-white shadow-lg rounded w-full fixed bottom-12">
-        <div className="flex justify-start space-x-4">
-          <button type="button" className="bg-red-700 text-white px-4 py-2 rounded shadow"
-            onClick={handleSubmit}>
-            Submit
-          </button>
-          <button
-            type="button"
-            className="bg-red-700 text-white px-4 py-2 rounded shadow"
-            onClick={handleReset}
-          >
-            Reset
-          </button>
+        {/* Submit and Reset Buttons */}
+        <div className="flex justify-between items-center p-3 bg-white shadow-lg rounded w-full fixed bottom-12">
+          <div className="flex justify-start space-x-4">
+            <button type="button" className="bg-red-700 text-white px-4 py-2 rounded shadow"
+              onClick={handleSubmit}>
+              Submit
+            </button>
+            <button
+              type="button"
+              className="bg-red-700 text-white px-4 py-2 rounded shadow"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
+          </div>
         </div>
-      </div>
       </form>
     </div>
   );

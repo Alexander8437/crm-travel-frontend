@@ -161,7 +161,7 @@ const State = ({ isOpen, onClose }) => {
       {/* "X" button positioned outside the form box */}
       <button
         onClick={onClose}
-        className="absolute top-[12px] left-[-22px]  text-white  bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900"
+        className="absolute top-[12px] left-[-22px] font-semibold text-white text-sm bg-red-700 square px-3  py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700"
       >
         X
       </button>
@@ -173,7 +173,7 @@ const State = ({ isOpen, onClose }) => {
 
       <form className="p-4">
         <div className="mb-4">
-          <h3 className="bg-red-500 text-white p-2 rounded">
+          <h3 className="bg-red-700 text-white p-2 rounded">
             Basic Information
           </h3>
         </div>

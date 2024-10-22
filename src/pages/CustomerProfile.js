@@ -5,7 +5,9 @@ const CustomerProfile = () => {
   const [tab, setTab] = React.useState('profile');
 
   return (
-    <div className="p-4 w-full md:w-11/12 mx-auto" style={{ marginLeft: "100px" }}>
+    <div className="p-4 w-full ml-20  bg-gray-100"
+    // style={{ marginLeft: "100px" }}
+    >
       <div className="bg-white p-4 rounded shadow">
         <div className="flex flex-col md:flex-row justify-between mb-4">
           <div className="mb-2 md:mb-0">
