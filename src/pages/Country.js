@@ -8,6 +8,7 @@ const Country = ({ isOpen, onClose }) => {
   const [pCode, setPCode] = useState('');
   const [status, setStatus] = useState(true)
   const [user, setUser] = useState({})
+  const [token, setTokens] = useState(null)
 
 
   async function decryptToken(encryptedToken, key, iv) {
@@ -48,15 +49,7 @@ const Country = ({ isOpen, onClose }) => {
   useEffect(() => {
     getDecryptedToken()
       .then(token => {
-        return axios.get(`${api.baseUrl}/getbytoken`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      })
-      .then(response => {
-        setUser(response.data);
+        setTokens(token);
       })
       .catch(error => console.error('Error fetching protected resource:', error))
   }, [])
@@ -106,6 +99,7 @@ const Country = ({ isOpen, onClose }) => {
     await axios.post(`${api.baseUrl}/country/create`, formDatasend,
       {
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
           'Access-Control-Allow-Origin': '*'
         }
