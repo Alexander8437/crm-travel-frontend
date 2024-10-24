@@ -13,6 +13,7 @@ const State = ({ isOpen, onClose }) => {
   const [user, setUser] = useState({})
 
 
+  const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
 
@@ -51,15 +52,7 @@ const State = ({ isOpen, onClose }) => {
   useEffect(() => {
     getDecryptedToken()
       .then(token => {
-        return axios.get(`${api.baseUrl}/getbytoken`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      })
-      .then(response => {
-        setUser(response.data);
+        setTokens(token);
       })
       .catch(error => console.error('Error fetching protected resource:', error))
   }, [])
@@ -139,7 +132,9 @@ const State = ({ isOpen, onClose }) => {
     await axios.post(`${api.baseUrl}/state/create`, formDataToSend,
       {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+          'Access-Control-Allow-Origin': '*'
         }
       })
       .then((response) => {

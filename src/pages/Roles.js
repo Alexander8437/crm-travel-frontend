@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import api from "../apiConfig/config";
 import axios from "axios";
@@ -10,6 +10,50 @@ const Roles = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
 
   const isFormFilled = roleName && description;
+
+  const [token, setTokens] = useState(null)
+  async function decryptToken(encryptedToken, key, iv) {
+    const dec = new TextDecoder();
+
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encryptedToken
+    );
+
+    return dec.decode(new Uint8Array(decrypted));
+  }
+
+  // Function to retrieve and decrypt the token
+  async function getDecryptedToken() {
+    const keyData = JSON.parse(localStorage.getItem('encryptionKey'));
+    const ivBase64 = localStorage.getItem('iv');
+    const encryptedTokenBase64 = localStorage.getItem('encryptedToken');
+
+
+    if (!keyData || !ivBase64 || !encryptedTokenBase64) {
+      throw new Error('No token found');
+    }
+
+    // Convert back from base64
+    const key = await crypto.subtle.importKey('jwk', keyData, { name: "AES-GCM" }, true, ['encrypt', 'decrypt']);
+    const iv = new Uint8Array(atob(ivBase64).split('').map(char => char.charCodeAt(0)));
+    const encryptedToken = new Uint8Array(atob(encryptedTokenBase64).split('').map(char => char.charCodeAt(0)));
+
+    return await decryptToken(encryptedToken, key, iv);
+  }
+
+  // Example usage to make an authenticated request
+  useEffect(() => {
+    getDecryptedToken()
+      .then(token => {
+        setTokens(token);
+      })
+      .catch(error => console.error('Error fetching protected resource:', error))
+  }, [])
 
   // State for permissions checkboxes
   const [permissions, setPermissions] = useState({
@@ -273,79 +317,80 @@ const Roles = ({ isOpen, onClose }) => {
     //     },
     //   },
     // });
-    // await axios.post(`${api.baseUrl}/all`,
-    //   payload, {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   }
-    // })
-    //   .then(async (response) => {
-    //     console.log(response.data)
-    //     alert(response.data.message);
-    //     setPermissions({
-    //       Dashboard: { selected: false, actions: { Dashboard: false } },
-    //       Packages: {
-    //         selected: false,
-    //         actions: {
-    //           View: false,
-    //           Add: false,
-    //           Edit: false,
-    //           Delete: false,
-    //         },
-    //       },
-    //       Bookings: {
-    //         selected: false,
-    //         actions: {
-    //           View: false,
-    //           Add: false,
-    //           Edit: false,
-    //           Delete: false,
-    //         },
-    //       },
+    await axios.post(`${api.baseUrl}/all`,
+      payload, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(async (response) => {
+        console.log(response.data)
+        alert(response.data.message);
+        setPermissions({
+          Dashboard: { selected: false, actions: { Dashboard: false } },
+          Packages: {
+            selected: false,
+            actions: {
+              View: false,
+              Add: false,
+              Edit: false,
+              Delete: false,
+            },
+          },
+          Bookings: {
+            selected: false,
+            actions: {
+              View: false,
+              Add: false,
+              Edit: false,
+              Delete: false,
+            },
+          },
 
-    //       MyTeams: {
-    //         selected: false,
-    //         actions: {
-    //           View: false,
-    //           Add: false,
-    //           Edit: false,
-    //           Delete: false,
-    //         },
-    //       },
-    //       Report: {
-    //         selected: false,
-    //         actions: {
-    //           View: false,
-    //           Add: false,
-    //           Edit: false,
-    //           Delete: false,
-    //         },
-    //       },
-    //       Sales: {
-    //         selected: false,
-    //         actions: {
-    //           View: false,
-    //           Add: false,
-    //           Edit: false,
-    //           Delete: false,
-    //         },
-    //       },
-    //       Master: {
-    //         selected: false,
-    //         actions: {
-    //           View: false,
-    //           Add: false,
-    //           Edit: false,
-    //           Delete: false,
-    //         },
-    //       },
-    //     });
-    // setRoleName('')
-    // setDescription('')
-    //   setCurrentPage(1)
+          MyTeams: {
+            selected: false,
+            actions: {
+              View: false,
+              Add: false,
+              Edit: false,
+              Delete: false,
+            },
+          },
+          Report: {
+            selected: false,
+            actions: {
+              View: false,
+              Add: false,
+              Edit: false,
+              Delete: false,
+            },
+          },
+          Sales: {
+            selected: false,
+            actions: {
+              View: false,
+              Add: false,
+              Edit: false,
+              Delete: false,
+            },
+          },
+          Master: {
+            selected: false,
+            actions: {
+              View: false,
+              Add: false,
+              Edit: false,
+              Delete: false,
+            },
+          },
+        });
+        setRoleName('')
+        setDescription('')
+        setCurrentPage(1)
 
-    // })
-    // .catch(error => console.error(error));
+      })
+      .catch(error => console.error(error));
 
     // } else {
     //   alert('Role name cant be empty')
