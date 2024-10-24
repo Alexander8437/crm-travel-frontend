@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Select from "react-select";
+import api from "../apiConfig/config";
+import axios from "axios";
 
 const Hotel = ({ isOpen, onClose }) => {
   const [country, setCountry] = useState("Select");
@@ -16,7 +18,8 @@ const Hotel = ({ isOpen, onClose }) => {
   const [hotelAddress, setHotelAddress] = useState("");
   const [hotelPincode, setHotelPincode] = useState("");
   const [status, setStatus] = useState("Active");
-  const [roomTypeName, setRoomTypeName] = useState("Single");
+  const [roomTypeName, setRoomTypeName] = useState(null);
+  const [roomTypeNameOption, setRoomTypeNameOption] = useState([]);
   const [bedSize, setBedSize] = useState("");
   const [maxPerson, setMaxPerson] = useState("");
   const [roomStatus, setRoomStatus] = useState("Active");
@@ -25,9 +28,148 @@ const Hotel = ({ isOpen, onClose }) => {
   const [directHotelPrice, setDirectHotelPrice] = useState("");
   const [thirdPartyPrice, setThirdPartyPrice] = useState("");
 
-  // Track the current page
-  const [currentPage, setCurrentPage] = useState(0);
+  const [countryDetails, setCountryDetails] = useState([])
+  const [stateDetails, setStateDetails] = useState([])
+  const [destinationDetails, setDestinationDetails] = useState([])
+  const [destinationOption, setDestinationOption] = useState([])
+  const [selectedOption, setSelectedOption] = useState(null)
+  const [stateSelected, setStateSelected] = useState(null)
+  const [selectedDestination, setSelectedDestinations] = useState(null)
+  const [ipAddress, setIpAddress] = useState()
+  const [user, setUser] = useState({})
+  const [hImage, setHImage] = useState(null)
 
+  const [hotelId, setHotelId] = useState(null)
+
+
+  const [currentPage, setCurrentPage] = useState(0); //Track your page
+
+  async function decryptToken(encryptedToken, key, iv) {
+    const dec = new TextDecoder();
+
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encryptedToken
+    );
+
+    return dec.decode(new Uint8Array(decrypted));
+  }
+
+  // Function to retrieve and decrypt the token
+  async function getDecryptedToken() {
+    const keyData = JSON.parse(localStorage.getItem('encryptionKey'));
+    const ivBase64 = localStorage.getItem('iv');
+    const encryptedTokenBase64 = localStorage.getItem('encryptedToken');
+
+
+    if (!keyData || !ivBase64 || !encryptedTokenBase64) {
+      throw new Error('No token found');
+    }
+
+    // Convert back from base64
+    const key = await crypto.subtle.importKey('jwk', keyData, { name: "AES-GCM" }, true, ['encrypt', 'decrypt']);
+    const iv = new Uint8Array(atob(ivBase64).split('').map(char => char.charCodeAt(0)));
+    const encryptedToken = new Uint8Array(atob(encryptedTokenBase64).split('').map(char => char.charCodeAt(0)));
+
+    return await decryptToken(encryptedToken, key, iv);
+  }
+
+  // Example usage to make an authenticated request
+  useEffect(() => {
+    getDecryptedToken()
+      .then(token => {
+        return axios.get(`${api.baseUrl}/getbytoken`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      })
+      .then(response => {
+        setUser(response.data);
+      })
+      .catch(error => console.error('Error fetching protected resource:', error))
+  }, [])
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/country/get`
+    )
+      .then(response => {
+        const formattedOptions = response.data.map(item => ({
+          value: item.id, // or any unique identifier
+          label: item.countryName // or any display label you want
+        }));
+        setCountryDetails(formattedOptions);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/destination/getall`)
+      .then(response => {
+        const formattedOptions = response.data.map(item => ({
+          value: item.id, // or any unique identifier
+          label: item.destinationName // or any display label you want
+        }));
+        setDestinationDetails(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  const handleDestinationChange = (selectedDestination) => {
+    setSelectedDestinations(selectedDestination)
+    // setDestinationId(selectedDestination.value)
+  }
+
+  const handleStateChange = (stateSelected) => {
+    setStateSelected(stateSelected)
+    setDestinationOption([])
+    // setDestinationId(null)
+
+    const newData = destinationDetails.filter(data => stateSelected.value === data.state.id);
+
+    const formattedOptions = newData.map(item => ({
+      value: item.id, // or any unique identifier
+      label: item.destinationName // or any display label you want
+    }));
+    setDestinationOption(formattedOptions)
+    // console.log(destinationDetails)
+  }
+
+  const handleCountryChange = (selectedOption) => {
+    setSelectedOption(selectedOption);
+    setStateSelected(null);
+    setSelectedDestinations(null)
+    // setCountryId(selectedOption.value)
+    // setStateId(null)
+    setDestinationOption([])
+    // setDestinationId(null)
+
+    axios.get(`${api.baseUrl}/state/getbycountryid/${selectedOption.value}`,
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        }
+      })
+      .then((response) => {
+        const formattedOptions = response.data.map(item => ({
+          value: item.id, // or any unique identifier
+          label: item.stateName // or any display label you want
+        }));
+        setStateDetails(formattedOptions);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  };
   const handleNext = () => {
     setCurrentPage((prev) => prev + 1);
   };
@@ -61,6 +203,28 @@ const Hotel = ({ isOpen, onClose }) => {
     setCurrentPage(0);
   };
 
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/ipAddress`)
+      .then((response) => setIpAddress(response.data))
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/rooms/getAll`)
+      .then((response) => {
+        const formattedOptions = response.data.map(item => ({
+          value: item.id, // or any unique identifier
+          label: item.roomname // or any display label you want
+        }));
+        setRoomTypeNameOption(formattedOptions)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
   const handleSubmit = () => {
     // Handle the submission logic here
     console.log({
@@ -85,8 +249,41 @@ const Hotel = ({ isOpen, onClose }) => {
       directHotelPrice,
       thirdPartyPrice,
     });
+    const formDataHotelMaster = new FormData()
+
+    formDataHotelMaster.append('country.id', selectedOption.value)
+    formDataHotelMaster.append('state.id', stateSelected.value)
+    formDataHotelMaster.append('destination.id', selectedDestination.value)
+    formDataHotelMaster.append('hname', hotelName)
+    formDataHotelMaster.append('hdescripation', editorData)
+    formDataHotelMaster.append('star_ratings', starRating)
+    formDataHotelMaster.append('hcontactname', contactPersonName)
+    formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
+    formDataHotelMaster.append('hcontactemail', contactEmail)
+    formDataHotelMaster.append('haddress', hotelAddress)
+    formDataHotelMaster.append('hpincode', hotelPincode)
+    formDataHotelMaster.append('ipaddress', ipAddress)
+    formDataHotelMaster.append('status', status)
+    formDataHotelMaster.append('isdelete', false)
+    formDataHotelMaster.append('created_by', user)
+    formDataHotelMaster.append('modified_by', user)
+    formDataHotelMaster.append('image', hImage)
+
+    const formDataHotelRoomType = new FormData()
+
+    formDataHotelRoomType.append('bed_size', bedSize)
+    formDataHotelRoomType.append('max_person', maxPerson)
+    formDataHotelRoomType.append('status', roomStatus)
+    formDataHotelRoomType.append('created_by', user)
+    formDataHotelRoomType.append('modified_by', user)
+    formDataHotelRoomType.append('isdelete', false)
+    formDataHotelRoomType.append('ipaddress', ipAddress)
+    formDataHotelRoomType.append('hotel.id', hotelId)
+    formDataHotelRoomType.append('rooms.id', roomTypeName.value)
+
+
     // Reset the form after submission
-    handleReset();
+    // handleReset();
     onClose();
   };
 
@@ -100,13 +297,9 @@ const Hotel = ({ isOpen, onClose }) => {
             Country Name
           </label>
           <Select
-            options={[
-              { value: "India", label: "India" },
-              { value: "Russia", label: "Russia" },
-              { value: "USA", label: "USA" },
-            ]}
-            value={country}
-            onChange={setCountry}
+            options={countryDetails}
+            value={selectedOption}
+            onChange={handleCountryChange}
             placeholder="Select Country"
           />
         </div>
@@ -115,13 +308,9 @@ const Hotel = ({ isOpen, onClose }) => {
             State Name
           </label>
           <Select
-            options={[
-              { value: "Maharashtra", label: "Maharashtra" },
-              { value: "California", label: "California" },
-              { value: "Moscow", label: "Moscow" },
-            ]}
-            value={state}
-            onChange={setState}
+            options={stateDetails}
+            value={stateSelected}
+            onChange={handleStateChange}
             placeholder="Select State"
           />
         </div>
@@ -133,13 +322,9 @@ const Hotel = ({ isOpen, onClose }) => {
             Destination Name
           </label>
           <Select
-            options={[
-              { value: "Mumbai", label: "Mumbai" },
-              { value: "Los Angeles", label: "Los Angeles" },
-              { value: "Saint Petersburg", label: "Saint Petersburg" },
-            ]}
-            value={destination}
-            onChange={setDestination}
+            options={destinationOption}
+            value={selectedDestination}
+            onChange={handleDestinationChange}
             placeholder="Select Destination"
           />
         </div>
@@ -290,8 +475,19 @@ const Hotel = ({ isOpen, onClose }) => {
               { value: "Inactive", label: "Inactive" },
             ]}
             value={status}
-            onChange={(e) => setStatus(e.value)}
+            onChange={(e) => setStatus(e)}
             placeholder="Select Status"
+          />
+        </div>
+        <div className="w-1/2">
+          <label htmlFor="image" className="block text-sm font-medium">
+            Room Image
+          </label>
+          <input
+            type="file"
+            name="himage"
+            className="w-full text-gray-700 p-[4.5px] bg-white rounded border border-gray-200"
+            onChange={(e) => setHImage(e.target.files[0])}
           />
         </div>
       </div>
@@ -306,11 +502,7 @@ const Hotel = ({ isOpen, onClose }) => {
             Room Type Name
           </label>
           <Select
-            options={[
-              { value: "Single", label: "Single" },
-              { value: "Double", label: "Double" },
-              { value: "Suite", label: "Suite" },
-            ]}
+            options={roomTypeNameOption}
             value={roomTypeName}
             onChange={setRoomTypeName}
             placeholder="Select Room Type"
@@ -440,7 +632,7 @@ const Hotel = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
+      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg z-50 transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
         } mt-4 sm:mt-8 md:mt-12 lg:w-[800px] sm:w-[400px] md:w-[500px]`}
     >
       <button

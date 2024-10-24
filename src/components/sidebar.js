@@ -15,48 +15,42 @@ import Roles from '../pages/Roles';
 import NewMember from '../pages/NewMember';
 import Itinerary from '../pages/Itinerary';
 import NewPackageForm from '../pages/NewPacakgeForm';
+import NewQuery from '../pages/NewQuery';
 
 const Sidebar = () => {
   const [homeStyle, setHomeStyle] = useState([])
-  const [addState, setAddState] = useState(false);
-  const [addDestination, setAddDestination] = useState(false);
-  const [addHotel, setAddHotel] = useState(false);
-  const [addRole, setAddRole] = useState(false);
-  const [addNewMember, setAddNewMember] = useState(false)
-  const [addItinerary, setAddItinerary] = useState(false)
-  const [addNewPackage, setAddNewPackage] = useState(false)
   const [addData, setAddData] = useState([])
 
 
-  const showNewMember = () => {
-    setAddNewMember(true)
-  }
-  const showRole = () => {
-    setAddRole(true)
-  }
-  const showState = () => {
-    setAddData([])
-    setAddData(['state'])
-  }
-  const showDestination = () => {
-    setAddDestination(true)
-  }
-  const showHotel = () => {
-    setAddHotel(true)
-  }
+  // const showNewMember = () => {
+  //   setAddNewMember(true)
+  // }
+  // const showRole = () => {
+  //   setAddRole(true)
+  // }
+  // const showState = () => {
+  //   setAddData([])
+  //   setAddData(['state'])
+  // }
+  // const showDestination = () => {
+  //   setAddDestination(true)
+  // }
+  // const showHotel = () => {
+  //   setAddHotel(true)
+  // }
 
-  const showItinerary = () => {
-    setAddItinerary(true)
-  }
-  const showNewPackage = () => {
-    setAddNewPackage(true)
-  }
+  // const showItinerary = () => {
+  //   setAddItinerary(true)
+  // }
+  // const showNewPackage = () => {
+  //   setAddNewPackage(true)
+  // }
 
 
   return (
     <>
       <div
-        className="sidebar w-20 bg-gradient-to-b from-[#db272e] to-[#5b2727] h-full text-white py-2 space-y-4 fixed truncate mb-10 l-0 t-0"
+        className="sidebar w-18 bg-gradient-to-b from-[#db272e] to-[#5b2727] h-full text-white py-2 space-y-4 fixed truncate mb-10 l-0 t-0 px-auto"
         style={{ zIndex: "2" }}
       >
         {/* Sidebar Home Item */}
@@ -72,14 +66,14 @@ const Sidebar = () => {
           </div>
           {/* Animated Submenu */}
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 rounded shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
             <div className="flex flex-col">
               <p>Home</p>
               {/* <Link to='/home' className="block px-4 py-2 hover:bg-gray-600 rounded"> */}
               <Link to='/home'>
-                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer text-left shadow-md h-10 my-2 mt-10 rounded-md text-justify  hover:text-black hover:border-gray-400 hover:bg-white"
+                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer shadow-md h-10 my-2 mt-10 rounded-md text-justify  hover:text-black hover:border-gray-400 hover:bg-white"
                 >
                   Quickstart
                 </button>
@@ -87,7 +81,7 @@ const Sidebar = () => {
               {/* </Link> */}
               {/* <Link to='/home/dashboard' className="block px-4 py-2 hover:bg-gray-600 rounded">       */}
               <Link to='/home/dashboard'>
-                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
+                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none shadow-md h-10 my-2 rounded-md text-justify">
                   Dashboard
                 </button>
               </Link>
@@ -99,7 +93,7 @@ const Sidebar = () => {
         {/* Sidebar Packages Item */}
         <div className="sidebar-item group relative hover:w-full">
           <div
-            className="sidebar-icons flex flex-col justify-center  items-center space-x-2 p-2 rounded cursor-pointer hover:color-black"
+            className="sidebar-icons flex flex-col justify-center  items-center p-2 rounded cursor-pointer hover:color-black"
             style={{ zIndex: "2" }}
             onMouseEnter={() => setHomeStyle(['Packages'])}
             onMouseLeave={() => setHomeStyle([])}
@@ -123,7 +117,7 @@ const Sidebar = () => {
                   All Package List
                 </h6>
               </div>
-              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md text-justify"
+              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md"
                 onClick={() => {
                   setAddData([]);
                   setAddData(['NewPackageForm'])
@@ -133,11 +127,11 @@ const Sidebar = () => {
               </button>
               {/* </Link> */}
               {/* <Link to='/home/dashboard' className="block px-4 py-2 hover:bg-gray-600 rounded">       */}
-              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
+              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md ">
                 Ouick Package
               </button>
               <Link to='/home/packageDashboard'>
-                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
+                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md">
                   Packages Dashboard
                 </button>
               </Link>
@@ -148,7 +142,7 @@ const Sidebar = () => {
 
         {/* Sidebar Bookings Item */}
         <div className="sidebar-item group relative hover:w-full">
-          <div className="sidebar-icons flex flex-col justify-center  items-center space-x-2 p-2 rounded cursor-pointer"
+          <div className="sidebar-icons flex flex-col justify-center  items-center p-2 rounded cursor-pointer"
 
             onMouseEnter={() => setHomeStyle(['Bookings'])}
             onMouseLeave={() => setHomeStyle([])}>
@@ -162,11 +156,15 @@ const Sidebar = () => {
           >
             <div className="flex flex-col">
               <p className="font-bold">Booking</p>
-              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md text-justify">
-                New Bookings
+              <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 mt-10 rounded-md "
+                onClick={() => {
+                  setAddData([]);
+                  setAddData(['NewQuery'])
+                }}>
+                New Query
               </button>
               <Link to='/home/booking-dashboard'>
-                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify"
+                <button class="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md"
                 >
                   Bookings Dashboard
                 </button>
@@ -177,7 +175,7 @@ const Sidebar = () => {
 
         {/* Other Sidebar Items (without submenus) */}
         <div className="sidebar-item group hover:w-full">
-          <div className="sidebar-icons flex flex-col justify-center  items-center space-x-2 p-2 rounded cursor-pointer"
+          <div className="sidebar-icons flex flex-col justify-center  items-center p-2 rounded cursor-pointer"
             onMouseEnter={() => setHomeStyle(['MyTeams'])}
             onMouseLeave={() => setHomeStyle([])}>
             <IoIosPeople size="30px" color={homeStyle[0] === 'MyTeams' ? '#fff' : '#B4B4B8'} />
@@ -260,7 +258,7 @@ const Sidebar = () => {
         </div>
 
         <div className="sidebar-item group relative hover:w-full">
-          <div className="sidebar-icons flex flex-col justify-center  items-center space-x-2 p-2 rounded cursor-pointer"
+          <div className="sidebar-icons flex flex-col justify-center  items-center  p-2 rounded cursor-pointer"
             onMouseEnter={() => setHomeStyle(['Reports'])}
             onMouseLeave={() => setHomeStyle([])}>
             <HiOutlineDocumentReport size="30px" color={homeStyle[0] === 'Reports' ? '#fff' : '#B4B4B8'}
@@ -278,7 +276,7 @@ const Sidebar = () => {
         </div>
 
         <div className="sidebar-item group relative hover:w-full">
-          <div className="sidebar-icons flex flex-col text-center justify-center items-center space-x-2 p-2 rounded cursor-pointer"
+          <div className="sidebar-icons flex flex-col text-center justify-center items-center p-2 rounded cursor-pointer"
             onMouseEnter={() => setHomeStyle(['Sales'])}
             onMouseLeave={() => setHomeStyle([])}>
             <FcSalesPerformance size="30px" color={homeStyle[0] === 'Sales' ? '#fff' : '#B4B4B8'} />
@@ -295,7 +293,7 @@ const Sidebar = () => {
         </div>
 
         <div className="sidebar-item group relative hover:w-full">
-          <div className="sidebar-icons flex flex-col justify-center items-center space-x-2 p-2 rounded cursor-pointer"
+          <div className="sidebar-icons flex flex-col justify-center items-center text-center p-2 rounded cursor-pointer"
             onMouseEnter={() => setHomeStyle(['Masters'])}
             onMouseLeave={() => setHomeStyle([])}>
             <FaUserTie size="30px" color={homeStyle[0] === 'Masters' ? '#fff' : '#B4B4B8'} />
@@ -401,6 +399,9 @@ const Sidebar = () => {
       </div>
       <div className="submenu-menu" style={{ right: addData[0] === 'NewPackageForm' ? "0" : "-100%" }}>
         <NewPackageForm isOpen={addData[0] === 'NewPackageForm'} onClose={() => setAddData([])} />
+      </div>
+      <div className="submenu-menu" style={{ right: addData[0] === 'NewQuery' ? "0" : "-100%" }}>
+        <NewQuery isOpen={addData[0] === 'NewQuery'} onClose={() => setAddData([])} />
       </div>
     </>
   );

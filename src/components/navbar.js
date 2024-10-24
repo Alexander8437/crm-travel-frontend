@@ -78,7 +78,7 @@ const Navbar = () => {
   return (
     <div className="flex flex-col md:flex-row">
       {/* Make Navbar sticky */}
-      <div className="fixed top-0 left-0 w-full h-12 z-50 bg-gradient-to-r from-[#db272e] to-[#5b2727] p-2 flex justify-between items-center ">
+      <div className="fixed top-0 left-0 w-full h-12 z-20 bg-gradient-to-r from-[#db272e] to-[#5b2727] p-2 flex justify-between items-center ">
         <div className="flex-1 flex justify-between items-center">
           {/* Left: Logo + Plus Icon + Search Icon */}
           <div className="flex items-center ml-6 space-x-4 md:space-x-8">
@@ -103,16 +103,13 @@ const Navbar = () => {
           </div>
 
           {/* Right: Profile and Icons */}
-          <div className={`flex items-center space-x-4 md:space-x-8 text-gray-200
+          <div className={`flex items-center gap-10
             ${isOpen ? "block" : "hidden"} md:flex`}>
-            <div className="m-0 p-0 hover:text-blue-100">
-              <TfiEmail className="w-7 h-7 p-1 cursor-pointer " />
-            </div>
-            <FaRegBell className="w-7 h-7 p-1 cursor-pointer 
-            hover:bg-white hover:bg-opacity-10 hover:border-gray-200" />
-            <FiMessageSquare className="w-7 h-7 p-1 cursor-pointer hover:border-white" />
-            <IoMdHelpCircleOutline className="w-7 h-10 p-1 hover:text-black
-            cursor-pointer hover:border-white" />
+            <TfiEmail className="w-7 h-7 p-1 cursor-pointer  text-[#B4B4B8] hover:text-white" />
+            <FaRegBell className="w-7 h-7 p-1 cursor-pointer  text-[#B4B4B8] hover:text-white" />
+            <FiMessageSquare className="w-7 h-7 p-1 cursor-pointer  text-[#B4B4B8] hover:text-white" />
+            <IoMdHelpCircleOutline className="w-7 h-10 p-1 text-[#B4B4B8] hover:text-white
+            cursor-pointer " />
 
             <div className="relative">
               <div
