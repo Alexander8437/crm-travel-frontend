@@ -618,6 +618,7 @@ const Itinerary = ({ isOpen, onClose }) => {
         },
       ],
     });
+    setEditorData('')
     setSelectedDestination(null);
   };
 

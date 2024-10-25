@@ -17,12 +17,12 @@ const Hotel = ({ isOpen, onClose }) => {
   const [contactEmail, setContactEmail] = useState("");
   const [hotelAddress, setHotelAddress] = useState("");
   const [hotelPincode, setHotelPincode] = useState("");
-  const [status, setStatus] = useState("Active");
-  const [roomTypeName, setRoomTypeName] = useState(null);
-  const [roomTypeNameOption, setRoomTypeNameOption] = useState([]);
+  const [status, setStatus] = useState(null);
+  const [selectedRoomMaster, setSelectedRoomMaster] = useState(null);
+  const [roomMaster, setRoomMaster] = useState([]);
   const [bedSize, setBedSize] = useState("");
   const [maxPerson, setMaxPerson] = useState("");
-  const [roomStatus, setRoomStatus] = useState("Active");
+  const [roomStatus, setRoomStatus] = useState(null);
   const [offSeasonPrice, setOffSeasonPrice] = useState("");
   const [extraBedPrice, setExtraBedPrice] = useState("");
   const [directHotelPrice, setDirectHotelPrice] = useState("");
@@ -36,14 +36,16 @@ const Hotel = ({ isOpen, onClose }) => {
   const [stateSelected, setStateSelected] = useState(null)
   const [selectedDestination, setSelectedDestinations] = useState(null)
   const [ipAddress, setIpAddress] = useState()
-  const [user, setUser] = useState({})
+  const [user, setUser] = useState(null)
   const [hImage, setHImage] = useState(null)
+  const [roomTypeImage, setRoomTypeImage] = useState(null)
 
-  const [hotelId, setHotelId] = useState(null)
+  const [hotelData, setHotelData] = useState({})
 
 
   const [currentPage, setCurrentPage] = useState(0); //Track your page
 
+  const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
 
@@ -82,6 +84,8 @@ const Hotel = ({ isOpen, onClose }) => {
   useEffect(() => {
     getDecryptedToken()
       .then(token => {
+        setTokens(token);
+
         return axios.get(`${api.baseUrl}/getbytoken`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -172,6 +176,7 @@ const Hotel = ({ isOpen, onClose }) => {
   };
   const handleNext = () => {
     setCurrentPage((prev) => prev + 1);
+    console.log(currentPage)
   };
 
   const handleBack = () => {
@@ -192,7 +197,7 @@ const Hotel = ({ isOpen, onClose }) => {
     setHotelAddress("");
     setHotelPincode("");
     setStatus("Active");
-    setRoomTypeName("Single");
+    // setRoomTypeName("Single");
     setBedSize("");
     setMaxPerson("");
     setRoomStatus("Active");
@@ -213,17 +218,100 @@ const Hotel = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     axios.get(`${api.baseUrl}/rooms/getAll`)
-      .then((response) => {
+      .then(response => {
         const formattedOptions = response.data.map(item => ({
           value: item.id, // or any unique identifier
           label: item.roomname // or any display label you want
         }));
-        setRoomTypeNameOption(formattedOptions)
+        setRoomMaster(formattedOptions);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching Room Type Name data :', error);
       });
   }, []);
+
+  const handleRoomTypeMaster = async (e) => {
+    e.preventDefault();
+
+    console.log('hell')
+    const formDataHotelRoomType = new FormData()
+
+    formDataHotelRoomType.append('bed_size', bedSize)
+    formDataHotelRoomType.append('max_person', maxPerson)
+    formDataHotelRoomType.append('created_by', user.username)
+    formDataHotelRoomType.append('modified_by', user.username)
+    formDataHotelRoomType.append('ipaddress', ipAddress)
+    formDataHotelRoomType.append('status', roomStatus.value)
+    formDataHotelRoomType.append('isdelete', false)
+    formDataHotelRoomType.append('hotel.id', 1) //hotelData.id
+    formDataHotelRoomType.append('rooms.id', selectedRoomMaster.value)
+    formDataHotelRoomType.append('image', roomTypeImage)
+
+    for (var pair of formDataHotelRoomType.entries()) {
+      console.log(pair[0] + ', ' + pair[1]);
+    }
+
+    await axios.post(`${api.baseUrl}/roomtypes/create`, formDataHotelRoomType, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then(async (response) => {
+        alert('Hotel Room Type saved Successfully.');
+      })
+      .catch(error => console.error(error));
+
+    setCurrentPage((prev) => prev + 1);
+
+
+  }
+
+  const handleHotelMasterSubmit = async (e) => {
+    e.preventDefault();
+
+
+    const formDataHotelMaster = new FormData()
+
+    formDataHotelMaster.append('country.id', selectedOption.value)
+    formDataHotelMaster.append('state.id', stateSelected.value)
+    formDataHotelMaster.append('destination.id', selectedDestination.value)
+    formDataHotelMaster.append('hname', hotelName)
+    formDataHotelMaster.append('hdescription', editorData)
+    formDataHotelMaster.append('star_ratings', starRating.value)
+    formDataHotelMaster.append('hcontactname', contactPersonName)
+    formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
+    formDataHotelMaster.append('hcontactemail', contactEmail)
+    formDataHotelMaster.append('haddress', hotelAddress)
+    formDataHotelMaster.append('hpincode', hotelPincode)
+    formDataHotelMaster.append('ipaddress', ipAddress)
+    formDataHotelMaster.append('status', status.value)
+    formDataHotelMaster.append('isdelete', false)
+    formDataHotelMaster.append('created_by', user.username)
+    formDataHotelMaster.append('modified_by', user.username)
+    formDataHotelMaster.append('image', hImage)
+
+    // for (var pair of formDataHotelMaster.entries()) {
+    //   console.log(pair[0] + ', ' + pair[1]);
+    // }
+
+
+    await axios.post(`${api.baseUrl}/hotel/create`, formDataHotelMaster, {
+      headers: {
+        // 'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then(async (response) => {
+        alert('Hotel saved Successfully.');
+        setHotelData(response.data)
+      })
+      .catch(error => console.error(error));
+
+    setCurrentPage((prev) => prev + 1);
+  }
 
   const handleSubmit = () => {
     // Handle the submission logic here
@@ -240,7 +328,7 @@ const Hotel = ({ isOpen, onClose }) => {
       hotelAddress,
       hotelPincode,
       status,
-      roomTypeName,
+      // roomTypeName,
       bedSize,
       maxPerson,
       roomStatus,
@@ -249,37 +337,9 @@ const Hotel = ({ isOpen, onClose }) => {
       directHotelPrice,
       thirdPartyPrice,
     });
-    const formDataHotelMaster = new FormData()
 
-    formDataHotelMaster.append('country.id', selectedOption.value)
-    formDataHotelMaster.append('state.id', stateSelected.value)
-    formDataHotelMaster.append('destination.id', selectedDestination.value)
-    formDataHotelMaster.append('hname', hotelName)
-    formDataHotelMaster.append('hdescripation', editorData)
-    formDataHotelMaster.append('star_ratings', starRating)
-    formDataHotelMaster.append('hcontactname', contactPersonName)
-    formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
-    formDataHotelMaster.append('hcontactemail', contactEmail)
-    formDataHotelMaster.append('haddress', hotelAddress)
-    formDataHotelMaster.append('hpincode', hotelPincode)
-    formDataHotelMaster.append('ipaddress', ipAddress)
-    formDataHotelMaster.append('status', status)
-    formDataHotelMaster.append('isdelete', false)
-    formDataHotelMaster.append('created_by', user)
-    formDataHotelMaster.append('modified_by', user)
-    formDataHotelMaster.append('image', hImage)
 
-    const formDataHotelRoomType = new FormData()
 
-    formDataHotelRoomType.append('bed_size', bedSize)
-    formDataHotelRoomType.append('max_person', maxPerson)
-    formDataHotelRoomType.append('status', roomStatus)
-    formDataHotelRoomType.append('created_by', user)
-    formDataHotelRoomType.append('modified_by', user)
-    formDataHotelRoomType.append('isdelete', false)
-    formDataHotelRoomType.append('ipaddress', ipAddress)
-    formDataHotelRoomType.append('hotel.id', hotelId)
-    formDataHotelRoomType.append('rooms.id', roomTypeName.value)
 
 
     // Reset the form after submission
@@ -353,10 +413,10 @@ const Hotel = ({ isOpen, onClose }) => {
           <Select
             options={[
               { value: "1", label: "1 Star" },
-              { value: "2", label: "2 Stars" },
-              { value: "3", label: "3 Stars" },
-              { value: "4", label: "4 Stars" },
-              { value: "5", label: "5 Stars" },
+              { value: "2", label: "2 Star" },
+              { value: "3", label: "3 Star" },
+              { value: "4", label: "4 Star" },
+              { value: "5", label: "5 Star" },
             ]}
             value={starRating}
             onChange={setStarRating}
@@ -471,11 +531,11 @@ const Hotel = ({ isOpen, onClose }) => {
           </label>
           <Select
             options={[
-              { value: "Active", label: "Active" },
-              { value: "Inactive", label: "Inactive" },
+              { value: true, label: "Active" },
+              { value: false, label: "Inactive" },
             ]}
             value={status}
-            onChange={(e) => setStatus(e)}
+            onChange={(status) => setStatus(status)}
             placeholder="Select Status"
           />
         </div>
@@ -502,9 +562,9 @@ const Hotel = ({ isOpen, onClose }) => {
             Room Type Name
           </label>
           <Select
-            options={roomTypeNameOption}
-            value={roomTypeName}
-            onChange={setRoomTypeName}
+            options={roomMaster}
+            value={selectedRoomMaster}
+            onChange={setSelectedRoomMaster}
             placeholder="Select Room Type"
           />
         </div>
@@ -542,11 +602,11 @@ const Hotel = ({ isOpen, onClose }) => {
           </label>
           <Select
             options={[
-              { value: "Active", label: "Active" },
-              { value: "Inactive", label: "Inactive" },
+              { value: true, label: "Active" },
+              { value: false, label: "Inactive" },
             ]}
             value={roomStatus}
-            onChange={setRoomStatus}
+            onChange={(roomStatus) => setRoomStatus(roomStatus)}
             placeholder="Select Room Status"
           />
         </div>
@@ -558,6 +618,7 @@ const Hotel = ({ isOpen, onClose }) => {
         <input
           type="file"
           className="w-full text-gray-700 mt-1 p-[4.5px] bg-white rounded border border-gray-200"
+          onChange={(e) => setRoomTypeImage(e.target.files[0])}
         />
       </div>
     </div>,
@@ -661,13 +722,25 @@ const Hotel = ({ isOpen, onClose }) => {
           </button>
         )}
         {currentPage < pages.length - 1 && (
-          <button
-            type="button"
-            onClick={handleNext}
-            className="bg-red-700 text-white px-4 py-2 rounded shadow ml-2"
-          >
-            Next
-          </button>
+
+          <div className="flex space-x-4 ml-2">
+            <button
+              type="button"
+              onClick={handleNext}
+              className="bg-red-700 text-white px-4 py-2 rounded shadow ml-2"
+            >
+              Next
+            </button>
+
+            <button
+              type="button"
+              onClick={currentPage === 0 ? handleHotelMasterSubmit : handleRoomTypeMaster}
+              className="bg-red-700 text-white px-4 py-2 rounded shadow"
+            >
+              Save & Continue
+            </button>
+
+          </div>
         )}
         {currentPage === pages.length - 1 && (
           <div className="flex space-x-4 ml-2">
