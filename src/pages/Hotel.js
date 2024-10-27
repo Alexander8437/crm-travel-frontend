@@ -4,6 +4,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Select from "react-select";
 import api from "../apiConfig/config";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Hotel = ({ isOpen, onClose }) => {
   const [country, setCountry] = useState("Select");
@@ -41,6 +42,7 @@ const Hotel = ({ isOpen, onClose }) => {
   const [roomTypeImage, setRoomTypeImage] = useState(null)
 
   const [hotelData, setHotelData] = useState({})
+  const navigate = useNavigate();
 
 
   const [currentPage, setCurrentPage] = useState(0); //Track your page
@@ -233,7 +235,6 @@ const Hotel = ({ isOpen, onClose }) => {
   const handleRoomTypeMaster = async (e) => {
     e.preventDefault();
 
-    console.log('hell')
     const formDataHotelRoomType = new FormData()
 
     formDataHotelRoomType.append('bed_size', bedSize)
@@ -270,7 +271,6 @@ const Hotel = ({ isOpen, onClose }) => {
 
   const handleHotelMasterSubmit = async (e) => {
     e.preventDefault();
-
 
     const formDataHotelMaster = new FormData()
 
@@ -310,6 +310,8 @@ const Hotel = ({ isOpen, onClose }) => {
       })
       .catch(error => console.error(error));
 
+    navigate(`/home/master-list/hotel`)
+    onClose();
     setCurrentPage((prev) => prev + 1);
   }
 
@@ -724,13 +726,13 @@ const Hotel = ({ isOpen, onClose }) => {
         {currentPage < pages.length - 1 && (
 
           <div className="flex space-x-4 ml-2">
-            <button
+            {/* <button
               type="button"
               onClick={handleNext}
               className="bg-red-700 text-white px-4 py-2 rounded shadow ml-2"
             >
               Next
-            </button>
+            </button> */}
 
             <button
               type="button"
