@@ -246,7 +246,7 @@ const PackageItinerary = ({ isOpen, onClose }) => {
   return (
     <div
       className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[650px] z-200"
-        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[400px] lg:w-[600px]`}
+        } w-full sm:w-[calc(100%-120px)] md:w-[400px] lg:w-[600px]`}
     >
       <button
         onClick={() => onClose(true)}

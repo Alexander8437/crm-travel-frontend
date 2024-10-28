@@ -21,13 +21,13 @@ const PageRoute = () => {
       <div className="main-content h-screen mt-12 flex flex-row w-full overflow-x-hidden overflow-y-auto">
         <Sidebar />
         <Routes>
-          <Route path={''} element={<Quickstart />} />
+          <Route path='' element={<Quickstart />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/packages" element={<Packages />} /> {/* Add the Package route */}
           <Route path="/packageDashboard" element={<PackageDashboard />} />
           <Route path="/master-list" element={<MasterList />} />
           <Route path="/master-list/hotel" element={<HotelMaster />} />
-          <Route path="/master-list/hotel" element={<HotelMaster />} />
+          {/* <Route path="/master-list/hotel" element={<HotelMaster />} /> */}
           <Route path='/master-list/hotel/:id' element={<HotelMasterAddRoom />} />
           <Route path="/package-view" element={<CustomerProfile />} />
           <Route path="/booking-dashboard" element={<Bookings />} />

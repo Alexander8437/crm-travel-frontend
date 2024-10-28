@@ -26,7 +26,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const [addCityAndNight, setAddCityAndNight] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showItiForm, setShowItiForm] = useState(false);
-  const [showIti, setShowIti] = useState([{ value: 'add-field', label: '➕ Add Extra Field' },
+  const [showIti, setShowIti] = useState([{ value: 'add-field', label: '➕ Add Extra Field' }
   ])
 
   const [state, setState] = useState([
@@ -144,25 +144,36 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   };
 
   // setAddItineraryDay(addItineraryDay + 1)
+  const handleItinearayReset = () => {
+    setDays(0);
+    setAddCityAndNight([]);
+    setShowIti([])
+  }
   const handleAddItineraryDay = () => {
-    // if (Number(nights) > 0 && selectedHotelCity !== null) {
-    const addIti = {
-      'hotelCity': selectedHotelCity.label,
-      'hotelCityId': selectedHotelCity.value,
-      'noOfNights': Number(nights),
-      'noOfDays': Number(nights) + 1
+    if (Number(nights) > 0 && selectedHotelCity !== null) {
+      const addIti = {
+        'hotelCity': selectedHotelCity.label,
+        'hotelCityId': selectedHotelCity.value,
+        'noOfNights': Number(nights) - 1,
+        'noOfDays': Number(nights)
+      }
+      setDays((prev) => prev + Number(nights))
+      const iti = itinerariesList.filter((it) => it.label === selectedHotelCity.label)
+      addCityAndNight.push(addIti)
+      setSelectedHotelCity(null)
+      setNights(0)
+      iti.map((i) => {
+        showIti.push(i)
+      })
+    } else {
+      if (selectedHotelCity === null && Number(nights) <= 0)
+        alert('Select City and Enter correct days')
+      else if (Number(nights) <= 0)
+        alert('Select Valid Days...')
+      else
+        alert('Select City...')
     }
-    setDays((prev) => prev + Number(nights) + 1)
-    const iti = itinerariesList.filter((it) => it.label === selectedHotelCity.label)
-    addCityAndNight.push(addIti)
-    setSelectedHotelCity(null)
-    setNights(0)
-    console.log(iti)
-    iti.map((i) => {
-      showIti.push(i)
-    })
-    // }
-    // console.log(showIti)
+    console.log(showIti)
   }
   // const handleFormSubmit = (e) => {
   //   e.preventDefault();
@@ -170,6 +181,13 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   //   setIsModalOpen(false); // Close modal after submit
   // };
 
+  const handlePageChange = () => {
+    if (formData.packageTitle !== '' && selectedStartCity !== null && selectedEndCity !== null && selectedDestinations.length !== 0) {
+      setPage(2)
+    } else {
+      alert("Enter or select data...")
+    }
+  }
   const handleFileChange = () => {
   }
   const handleSupplierChange = () => {
@@ -196,7 +214,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     console.log(selectedOptions)
   };
 
-  const handleItineraryChange = (selectedOption) => {
+  const handleItineraryChange = (selectedOption, index) => {
+
     setSelectedItineraries({ ...selectedItineraries, selectedOption });
     // selectedItineraries.push(selectedOptions)
     console.log(typeof (selectedItineraries))
@@ -232,7 +251,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
 
   return (
-    <div className={`fixed top-8 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"} mt-4 sm:top-18 md:top-18 lg:w-[800px] sm:w-full md:w-[700px] z-50`}>
+    <div className={`fixed top-8 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : `translate-x-[950px]`} mt-4 sm:top-18 md:top-18 lg:w-[800px] sm:w-full md:w-[700px] z-10`}>
       <button onClick={onClose} className="absolute top-[12px] lg:left-[-22px] font-semibold w-8 text-white text-sm bg-red-700 square px-3 py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700 sm:right-4 md:right-4 xs:right-4">X</button>
       <div className="flex justify-between items-center p-4 bg-white shadow-md top-12">
         <h2 className="text-lg font-bold text-black">New Package</h2>
@@ -288,7 +307,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             <div className="w-1/2">
               <label htmlFor="destinations" className="block text-sm font-medium">Destination Covered</label>
               <Select
-                className="mt-1 w-full border h-full rounded z-30"
+                className="mt-1 w-full border rounded z-30"
                 value={selectedDestinations}
                 onChange={handleChange}
                 options={destinations}
@@ -302,7 +321,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             <div className="w-1/2">
               <label htmlFor="destinations" className="block text-sm font-medium">Supplier</label>
               <Select
-                className="mt-1 w-full border h-full rounded z-30"
+                className="mt-1 w-full border rounded z-30"
                 value={selectedSupplier}
                 onChange={(selectedSupplier) => {
                   SetSelectedSupplier(selectedSupplier);
@@ -318,8 +337,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               <label htmlFor="destinations" className="block text-sm font-medium">Package Category</label>
               <Select
                 className="mt-1 w-full border rounded z-20"
-                value={selectedStartCity}
-                onChange={handleStartCityChange}
+                // value={selectedStartCity}
+                // onChange={handleStartCityChange}
                 options={destinations}
               />
             </div>
@@ -366,29 +385,29 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           <div className="mb-4">
             <h3 className="bg-red-700 text-white p-2 rounded">Itinerary</h3>
           </div>
-          {addCityAndNight.map(i => (
-            <div className="flex mb-4 gap-2 justify-between">
-              <table className="w-full bg-white">
-                <thead className="gap-4">
-                  {/* <th>Itinerary City ID</th> */}
-                  <th>Itinerary City</th>
-                  <th>Number of days</th>
-                  <th>Number of Nights</th>
-                </thead>
+          <div className="flex mb-4 gap-2 justify-between">
+            <table className="w-full bg-white">
+              <thead className="gap-4">
+                {/* <th>Itinerary City ID</th> */}
+                <th>Itinerary City</th>
+                <th>Number of days</th>
+                {/* <th>Number of Nights</th> */}
+              </thead>
+              {addCityAndNight.map(i => (
                 <tbody className="text-center">
                   {/* <td>{i.hotelCityId}</td> */}
                   <td>{i.hotelCity}</td>
                   <td>{i.noOfDays}</td>
-                  <td>{i.noOfNights}</td>
+                  {/* <td>{i.noOfNights}</td> */}
                 </tbody>
-              </table>
-            </div>
-          ))}
+              ))}
+            </table>
+          </div>
           <div className="flex mb-4 gap-2 h-14">
             <div className="w-1/2">
               <label htmlFor="destinations" className="block text-sm font-medium">Add Hotel City</label>
               <Select
-                className="mt-1 w-full border rounded z-40"
+                className="mt-1 w-full border rounded "
                 value={selectedHotelCity}
                 onChange={setSelectedHotelCity}
                 options={destinations}
@@ -396,11 +415,11 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               {/* <input type="text" className="w-full p-2 " placeholder="Enter Hotel Stay..." /> */}
             </div>
             <div className="w-1/4">
-              <label htmlFor="destinations" className="block text-sm font-medium">No of Nights</label>
+              <label htmlFor="destinations" className="block text-sm font-medium">No of Days</label>
               <input
                 type="number"
                 id="packageName"
-                name="packageTitle"
+                name="noOFDays"
                 value={nights}
                 onChange={(e) => setNights(e.target.value)}
                 className="mt-1 h-[38px] p-2 w-full border border-1 border-[#e5e7eb] rounded"
@@ -412,20 +431,21 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               <button className="bg-red-200 px-4 h-[38px] mt-3" onClick={handleAddItineraryDay}>Add</button>
             </div>
           </div>
-          <div className="mb-6">
+          <div className="mb-6 gap-2">
             <label htmlFor="destinations" className="block text-sm font-medium">Itineraries</label>
 
             {Array.from({ length: days }, (_, index) => (
-              <div className="flex gap-2 items-center truncate w-full">
-                <label>Day: {index + 1} </label>
+              <div className="flex items-center truncate w-full mt-2">
+                <label className="h-full bg-gray-700 p-1 border-b-2 text-white px-2 rounded-sm">
+                  Day: {index + 1} </label>
                 <Select
-                  className="mt-3 w-full border rounded"
+                  className="w-full border rounded"
                   value={selectedItineraries}
-                  onChange={handleItineraryChange}
-                  options={showIti}
-                  // isMulti
-                  components={{ Option: CustomOptions }}
-                  classNamePrefix="select"
+                  onChange={(selectedOption) => handleItineraryChange(selectedOption, index)}
+                  options={destinations}
+                // isMulti
+                // components={{ Option: CustomOptions }}
+                // classNamePrefix="select"
                 // closeMenuOnSelect={false}
                 // hideSelectedOptions={false}
                 // isClearable={true}
@@ -644,14 +664,14 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           {page === 1 && <>
             <button type="submit" className="bg-gray-700 text-white px-4 py-2 rounded shadow mr-1" disabled>Back</button>
             <button type="button" className="bg-red-700 text-white px-4 py-2 rounded shadow"
-              onClick={() => setPage(2)}
+              onClick={handlePageChange}
             >Next</button></>}
           {page === 2 && <>
             <button type="submit" className="bg-red-700 text-white px-4 py-2 rounded shadow mr-1"
               onClick={() => setPage(1)}>Back</button>
             <button type="button" className="bg-red-700 text-white px-4 py-2 mr-1 rounded shadow"
               onClick={() => setPage(3)}>Next</button>
-            <button type="button" className="bg-red-700 text-white px-4 py-2 rounded shadow">Reset</button>
+            <button type="button" className="bg-red-700 text-white px-4 py-2 rounded shadow" onClick={handleItinearayReset}>Reset</button>
           </>
           }
           {page === 3 && <>
