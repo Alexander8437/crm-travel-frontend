@@ -12,8 +12,6 @@ const HotelMasterAddRoom = () => {
 
   const [tab, setTab] = React.useState('profile');
 
-  console.log(item)
-
   useEffect(() => {
     axios.get(`${api.baseUrl}/rooms/getAll`)
       .then(response => {

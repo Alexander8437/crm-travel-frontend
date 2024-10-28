@@ -232,7 +232,7 @@ const Sidebar = () => {
               <div className="flex flex-col items-center pb-4 border-b">
 
                 <button
-                  className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify"
+                  className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md "
                   onClick={() => {
                     setAddData([]);
                     setAddData(['Roles'])
@@ -241,7 +241,7 @@ const Sidebar = () => {
                   Roles & Permission
                 </button>
                 <button
-                  className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify"
+                  className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md"
                   onClick={() => {
                     setAddData([]);
                     setAddData(['NewMember'])
@@ -249,7 +249,7 @@ const Sidebar = () => {
                 >
                   New Member
                 </button>
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify">
+                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md ">
                   Member Board
                 </button>
               </div>

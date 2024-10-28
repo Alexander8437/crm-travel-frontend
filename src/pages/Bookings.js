@@ -1,5 +1,6 @@
 import React from 'react'
 import { FaEye } from 'react-icons/fa6'
+import TableComponent from './TableComponent'
 
 const Bookings = () => {
   const data = [
@@ -85,6 +86,67 @@ const Bookings = () => {
     }
   ]
 
+  const columns = [
+    {
+      header: 'Select',
+      render: (row) => (
+        <div className="flex">
+          <div className={`w-1 h-14 ${statusColors[row.status]} mr-2`}></div>
+          <input type="checkbox" className="form-checkbox" />
+        </div>
+      ),
+    },
+    { header: 'Query Date', accessor: 'queryDate' },
+    {
+      header: 'Name/Mobile',
+      render: (row) => (
+        <>
+          <div>{row.name}</div>
+          <div>{row.mobile}</div>
+          <div>{row.email}</div>
+        </>
+      ),
+    },
+    { header: 'Type', accessor: 'type' },
+    { header: 'Description', accessor: 'description' },
+    { header: 'Travel Date', accessor: 'travelDate' },
+    { header: 'No. of Pax', accessor: 'pax' },
+    { header: 'Destinations', accessor: 'destinations' },
+    { header: 'Proposal', accessor: 'proposal' },
+    {
+      header: 'Lead Stage',
+      render: () => (
+        <div className="flex flex-col space-y-1">
+          <select className="border border-gray-300 rounded px-2 py-1">
+            <option>Query Created</option>
+            <option>Proposal Sent</option>
+            <option>Follow Up</option>
+            <option>Closed</option>
+            <option>Post Sale</option>
+          </select>
+          <button className="bg-orange-500 text-white px-2 py-1 rounded">
+            Follow Up
+          </button>
+          <button className="bg-gray-200 text-black px-2 py-1 rounded">
+            Touch Points
+          </button>
+        </div>
+      ),
+    },
+    { header: 'Last Updated', accessor: 'lastUpdated' },
+    { header: 'Owner', accessor: 'owner' },
+    {
+      header: 'Action',
+      render: () => (
+        <div className="flex flex-col items-center justify-center">
+          <FaEye className="text-gray-600 hover:text-gray-800 cursor-pointer" />
+          <FaEye className="text-gray-600 hover:text-gray-800 cursor-pointer" />
+          <FaEye className="text-gray-600 hover:text-gray-800 cursor-pointer" />
+        </div>
+      ),
+    },
+  ];
+
   const statusColors = {
     hot: "bg-red-500",
     warm: "bg-yellow-500",
@@ -93,15 +155,15 @@ const Bookings = () => {
   }
 
   return (
-    <div className="p-4 w-full bg-gray-50 overflow-x-auto ml-20">
-      <div className="flex justify-between items-center mb-4 w-full">
+    <div className="p-4 w-full bg-gray-50" style={{ marginLeft: "100px" }}>
+      <div className="flex justify-between items-center mb-4">
         <div className="flex space-x-2">
           <select className="border border-gray-300 rounded px-2 py-1">
             <option>Select Users</option>
           </select>
           <button className="bg-gray-200 text-black px-4 py-2 rounded">Assign</button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center space-x-2">
           <button className="bg-orange-500 text-white px-4 py-2 rounded">B2C Customer</button>
           <button className="bg-orange-500 text-white px-4 py-2 rounded">B2B Customer</button>
         </div>
@@ -133,7 +195,9 @@ const Bookings = () => {
           <button className="bg-orange-500 text-white px-4 py-2 rounded">Email</button>
         </div>
       </div>
-      <table className="min-w-full bg-white">
+
+      <TableComponent columns={columns} data={data} />
+      {/* <table className="min-w-full bg-white">
         <thead>
           <tr>
             <th className="py-2 px-4 border-b">Select</th>
@@ -199,7 +263,7 @@ const Bookings = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
     </div>
   )
 }

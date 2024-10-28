@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select, { components } from 'react-select';
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import CreatableSelect from "react-select/creatable";
-
-
+import api from "../apiConfig/config";
+import axios from "axios";
+import PackageItinerary from "./PackageItinerary";
 
 const NewPackageForm = ({ isOpen, onClose }) => {
+  const [nights, setNights] = useState(0)
+  const [days, setDays] = useState(0)
   const [page, setPage] = useState(1)
   const [selectedDestinations, setSelectedDestinations] = useState([]);
   const [editorData, setEditorData] = useState("");
@@ -17,6 +20,14 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const [selectedEndCity, setSelectedEndCity] = useState()
   const [selectedSupplier, SetSelectedSupplier] = useState(null)
   const [addItineraryDay, setAddItineraryDay] = useState(1)
+  const [packageImage, setPackageImage] = useState(null)
+  const [selectedHotelCity, setSelectedHotelCity] = useState(null)
+  const [destinations, setDestinations] = useState([])
+  const [addCityAndNight, setAddCityAndNight] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showItiForm, setShowItiForm] = useState(false);
+  const [showIti, setShowIti] = useState([{ value: 'add-field', label: '➕ Add Extra Field' },
+  ])
 
   const [state, setState] = useState([
     {
@@ -26,10 +37,10 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     },
   ]);
 
-  const handleSelect = (ranges) => {
-    console.log(ranges); // Check the selected date ranges in the console
-    setState([ranges.selection]);
-  };
+  // const handleSelect = (ranges) => {
+  //   console.log(ranges); // Check the selected date ranges in the console
+  //   setState([ranges.selection]);
+  // };
 
   const [formData, setFormData] = useState({
     packageTitle: '',
@@ -42,22 +53,44 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     Description: '',
   });
 
-  // Sample destinations for testing
-  const destinations = [
-    { value: '1', label: 'Paris' },
-    { value: '2', label: 'New York' },
-    { value: '3', label: 'Tokyo' },
-    { value: '4', label: 'London' },
-    { value: '5', label: 'Sydney' }
-  ];
 
-  const itineraries = [
-    { value: '1', label: 'Day 1: Paris' },
-    { value: '2', label: 'Day 2: New York' },
-    { value: '3', label: 'Day 3: Tokyo' },
-    { value: '4', label: 'Day 4: London' },
-    { value: '5', label: 'Day 5: Sydney' }
-  ];
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/destination/getall`)
+      .then(response => {
+        const formattedOptions = response.data.map(item => ({
+          value: item.id, // or any unique identifier
+          label: item.destinationName // or any display label you want
+        }));
+        setDestinations(formattedOptions);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  // const destinations = [
+  //   { value: '1', label: 'Paris' },
+  //   { value: '2', label: 'New York' },
+  //   { value: '3', label: 'Tokyo' },
+  //   { value: '4', label: 'London' },
+  //   { value: '5', label: 'Sydney' }
+  // ];
+
+  const [itinerariesList, setItinerayList] = useState([
+    { value: 1, label: 'Ranchi' },
+    { value: 2, label: 'Goa' },
+    { value: 3, label: 'Verkala' },
+    { value: 4, label: 'Shimla' },
+    { value: 5, label: 'Goa' }
+  ])
+
+  const [supplier, setSupplier] = useState(
+    [{ value: '1', label: 'Supplier 1' },
+    { value: '2', label: 'Supplier 2' },
+    { value: '3', label: 'Supplier 3' },
+    { value: '4', label: 'Supplier 4' },
+    { value: '5', label: 'Supplier 5' },]
+  );
 
   const inclusions = [
     { value: '1', label: 'Inclusion 1' },
@@ -75,6 +108,26 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     { value: '5', label: 'Exclusion 5' },
   ]
 
+
+  const CustomOptions = (props) => {
+    return (
+      <components.Option {...props}>
+        {props.data.value === 'add-form' ? (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setIsModalOpen(true); // Open modal on button click
+            }}
+            className="text-blue-500 hover:text-blue-700 focus:outline-none"
+          >
+            {props.data.label}
+          </button>
+        ) : (
+          props.children
+        )}
+      </components.Option>
+    );
+  };
   // Custom Option Component
   const CustomOption = (props) => {
     return (
@@ -90,22 +143,44 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     );
   };
 
+  // setAddItineraryDay(addItineraryDay + 1)
   const handleAddItineraryDay = () => {
-    setAddItineraryDay(addItineraryDay + 1)
+    // if (Number(nights) > 0 && selectedHotelCity !== null) {
+    const addIti = {
+      'hotelCity': selectedHotelCity.label,
+      'hotelCityId': selectedHotelCity.value,
+      'noOfNights': Number(nights),
+      'noOfDays': Number(nights) + 1
+    }
+    setDays((prev) => prev + Number(nights) + 1)
+    const iti = itinerariesList.filter((it) => it.label === selectedHotelCity.label)
+    addCityAndNight.push(addIti)
+    setSelectedHotelCity(null)
+    setNights(0)
+    console.log(iti)
+    iti.map((i) => {
+      showIti.push(i)
+    })
+    // }
+    // console.log(showIti)
   }
+  // const handleFormSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log('Form data submitted:', formData);
+  //   setIsModalOpen(false); // Close modal after submit
+  // };
 
   const handleFileChange = () => {
-
   }
   const handleSupplierChange = () => {
-
-  }
-  const handleStartCityChange = () => {
-
   }
 
-  const handleEndCityChange = () => {
+  const handleStartCityChange = (selectedStartCity) => {
+    setSelectedStartCity(selectedStartCity)
+  }
 
+  const handleEndCityChange = (selectedEndCity) => {
+    setSelectedEndCity(selectedEndCity)
   }
 
   const handleInputChange = (e) => {
@@ -121,8 +196,12 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     console.log(selectedOptions)
   };
 
-  const handleItineraryChange = (selectedOptions) => {
-    setSelectedItineraries(selectedOptions);
+  const handleItineraryChange = (selectedOption) => {
+    setSelectedItineraries({ ...selectedItineraries, selectedOption });
+    // selectedItineraries.push(selectedOptions)
+    console.log(typeof (selectedItineraries))
+    console.log(selectedItineraries)
+    // console.log(i)
   };
 
   const handleInclusionChange = (selectedOptions) => {
@@ -148,11 +227,12 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     selectedDestinations.map(option => option.label).join(', ');
+    // console.log(formData)
   };
 
 
   return (
-    <div className={`fixed top-8 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"} mt-4 sm:top-18 md:top-18 lg:w-[800px] sm:w-full md:w-full z-50`}>
+    <div className={`fixed top-8 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"} mt-4 sm:top-18 md:top-18 lg:w-[800px] sm:w-full md:w-[700px] z-50`}>
       <button onClick={onClose} className="absolute top-[12px] lg:left-[-22px] font-semibold w-8 text-white text-sm bg-red-700 square px-3 py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700 sm:right-4 md:right-4 xs:right-4">X</button>
       <div className="flex justify-between items-center p-4 bg-white shadow-md top-12">
         <h2 className="text-lg font-bold text-black">New Package</h2>
@@ -225,9 +305,10 @@ const NewPackageForm = ({ isOpen, onClose }) => {
                 className="mt-1 w-full border h-full rounded z-30"
                 value={selectedSupplier}
                 onChange={(selectedSupplier) => {
-                  SetSelectedSupplier(selectedSupplier)
+                  SetSelectedSupplier(selectedSupplier);
+                  formData.supplier = selectedSupplier.value
                 }}
-                options={destinations}
+                options={supplier}
               />
             </div>
 
@@ -285,17 +366,31 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           <div className="mb-4">
             <h3 className="bg-red-700 text-white p-2 rounded">Itinerary</h3>
           </div>
-          <div className="flex mb-4 gap-2 h-14">
-
-          </div>
+          {addCityAndNight.map(i => (
+            <div className="flex mb-4 gap-2 justify-between">
+              <table className="w-full bg-white">
+                <thead className="gap-4">
+                  {/* <th>Itinerary City ID</th> */}
+                  <th>Itinerary City</th>
+                  <th>Number of days</th>
+                  <th>Number of Nights</th>
+                </thead>
+                <tbody className="text-center">
+                  {/* <td>{i.hotelCityId}</td> */}
+                  <td>{i.hotelCity}</td>
+                  <td>{i.noOfDays}</td>
+                  <td>{i.noOfNights}</td>
+                </tbody>
+              </table>
+            </div>
+          ))}
           <div className="flex mb-4 gap-2 h-14">
             <div className="w-1/2">
               <label htmlFor="destinations" className="block text-sm font-medium">Add Hotel City</label>
-
               <Select
                 className="mt-1 w-full border rounded z-40"
-                value={selectedItineraries}
-                onChange={handleStartCityChange}
+                value={selectedHotelCity}
+                onChange={setSelectedHotelCity}
                 options={destinations}
               />
               {/* <input type="text" className="w-full p-2 " placeholder="Enter Hotel Stay..." /> */}
@@ -303,11 +398,11 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             <div className="w-1/4">
               <label htmlFor="destinations" className="block text-sm font-medium">No of Nights</label>
               <input
-                type="text"
+                type="number"
                 id="packageName"
                 name="packageTitle"
-                value={formData.packageTitle}
-                onChange={handleInputChange}
+                value={nights}
+                onChange={(e) => setNights(e.target.value)}
                 className="mt-1 h-[38px] p-2 w-full border border-1 border-[#e5e7eb] rounded"
                 placeholder="No. of night..."
               />
@@ -317,21 +412,42 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               <button className="bg-red-200 px-4 h-[38px] mt-3" onClick={handleAddItineraryDay}>Add</button>
             </div>
           </div>
-
           <div className="mb-6">
             <label htmlFor="destinations" className="block text-sm font-medium">Itineraries</label>
-            <Select
-              className="mt-1 w-full border rounded"
-              value={selectedItineraries}
-              onChange={handleItineraryChange}
-              options={itineraries}
-              isMulti
-              components={{ Option: CustomOption }}
-              closeMenuOnSelect={false}
-              hideSelectedOptions={false}
-              isClearable={true}
-            />
+
+            {Array.from({ length: days }, (_, index) => (
+              <div className="flex gap-2 items-center truncate w-full">
+                <label>Day: {index + 1} </label>
+                <Select
+                  className="mt-3 w-full border rounded"
+                  value={selectedItineraries}
+                  onChange={handleItineraryChange}
+                  options={showIti}
+                  // isMulti
+                  components={{ Option: CustomOptions }}
+                  classNamePrefix="select"
+                // closeMenuOnSelect={false}
+                // hideSelectedOptions={false}
+                // isClearable={true}
+                />
+              </div>
+            ))}
+            {days !== 0 &&
+              <div className="flex justify-center items-center mt-4">
+                <button className="bg-blue-200 p-2 border rounded-sm border-b-2"
+                  onClick={() => setShowItiForm(true)}>Create Desired Itinerary</button>
+              </div>
+            }
           </div>
+          {showItiForm && (
+            // <div className="bg-white border-2 rounded-md">
+            <div
+              className="submenu-menu" style={{ right: showItiForm ? "0" : "-100%" }}>
+              <PackageItinerary isOpen={showItiForm} onClose={() => setShowItiForm(false)} />
+            </div>
+            // </div>
+          )}
+
         </>}
         {page === 3 && <>
           <div className="mb-6">
@@ -547,6 +663,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
         </div>
       </form>
+
     </div>
   );
 };

@@ -122,28 +122,27 @@ const NewQuery = ({ isOpen, onClose }) => {
     formDatasend.append("modifiedby", user.username);
     formDatasend.append("isdelete", false);
 
-    // for (let [key, value] of formDatasend.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
+    for (let [key, value] of formDatasend.entries()) {
+      console.log(`${key}: ${value}`);
+    }
 
-    await axios
-      .post(`${api.baseUrl}/country/create`, formDatasend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "Access-Control-Allow-Origin": "*",
-        },
-      })
-      .then(async (response) => {
-        alert("Country created...");
-        setFormData({
-          countryName: "",
-          code: "",
-          pCode: "",
-          ipAddress: "",
-          image: null,
-        });
-      })
-      .catch((error) => console.log(error));
+    // await axios.post(`${api.baseUrl}/country/create`, formDatasend, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //       "Access-Control-Allow-Origin": "*",
+    //     },
+    //   })
+    //   .then(async (response) => {
+    //     alert("Country created...");
+    //     setFormData({
+    //       countryName: "",
+    //       code: "",
+    //       pCode: "",
+    //       ipAddress: "",
+    //       image: null,
+    //     });
+    //   })
+    //   .catch((error) => console.log(error));
   };
 
   useEffect(() => {

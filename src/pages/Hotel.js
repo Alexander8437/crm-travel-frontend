@@ -138,6 +138,7 @@ const Hotel = ({ isOpen, onClose }) => {
   const handleStateChange = (stateSelected) => {
     setStateSelected(stateSelected)
     setDestinationOption([])
+    setSelectedDestinations(null)
     // setDestinationId(null)
 
     const newData = destinationDetails.filter(data => stateSelected.value === data.state.id);
