@@ -16,6 +16,8 @@ import NewMember from '../pages/NewMember';
 import Itinerary from '../pages/Itinerary';
 import NewPackageForm from '../pages/NewPacakgeForm';
 import NewQuery from '../pages/NewQuery';
+import NewVendorForm from '../pages/NewVendorForm';
+import NewTransportationForm from '../pages/NewTransportationForm';
 
 const Sidebar = () => {
   const [homeStyle, setHomeStyle] = useState([])
@@ -352,7 +354,12 @@ const Sidebar = () => {
                 </button>
               </div>
               <div className="flex gap-4">
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20">
+                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Transportation'])
+                  }}
+                >
                   Transportation
                 </button>
                 <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20">
@@ -360,10 +367,15 @@ const Sidebar = () => {
                 </button>
               </div>
               <div className="flex gap-4">
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20">
+                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none shadow-md my-2 rounded-md text-justify h-20"
+                  onClick={() => {
+                    setAddData([]);
+                    setAddData(['Vendors'])
+                  }}
+                >
                   Vendors
                 </button>
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none text-left shadow-md h-10 my-2 rounded-md text-justify h-20"
+                <button className="w-full px-4 py-2 bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6] cursor-pointer border-none shadow-md my-2 rounded-md text-justify h-20"
                   onClick={() => {
                     setAddData([]);
                     setAddData(['Itinerary'])
@@ -402,6 +414,12 @@ const Sidebar = () => {
       </div>
       <div className="submenu-menu" style={{ right: addData[0] === 'NewQuery' ? "0" : "-100%" }}>
         <NewQuery isOpen={addData[0] === 'NewQuery'} onClose={() => setAddData([])} />
+      </div>
+      <div className="submenu-menu" style={{ right: addData[0] === 'Vendors' ? "0" : "-100%" }}>
+        <NewVendorForm isOpen={addData[0] === 'Vendors'} onClose={() => setAddData([])} />
+      </div>
+      <div className="submenu-menu" style={{ right: addData[0] === 'Transportation' ? "0" : "-100%" }}>
+        <NewTransportationForm isOpen={addData[0] === 'Transportation'} onClose={() => setAddData([])} />
       </div>
     </>
   );

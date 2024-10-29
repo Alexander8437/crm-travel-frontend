@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Table from './TableComponent';
 import { useNavigate } from 'react-router-dom';
+import api from '../apiConfig/config';
 
 const MasterList = () => {
   const [activeTab, setActiveTab] = useState('country');
@@ -22,15 +23,16 @@ const MasterList = () => {
         { header: 'Country Name', accessor: 'countryName' },
         { header: 'Code', accessor: 'code' },
         { header: 'Phone Code', accessor: 'pCode' },
-        { header: 'IP Address', accessor: 'ipAddress' },
+        { header: 'Status', accessor: 'status' },
       ],
       data: countryData,
     },
     state: {
       columns: [
+        { header: 'Country Name', accessor: 'countryName' },
         { header: 'State Name', accessor: 'stateName' },
         { header: 'Code', accessor: 'code' },
-        { header: 'IP Address', accessor: 'ipAddress' },
+        { header: 'Status', accessor: 'status' },
       ],
       data: stateData,
     },
@@ -59,14 +61,10 @@ const MasterList = () => {
   useEffect(() => {
     const fetchCountryData = async () => {
       try {
-        const response = await axios.get(
-          'https://updated-crm-travel-server-production.up.railway.app/Motherson/crm/v1/country/get'
-        );
+        const response = await axios.get(`${api.baseUrl}/country/get`);
         const formattedData = response.data.map((country) => ({
-          countryName: country.countryName,
-          code: country.code,
-          pCode: country.pCode,
-          ipAddress: country.ipAddress,
+          ...country,
+          status: country.status ? 'Active' : 'Inactive'
         }));
         setCountryData(formattedData);
       } catch (error) {
@@ -80,9 +78,8 @@ const MasterList = () => {
           'https://updated-crm-travel-server-production.up.railway.app/Motherson/crm/v1/state/get'
         );
         const formattedData = response.data.map((state) => ({
-          stateName: state.stateName,
-          code: state.code,
-          ipAddress: state.ipAddress,
+          ...state,
+          status: state.status ? 'Active' : 'Inactive'
         }));
         setStateData(formattedData);
       } catch (error) {

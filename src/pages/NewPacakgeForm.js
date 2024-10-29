@@ -456,8 +456,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               <div className="flex justify-center items-center mt-4">
                 <button className="bg-blue-200 p-2 border rounded-sm border-b-2"
                   onClick={() => setShowItiForm(true)}>Create Desired Itinerary</button>
-              </div>
-            }
+              </div>}
           </div>
           {showItiForm && (
             // <div className="bg-white border-2 rounded-md">
