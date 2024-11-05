@@ -18,7 +18,7 @@ const PageRoute = () => {
   return (
     <>
       <Navbar />
-      <div className="main-content h-screen mt-12 flex flex-row w-full overflow-x-hidden overflow-y-auto">
+      <div className="main-content h-full flex flex-row w-full overflow-x-hidden overflow-y-auto">
         <Sidebar />
         <Routes>
           <Route path='' element={<Quickstart />} />

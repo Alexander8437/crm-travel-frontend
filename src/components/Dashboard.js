@@ -135,7 +135,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="w-full ml-20 mt-0">
+    <div className="w-full ml-0 mt-0">
       <BodyHeader />
       <div className="bg-[#e2e8f0] m-0">
         <div className="dashboard ml-10 mr-10 pt-4">

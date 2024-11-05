@@ -28,7 +28,7 @@ const BodyHeader = () => {
         </Link>
 
         <div className='flex m-0 p-0 gap-8'>
-          <Link to="/home" className={` pb-1 ${activeTab === '/home' ? 'border-b-4 border-red-700' : ''
+          <Link to="/home" className={` pb-1 ${activeTab === '/home' ? 'border-b-4 border-red-700' : 'hover:border-b-4 hover:border-red-400'
             }`}>
             <button
               className={`header-button text-black font-medium text-sm md:text-base py-2 px-2`}
@@ -37,7 +37,7 @@ const BodyHeader = () => {
             </button>
           </Link>
 
-          <Link to="/home/dashboard" className={` pb-1 ${activeTab === '/home/dashboard' ? 'border-b-4 border-red-700' : ''
+          <Link to="/home/dashboard" className={` pb-1 ${activeTab === '/home/dashboard' ? 'border-b-4 border-red-700' : 'hover:border-b-4 hover:border-red-400'
             }`}>
             <button
               className={`header-button text-black font-medium text-sm md:text-base px-2 py-2`}

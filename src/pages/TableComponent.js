@@ -45,7 +45,7 @@ const TableComponent = ({ columns, data, isSelectable }) => {
     //     </tbody>
     //   </table>
     // </div>
-    <table className="min-w-full bg-white">
+    <table className="min-w-full bg-white border-collapse">
       <thead>
         <tr>
           {columns.map((column, index) => (

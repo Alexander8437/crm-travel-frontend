@@ -8,20 +8,23 @@ import Select, { components } from 'react-select';
 
 
 const HotelMasterAddRoom = () => {
-  const [roomsMaster, setRoomsMaster] = useState([])
-  const [selectedRoomsMaster, setSelectedRoomsMaster] = useState([])
-  const [selectedRoomsType, setSelectedRoomsType] = useState([])
-  const [allRoomAndType, setAllRoomAndType] = useState([])
+  // const [roomsMaster, setRoomsMaster] = useState([])
+  // const [selectedRoomsMaster, setSelectedRoomsMaster] = useState([])
+  // const [selectedRoomsType, setSelectedRoomsType] = useState([])
+  // const [allRoomAndType, setAllRoomAndType] = useState([])
+  // const [showRoom, setShowRoom] = useState(false)
+  // const [allOptions, setAllOptions] = useState([]);
+
 
   const location = useLocation(); // Unix timestamp in milliseconds
   const item = location.state?.item;
 
-  const roomType = [{ value: 1, label: 'Twin' },
-  { value: 2, label: 'Full / Double' },
-  { value: 3, label: 'Queen' },
-  { value: 4, label: 'King' },
-  { value: 5, label: 'Single' },
-  { value: 6, label: 'Full XL' }]
+  // const roomTypes = [{ value: 1, label: 'Twin' },
+  // { value: 2, label: 'Full / Double' },
+  // { value: 3, label: 'Queen' },
+  // { value: 4, label: 'King' },
+  // { value: 5, label: 'Single' },
+  // { value: 6, label: 'Full XL' }]
 
   // const [tab, setTab] = React.useState('profile');
   const CustomOption = (props) => {
@@ -38,20 +41,28 @@ const HotelMasterAddRoom = () => {
     );
   };
 
-  const handleRoomMasterChange = (selectedOption) => {
-    setSelectedRoomsMaster(selectedOption)
-  }
+  // const handleCheckboxChange = (roomTypeId, optionId, checked) => {
+  //   setAllOptions(prevOptions =>
+  //     prevOptions.map(option => {
+  //       if (option.roomTypeId === roomTypeId && option.id === optionId) {
+  //         return { ...option, selected: checked };
+  //       }
+  //       return option;
+  //     })
+  //   );
+  // };
 
-  const handleRoomsAndType = (selectOption) => {
-    setAllRoomAndType({
-      ...allRoomAndType,
-      selectedRoomsMaster
-    })
-  }
+  // const handleRoomMasterChange = (selectedOption) => {
+  //   setSelectedRoomsMaster(selectedOption)
+  // }
 
-  const handleRoomTypeChange = (selectedOption) => {
-    setSelectedRoomsType(selectedOption)
-  }
+  // const handleRoomsAndType = () => {
+  //   setShowRoom(!showRoom)
+  // }
+
+  // const handleRoomTypeChange = (selectedOption) => {
+  //   setSelectedRoomsType(selectedOption)
+  // }
 
   useEffect(() => {
     axios.get(`${api.baseUrl}/rooms/getAll`)
@@ -61,13 +72,86 @@ const HotelMasterAddRoom = () => {
           label: item.roomname
         }))
         const sortedData = formattedOptions.sort((a, b) => a.label.localeCompare(b.label));
-        setRoomsMaster(sortedData);
+        setRoomOptions(sortedData);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
-    console.log(roomsMaster)
+    // console.log(roomOptions)
   }, []);
+
+  const bedTypes = [
+    { value: 1, label: 'Twin' },
+    { value: 2, label: 'Full / Double' },
+    { value: 3, label: 'Queen' },
+    { value: 4, label: 'King' },
+    { value: 5, label: 'Single' },
+    { value: 6, label: 'Full XL' }
+  ];
+
+  const [roomOptions, setRoomOptions] = useState([]);
+  const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
+  const [selectedBedsByRoom, setSelectedBedsByRoom] = useState({});
+
+  // useEffect(() => {
+  //   axios.get('/api/room-options')
+  //     .then(response => setRoomOptions(response.data))
+  //     .catch(error => console.error("Error fetching room options:", error));
+  // }, []);
+
+  const handleRoomTypeChange = (selectedOptions) => {
+    setSelectedRoomTypes(selectedOptions);
+
+    const updatedSelectedBeds = { ...selectedBedsByRoom };
+    selectedOptions.forEach(room => {
+      if (!updatedSelectedBeds[room.value]) {
+        updatedSelectedBeds[room.value] = [];
+      }
+    });
+    setSelectedBedsByRoom(updatedSelectedBeds);
+  };
+
+  const handleBedCheckboxChange = (roomTypeId, bedId, isChecked) => {
+    setSelectedBedsByRoom(prevSelectedBeds => ({
+      ...prevSelectedBeds,
+      [roomTypeId]: isChecked
+        ? [...prevSelectedBeds[roomTypeId], { bedId, image: null, maxPersons: '' }]
+        : prevSelectedBeds[roomTypeId].filter(bed => bed.bedId !== bedId)
+    }));
+  };
+
+  const handleInputChange = (roomTypeId, bedId, field, value) => {
+    setSelectedBedsByRoom(prevSelectedBeds => ({
+      ...prevSelectedBeds,
+      [roomTypeId]: prevSelectedBeds[roomTypeId].map(bed =>
+        bed.bedId === bedId ? { ...bed, [field]: value } : bed
+      )
+    }));
+  };
+  const handleImageChange = (roomTypeId, bedId, file) => {
+    setSelectedBedsByRoom(prevSelectedBeds => ({
+      ...prevSelectedBeds,
+      [roomTypeId]: prevSelectedBeds[roomTypeId].map(bed =>
+        bed.bedId === bedId ? { ...bed, image: file } : bed
+      )
+    }));
+  };
+
+  const handleSave = () => {
+    const payload = selectedRoomTypes.map(room => ({
+      roomTypeId: room.value,
+      bedTypes: selectedBedsByRoom[room.value]
+    }));
+
+    // axios.post('/api/save-room-selections', payload)
+    //   .then(() => alert('Selections saved successfully!'))
+    //   .catch(error => console.error("Error saving selections:", error));
+
+    console.log(roomOptions)
+    console.log(bedTypes)
+    console.log(payload)
+  };
+
 
   return (
     <div className="p-4 w-full ml-20  bg-gray-100 min-h-screen overflow-y-auto"
@@ -100,16 +184,8 @@ const HotelMasterAddRoom = () => {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded shadow mt-4">
+      {/* <div className="bg-white p-4 rounded shadow mt-4">
         <div className="flex flex-col gap-2">
-          {/* {roomsMaster.map((item) => (
-            <button
-              key={item.id}
-              className={`px-4 py-2 bg-blue-500 text-white rounded-md `}
-            >
-              {item.roomname}
-            </button>
-          ))} */}
           <label className='bg-gray-500 text-white p-2 rounded-sm'>Types of Rooms Avaliable</label>
           <Select
             className='w-full'
@@ -122,12 +198,11 @@ const HotelMasterAddRoom = () => {
             hideSelectedOptions={false}
             isClearable={true}
           />
-          {/* <button className='bg-green-500 px-2 py-1 rounded-sm text-white border-2 border-transparent hover:bg-white hover:text-green-500 hover:border-green-500 '>Add</button> */}
         </div>
         <div className='flex justify-center mt-4'>
-          <button className='bg-red-600 px-2 py-1 rounded-sm border-2 text-white border-transparent hover:bg-white hover:text-red-600 hover:border-red-400' onClick={handleRoomsAndType}>Add</button>
+          <button className='bg-red-600 px-2 py-1 rounded-sm border-2 text-white border-transparent hover:bg-white hover:text-red-600 hover:border-red-400' onClick={handleRoomsAndType}>{showRoom ? 'Hide' : 'Show Rooms'}</button>
         </div>
-      </div>
+      </div> */}
       {/* <div className="flex flex-col gap-2 mt-4">
           <label className='bg-gray-500 text-white p-2 rounded-sm'>Types of Bed Avaliable</label>
           <Select
@@ -144,7 +219,7 @@ const HotelMasterAddRoom = () => {
         </div> */}
 
 
-      {selectedRoomsMaster.length !== 0 && (
+      {/* {showRoom && selectedRoomsMaster.length !== 0 && (
         <div className="bg-white p-4 rounded shadow mt-4">
           <div className="flex flex-col items-center mb-4">
             <h5 className='bg-gray-500 text-white p-2 rounded-sm w-full'>Types of Bed Avaliable</h5>
@@ -162,10 +237,103 @@ const HotelMasterAddRoom = () => {
                 </div>
               ))}
             </div>
-            {/* <button className="bg-green-500 text-white px-4 py-2 rounded">View</button> */}
           </div>
         </div>
-      )}
+      )} */}
+      {/* {selectedRoomsMaster.map(roomType => (
+        <div key={roomType.value} className="mb-4">
+          <h3 className="font-semibold">{roomType.label} Options</h3>
+          <div className="flex flex-wrap gap-2">
+            {roomTypes
+              .filter(option => option.value === roomType.value)
+              .map(option => (
+                <label key={option.value} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={option.selected || false}
+                    onChange={(e) => handleCheckboxChange(roomType.value, option.id, e.target.checked)}
+                    className="mr-2"
+                  />
+                  {option.name}
+                </label>
+              ))}
+          </div>
+        </div>
+      ))} */}
+      {/* {selectedRoomTypes.map(roomType => (
+        <div key={roomType.value} className="mb-4">
+          <h3 className="font-semibold">{roomType.label} Bed Types</h3>
+          <div className="flex flex-wrap gap-2">
+            {bedTypes.map(bed => (
+              <label key={bed.value} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedBedsByRoom[roomType.value]?.includes(bed.value) || false}
+                  onChange={(e) => handleBedCheckboxChange(roomType.value, bed.value, e.target.checked)}
+                  className="mr-2"
+                />
+                {bed.label}
+              </label>
+            ))}
+          </div>
+        </div>
+      ))} */}
+      <div className="p-4">
+        <Select
+          options={roomOptions}
+          isMulti
+          onChange={handleRoomTypeChange}
+          placeholder="Select Room Types"
+          className="mb-4"
+        />
+
+        {selectedRoomTypes.map(roomType => (
+          <div key={roomType.value} className="mb-4">
+            <h3 className="font-semibold">{roomType.label} Bed Types</h3>
+            <div className="flex flex-wrap gap-2">
+              {bedTypes.map(bed => {
+                const isSelected = selectedBedsByRoom[roomType.value]?.find(b => b.bedId === bed.value);
+                return (
+                  <div key={bed.value} className="flex border p-2 rounded mb-2 w-full gap-5">
+                    <label className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        checked={!!isSelected}
+                        onChange={(e) => handleBedCheckboxChange(roomType.value, bed.value, e.target.checked)}
+                        className="mr-2"
+                      />
+                      {bed.label}
+                    </label>
+
+                    {isSelected && (
+                      <div className="flex justify-between gap-2">
+                        <input
+                          type="number"
+                          placeholder="Maximum Persons"
+                          value={isSelected.maxPersons}
+                          onChange={(e) => handleInputChange(roomType.value, bed.value, 'maxPersons', e.target.value)}
+                          className="p-2 border rounded"
+                        />
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(roomType.value, bed.value, e.target.files[0])}
+                          className="p-2 border rounded"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        <button onClick={handleSave} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+          Save
+        </button>
+      </div>
+
+
     </div>
   )
 }

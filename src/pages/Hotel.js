@@ -5,8 +5,13 @@ import Select from "react-select";
 import api from "../apiConfig/config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { isArray } from "chart.js/helpers";
+
+
 
 const Hotel = ({ isOpen, onClose }) => {
+  var pricePage = 0;
+  // const [pricePage, setPricePage] = useState(0)
   const [country, setCountry] = useState("Select");
   const [state, setState] = useState("Select");
   const [destination, setDestination] = useState("");
@@ -23,16 +28,22 @@ const Hotel = ({ isOpen, onClose }) => {
   const [roomMaster, setRoomMaster] = useState([]);
   const [bedSize, setBedSize] = useState("");
   const [maxPerson, setMaxPerson] = useState("");
-  const [roomStatus, setRoomStatus] = useState(null);
+  const [roomStatus, setRoomStatus] = useState([null]);
   const [offSeasonPrice, setOffSeasonPrice] = useState("");
   const [extraBedPrice, setExtraBedPrice] = useState("");
   const [directHotelPrice, setDirectHotelPrice] = useState("");
   const [thirdPartyPrice, setThirdPartyPrice] = useState("");
+  const [addRoomPage, setAddRoomPage] = useState(1)
 
   const [countryDetails, setCountryDetails] = useState([])
   const [stateDetails, setStateDetails] = useState([])
   const [destinationDetails, setDestinationDetails] = useState([])
   const [destinationOption, setDestinationOption] = useState([])
+  const [roomsSelected, setRoomsSelected] = useState([{ id: 0, value: true, label: "Active" }])
+  const [allSelectedRoomType, setAllSelectedRoomType] = useState(Array(addRoomPage).fill(null))
+
+  // const allSelectedRoomType = [null]
+  const [roomOptions, setRoomOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState(null)
   const [stateSelected, setStateSelected] = useState(null)
   const [selectedDestination, setSelectedDestinations] = useState(null)
@@ -41,9 +52,98 @@ const Hotel = ({ isOpen, onClose }) => {
   const [hImage, setHImage] = useState(null)
   const [roomTypeImage, setRoomTypeImage] = useState(null)
 
+  const seasons = ["Christmas", "New Year", "Weekend", "On Seasons", "Snow Time"]
+
   const [hotelData, setHotelData] = useState({})
   const navigate = useNavigate();
 
+  const [tempRoomSelected, setTempRoomSelected] = useState(null)
+
+  const [formDataRoomMaster, setFormDataRoomMaster] = useState([])
+
+  const [formRoomDetails, setFormRoomDetails] = useState({
+    roomMasterSelected: '',
+    roomMasterSelectedId: null,
+    bed_size: [],
+    max_person: null,
+    status: { value: true, label: 'Active' },
+    created_by: '',
+    modified_by: '',
+    isdelete: false,
+    ipaddress: '',
+    image: null,
+  })
+  const [totalRoomDetails, setTotalRoomDetails] = useState([{
+    roomMasterSelected: '',
+    roomMasterSelectedId: null,
+    bed_size: [],
+    max_person: null,
+    status: { value: true, label: 'Active' },
+    created_by: '',
+    modified_by: '',
+    isdelete: false,
+    ipaddress: '',
+    image: null
+  }])
+
+  const [tags, setTags] = useState([{ id: null, bedSize: [] }]);
+  const [inputValue, setInputValue] = useState(['']);
+
+  // Handle input change
+  const handleInputChange = (e) => {
+    setInputValue([e.target.value]);
+  };
+
+  // Handle Enter or comma key press
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      const newTag = e.target.value.trim();
+      if (newTag) {
+        setTotalRoomDetails((prevItems) =>
+          prevItems.map((item, i) =>
+            index === i ?
+              { ...item, bed_size: [...item.bed_size, newTag] } : item))
+        e.target.value = ""; // Clear input
+      }
+    }
+  };
+
+  // Delete tag function
+  const handleDeleteTag = (index, i) => {
+    // setTags(tags.filter((_, i) => i !== index));
+    setTotalRoomDetails((prev) =>
+      prev.map((item, j) =>
+        index === j ? { ...item, bed_size: item.bed_size.filter(data => data !== item.bed_size[i]) } : item))
+  };
+
+  const [formAddRoom, setFormAddRoom] = useState([{
+    'roomType': null,
+    'bedSize': '',
+    'paxs': 0,
+    'roomStatus': true,
+    image: null
+  }])
+
+  const handleAdd = () => {
+    const length = totalRoomDetails.length - 1
+    console.log(length)
+    if (totalRoomDetails[length].bed_size.length <= 0 & totalRoomDetails[length].max_person === null & totalRoomDetails[length].max_person < 1) {
+      alert("Enter Complete Data...")
+    } else {
+      totalRoomDetails.push(formRoomDetails)
+      setAddRoomPage((prev) => prev + 1)
+      // console.log(totalRoomDetails)
+    }
+  }
+
+  const [openItems, setOpenItems] = useState({});
+
+  const toggleAccordion = (index) => {
+    setOpenItems((prevOpenItems) => ({
+      ...prevOpenItems,
+      [index]: !prevOpenItems[index], // Toggle the clicked item
+    }));
+  };
 
   const [currentPage, setCurrentPage] = useState(0); //Track your page
 
@@ -59,7 +159,6 @@ const Hotel = ({ isOpen, onClose }) => {
       key,
       encryptedToken
     );
-
     return dec.decode(new Uint8Array(decrypted));
   }
 
@@ -107,7 +206,7 @@ const Hotel = ({ isOpen, onClose }) => {
       .then(response => {
         const formattedOptions = response.data.map(item => ({
           value: item.id, // or any unique identifier
-          label: item.countryName // or any display label you want
+          label: item.countryName
         }));
         setCountryDetails(formattedOptions);
       })
@@ -120,8 +219,8 @@ const Hotel = ({ isOpen, onClose }) => {
     axios.get(`${api.baseUrl}/destination/getall`)
       .then(response => {
         const formattedOptions = response.data.map(item => ({
-          value: item.id, // or any unique identifier
-          label: item.destinationName // or any display label you want
+          value: item.id,
+          label: item.destinationName
         }));
         setDestinationDetails(response.data);
       })
@@ -132,33 +231,26 @@ const Hotel = ({ isOpen, onClose }) => {
 
   const handleDestinationChange = (selectedDestination) => {
     setSelectedDestinations(selectedDestination)
-    // setDestinationId(selectedDestination.value)
   }
 
   const handleStateChange = (stateSelected) => {
     setStateSelected(stateSelected)
     setDestinationOption([])
     setSelectedDestinations(null)
-    // setDestinationId(null)
 
     const newData = destinationDetails.filter(data => stateSelected.value === data.state.id);
-
     const formattedOptions = newData.map(item => ({
       value: item.id, // or any unique identifier
       label: item.destinationName // or any display label you want
     }));
     setDestinationOption(formattedOptions)
-    // console.log(destinationDetails)
   }
 
   const handleCountryChange = (selectedOption) => {
     setSelectedOption(selectedOption);
     setStateSelected(null);
     setSelectedDestinations(null)
-    // setCountryId(selectedOption.value)
-    // setStateId(null)
     setDestinationOption([])
-    // setDestinationId(null)
 
     axios.get(`${api.baseUrl}/state/getbycountryid/${selectedOption.value}`,
       {
@@ -203,7 +295,7 @@ const Hotel = ({ isOpen, onClose }) => {
     // setRoomTypeName("Single");
     setBedSize("");
     setMaxPerson("");
-    setRoomStatus("Active");
+    // setRoomStatus("Active");
     setOffSeasonPrice("");
     setExtraBedPrice("");
     setDirectHotelPrice("");
@@ -227,47 +319,106 @@ const Hotel = ({ isOpen, onClose }) => {
           label: item.roomname // or any display label you want
         }));
         setRoomMaster(formattedOptions);
+        const formatRoom = response.data.map(item => ({
+          value: item.id,
+          label: item.roomname,
+          status: false
+        }))
+        setFormDataRoomMaster(formatRoom)
       })
       .catch((error) => {
         console.error('Error fetching Room Type Name data :', error);
       });
   }, []);
 
+  const handleChange = (i, selectedOption) => {
+    const updatedSelections = [...allSelectedRoomType];
+    updatedSelections[i] = selectedOption; // Set the specific index to the selected option
+    setAllSelectedRoomType(updatedSelections); // Update the state
+    const updatedSelect = [...totalRoomDetails];
+    updatedSelect[i].roomMasterSelected = selectedOption.label
+    updatedSelect[i].roomMasterSelectedId = selectedOption.value
+    setTotalRoomDetails(updatedSelect)
+  }
+
+  const handleRoomDetailsChange = (e, index) => {
+    const { name, value } = e.target
+    if (name === 'image') {
+      const uploadImage = totalRoomDetails.map((item, i) => index === i ?
+        { ...item, image: e.target.files[0] } : item)
+      setTotalRoomDetails(uploadImage)
+    } else {
+      const update = totalRoomDetails.map((item, i) => index === i ?
+        { ...item, [name]: value }
+        : item)
+      setTotalRoomDetails(update)
+    }
+  }
+
+  const handleRoomDetailsStatusChange = (selectedOption, index) => {
+    console.log(selectedOption)
+    const update = totalRoomDetails.map((item, i) => i === index ? {
+      ...item, status: selectedOption
+    } : item)
+    setTotalRoomDetails(update)
+  }
+
   const handleRoomTypeMaster = async (e) => {
     e.preventDefault();
 
     const formDataHotelRoomType = new FormData()
 
-    formDataHotelRoomType.append('bed_size', bedSize)
-    formDataHotelRoomType.append('max_person', maxPerson)
-    formDataHotelRoomType.append('created_by', user.username)
-    formDataHotelRoomType.append('modified_by', user.username)
-    formDataHotelRoomType.append('ipaddress', ipAddress)
-    formDataHotelRoomType.append('status', roomStatus.value)
-    formDataHotelRoomType.append('isdelete', false)
-    formDataHotelRoomType.append('hotel.id', 1) //hotelData.id
-    formDataHotelRoomType.append('rooms.id', selectedRoomMaster.value)
-    formDataHotelRoomType.append('image', roomTypeImage)
+    // formDataHotelRoomType.append('bed_size', bedSize)
+    // formDataHotelRoomType.append('max_person', maxPerson)
+    // formDataHotelRoomType.append('created_by', user.username)
+    // formDataHotelRoomType.append('modified_by', user.username)
+    // formDataHotelRoomType.append('ipaddress', ipAddress)
+    // formDataHotelRoomType.append('status', roomStatus.value)
+    // formDataHotelRoomType.append('isdelete', false)
+    // formDataHotelRoomType.append('hotel.id', 1) //hotelData.id
+    // formDataHotelRoomType.append('rooms.id', selectedRoomMaster.value)
+    // formDataHotelRoomType.append('image', roomTypeImage)
 
-    for (var pair of formDataHotelRoomType.entries()) {
-      console.log(pair[0] + ', ' + pair[1]);
-    }
+    // for (var pair of formDataHotelRoomType.entries()) {
+    //   console.log(pair[0] + ', ' + pair[1]);
+    // }
 
-    await axios.post(`${api.baseUrl}/roomtypes/create`, formDataHotelRoomType, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-        'Access-Control-Allow-Origin': '*'
+    // await axios.post(`${api.baseUrl}/roomtypes/create`, formDataHotelRoomType, {
+    //   headers: {
+    //     'Authorization': `Bearer ${token}`,
+    //     'Content-Type': 'multipart/form-data',
+    //     'Access-Control-Allow-Origin': '*'
+    //   }
+    // })
+    //   .then(async (response) => {
+    //     alert('Hotel Room Type saved Successfully.');
+    //   })
+    //   .catch(error => console.error(error));
+
+    console.log(allSelectedRoomType)
+    let total = 0;
+    for (let i = 0; i < totalRoomDetails.length; i++) {
+      for (let j = 0; j < totalRoomDetails[i].bed_size.length; j++) {
+        total += 1
       }
-    })
-      .then(async (response) => {
-        alert('Hotel Room Type saved Successfully.');
-      })
-      .catch(error => console.error(error));
-
+    }
+    console.log(totalRoomDetails)
     setCurrentPage((prev) => prev + 1);
+  }
 
 
+  const handleRoomMaterSelect = (i) => {
+    // const newChange = formDataRoomMaster.find(item => item.id === i)
+    // newChange.value = !newChange.value
+    // setFormDataRoomMaster({
+    //   ...formDataRoomMaster,
+    //   newChange
+    // })
+    // formDataRoomMaster[i].status = !formDataRoomMaster[i].status
+    const newUpdate = formDataRoomMaster.map(item => item.value === i ? { ...item, status: !item.status } : item)
+    // newUpdate.push({ value: i, label: formDataRoomMaster[i].label, status: !formDataRoomMaster[i].status })
+    setFormDataRoomMaster(newUpdate)
+    console.log(newUpdate)
   }
 
   const handleHotelMasterSubmit = async (e) => {
@@ -275,45 +426,48 @@ const Hotel = ({ isOpen, onClose }) => {
 
     const formDataHotelMaster = new FormData()
 
-    formDataHotelMaster.append('country.id', selectedOption.value)
-    formDataHotelMaster.append('state.id', stateSelected.value)
-    formDataHotelMaster.append('destination.id', selectedDestination.value)
-    formDataHotelMaster.append('hname', hotelName)
-    formDataHotelMaster.append('hdescription', editorData)
-    formDataHotelMaster.append('star_ratings', starRating.value)
-    formDataHotelMaster.append('hcontactname', contactPersonName)
-    formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
-    formDataHotelMaster.append('hcontactemail', contactEmail)
-    formDataHotelMaster.append('haddress', hotelAddress)
-    formDataHotelMaster.append('hpincode', hotelPincode)
-    formDataHotelMaster.append('ipaddress', ipAddress)
-    formDataHotelMaster.append('status', status.value)
-    formDataHotelMaster.append('isdelete', false)
-    formDataHotelMaster.append('created_by', user.username)
-    formDataHotelMaster.append('modified_by', user.username)
-    formDataHotelMaster.append('image', hImage)
+    // formDataHotelMaster.append('country.id', selectedOption.value)
+    // formDataHotelMaster.append('state.id', stateSelected.value)
+    // formDataHotelMaster.append('destination.id', selectedDestination.value)
+    // formDataHotelMaster.append('hname', hotelName)
+    // formDataHotelMaster.append('hdescription', editorData)
+    // formDataHotelMaster.append('star_ratings', starRating.value)
+    // formDataHotelMaster.append('hcontactname', contactPersonName)
+    // formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
+    // formDataHotelMaster.append('hcontactemail', contactEmail)
+    // formDataHotelMaster.append('haddress', hotelAddress)
+    // formDataHotelMaster.append('hpincode', hotelPincode)
+    // formDataHotelMaster.append('ipaddress', ipAddress)
+    // formDataHotelMaster.append('status', status.value)
+    // formDataHotelMaster.append('isdelete', false)
+    // formDataHotelMaster.append('created_by', user.username)
+    // formDataHotelMaster.append('modified_by', user.username)
+    // formDataHotelMaster.append('image', hImage)
 
     // for (var pair of formDataHotelMaster.entries()) {
     //   console.log(pair[0] + ', ' + pair[1]);
     // }
 
 
-    await axios.post(`${api.baseUrl}/hotel/create`, formDataHotelMaster, {
-      headers: {
-        // 'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-        'Access-Control-Allow-Origin': '*'
-      }
-    })
-      .then(async (response) => {
-        alert('Hotel saved Successfully.');
-        setHotelData(response.data)
-      })
-      .catch(error => console.error(error));
+    // await axios.post(`${api.baseUrl}/hotel/create`, formDataHotelMaster, {
+    //   headers: {
+    //     // 'Authorization': `Bearer ${token}`,
+    //     'Content-Type': 'multipart/form-data',
+    //     'Access-Control-Allow-Origin': '*'
+    //   }
+    // })
+    //   .then(async (response) => {
+    //     setHotelData(response.data)
+    //   })
+    //   .catch(error => console.error(error));
 
-    navigate(`/home/master-list/hotel`)
-    onClose();
+    // alert('Hotel saved Successfully.');
+    // navigate(`/home/master-list/hotel`)
+    // onClose();
     setCurrentPage((prev) => prev + 1);
+    const data = formDataRoomMaster.filter(item => item.status === true)
+    setRoomsSelected(data)
+    // setAllSelectedRoomType(data)
   }
 
   const handleSubmit = () => {
@@ -334,19 +488,12 @@ const Hotel = ({ isOpen, onClose }) => {
       // roomTypeName,
       bedSize,
       maxPerson,
-      roomStatus,
+      // roomStatus,
       offSeasonPrice,
       extraBedPrice,
       directHotelPrice,
       thirdPartyPrice,
     });
-
-
-
-
-
-    // Reset the form after submission
-    // handleReset();
     onClose();
   };
 
@@ -544,7 +691,7 @@ const Hotel = ({ isOpen, onClose }) => {
         </div>
         <div className="w-1/2">
           <label htmlFor="image" className="block text-sm font-medium">
-            Room Image
+            Hotel Image
           </label>
           <input
             type="file"
@@ -554,27 +701,70 @@ const Hotel = ({ isOpen, onClose }) => {
           />
         </div>
       </div>
+      <h3 className="flex bg-red-700 text-white p-2 rounded gap-4">Select Room Types</h3>
+      <div className="grid grid-cols-3 gap-4 py-2">
+        {roomMaster.map((item, index) => (
+          <div className="flex gap-2" key={item.value}>
+            <input type="checkbox"
+              checked={formDataRoomMaster[index].status}
+              onChange={() => handleRoomMaterSelect(item.value)}
+            />
+            <label>{item.label}</label>
+          </div>
+        ))}
+        {/* <div className="flex gap-2">
+          <input type="checkbox" />
+          <label>Standard</label>
+        </div>
+        <div className="flex gap-2">
+          <input type="checkbox" />
+          <label>Standard</label>
+        </div> */}
+      </div>
     </div>,
 
     // Page 2: Room Details
     <div key="2" className="p-4">
       <h3 className="bg-red-700 text-white p-2 rounded mb-4">Add Room Details</h3>
-      <div className="flex gap-2 mb-4">
-        <div className="w-1/3">
-          <label htmlFor="roomType" className="block text-sm font-medium mb-2">
-            Room Type Name
-          </label>
-          <Select
-            options={roomMaster}
-            value={selectedRoomMaster}
-            onChange={setSelectedRoomMaster}
-            placeholder="Select Room Type"
-          />
-        </div>
-        <div className="w-1/3">
-          <label htmlFor="bedSize" className="block text-sm font-medium mb-1">
-            Bed Size
-          </label>
+      {/* {Array.from({ length: addRoomPage }) */}
+      {totalRoomDetails.map((roomDetails, index) => (
+        <div className="bg-slate-100 border-2 p-4 mb-4">
+          <div className="flex gap-4 mb-4 min-h-1/3" key={index}>
+            <div className="flex flex-col w-1/2 justify-between items-baseline h-full gap-4">
+              <div className="w-full">
+                <label htmlFor="roomType" className="block text-sm font-medium mb-2">
+                  Room Type Name
+                </label>
+                <Select
+                  className="w-full"
+                  options={roomsSelected}
+                  value={allSelectedRoomType[index]}
+                  onChange={(selectedOption) => handleChange(index, selectedOption)}
+                  placeholder="Select Room Type"
+                />
+              </div>
+              <div className="w-full mt-1">
+                <label htmlFor="maxPerson" className="block text-sm font-medium mb-1">
+                  Max Person
+                </label>
+                <input
+                  type="number"
+                  id="maxPerson"
+                  name="max_person"
+                  min={0}
+                  value={roomDetails.max_person}
+                  onChange={(e) => handleRoomDetailsChange(e, index)}
+                  className="mt-1 p-2 w-full border rounded"
+                  placeholder="Enter Max Person"
+                />
+              </div>
+            </div>
+            <div className="w-1/2 min-h-full">
+              <label htmlFor="bedSize" className="block text-sm font-medium mb-1">
+                Bed Size
+              </label>
+              <div className="border border-gray-300 rounded p-2 mt-1 bg-white flex items-start flex-wrap w-full min-h-[calc(100% - 20px)] mb-2">
+                {/*
           <input
             type="text"
             id="bedSize"
@@ -582,54 +772,165 @@ const Hotel = ({ isOpen, onClose }) => {
             onChange={(e) => setBedSize(e.target.value)}
             className="mt-1 p-2 w-full border rounded"
             placeholder="Enter Bed Size"
-          />
+          /> */}
+
+                {roomDetails.bed_size.map((tag, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center bg-blue-700 text-white rounded px-2 py-1 mr-1 mb-1"
+                  >
+                    <span className="text-sm">{tag}</span>
+                    <button
+                      type="button"
+                      className="ml-1 text-white hover:text-gray-600"
+                      onClick={() => handleDeleteTag(index, i)}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+                <input
+                  type="text"
+                  // value={inputValue[index]}
+                  // onChange={handleInputChange}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  placeholder="Add Bed Size"
+                  className="flex-grow p-2 text-sm outline-none border-none focus:ring-0 w-full h-full "
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 mb-4">
+            <div className="w-1/2">
+              <label htmlFor="roomStatus" className="block text-sm font-medium">
+                Room Status
+              </label>
+              <Select
+                options={[
+                  { value: true, label: "Active" },
+                  { value: false, label: "Inactive" },
+                ]}
+                value={roomDetails.status}
+                onChange={(selectedOption) => handleRoomDetailsStatusChange(selectedOption, index)}
+                placeholder="Select Room Status"
+              />
+            </div>
+            <div className="w-1/2">
+              <label htmlFor="image" className="block text-sm font-medium">
+                Room Image
+              </label>
+              <input
+                type="file"
+                name="image"
+                className="w-full text-gray-700 p-[4.5px] bg-white rounded border border-gray-200"
+                // onChange={(e) => setRoomTypeImage(e.target.files[0])}
+                onChange={(e) => handleRoomDetailsChange(e, index)}
+              />
+            </div>
+          </div>
         </div>
-        <div className="w-1/3">
-          <label htmlFor="maxPerson" className="block text-sm font-medium mb-1">
-            Max Person
-          </label>
-          <input
-            type="number"
-            id="maxPerson"
-            value={maxPerson}
-            onChange={(e) => setMaxPerson(e.target.value)}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Max Person"
-          />
-        </div>
+      ))}
+      <div className="flex justify-center w-full">
+        <button className="bg-green-700 text-white px-4 py-2" onClick={handleAdd}>Add</button>
       </div>
-      <div className="flex gap-2 mb-4">
-        <div className="w-1/2">
-          <label htmlFor="roomStatus" className="block text-sm font-medium">
-            Room Status
-          </label>
-          <Select
-            options={[
-              { value: true, label: "Active" },
-              { value: false, label: "Inactive" },
-            ]}
-            value={roomStatus}
-            onChange={(roomStatus) => setRoomStatus(roomStatus)}
-            placeholder="Select Room Status"
-          />
-        </div>
-      </div>
-      <div className="w-1/2">
-        <label htmlFor="image" className="block text-sm font-medium">
-          Room Image
-        </label>
-        <input
-          type="file"
-          className="w-full text-gray-700 mt-1 p-[4.5px] bg-white rounded border border-gray-200"
-          onChange={(e) => setRoomTypeImage(e.target.files[0])}
-        />
-      </div>
+
     </div>,
 
     // Page 3: Price Details
-    <div key="3" className="p-4">
-      <h3 className="bg-red-700 text-white p-2 rounded mb-4">Add Price Details</h3>
-      <div className="flex gap-2 mb-4">
+    <div key="3" className="p-2">
+      {totalRoomDetails.map((items, i) =>
+        items.bed_size.map((item, j) => {
+          let k = 0
+          if ((i + j) !== 0) { k = pricePage += 1 }
+          return <div className="my-1">
+            <div className="flex justify-between bg-red-700 text-white p-2 rounded mb-4 cursor-pointer" onClick={() => toggleAccordion(k)}>
+              <h3 className="">{items.roomMasterSelected} - ({item})</h3>
+              <button>
+                {openItems[k] ? '-' : '+'} </button>
+            </div>
+            <div className={`m-0 p-0 accordion-content  ${openItems[k] ? 'block' : 'hidden'
+              }`} >
+
+              <table className="min-w-full bg-white mb-4 border-2 border-collapse border-black">
+                <thead>
+                  <tr className="bg-gray-100">
+                    {seasons.map(item => (
+
+                      <th className="py-2 px-4 border-2 border-black">{item}</th>
+
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="border-2 border-black">
+                  <tr>
+                    {/* Budget Column */}
+                    {seasons.map(item => (
+                      <td className="py-2 px-4 border-2 border-black">
+                        <div className="mb-2">
+                          <label htmlFor="offSeasonPrice" className="block text-sm font-medium">
+                            Off-Season Price
+                          </label>
+                          <input
+                            type="number"
+                            id="offSeasonPrice"
+                            value={offSeasonPrice}
+                            onChange={(e) => setOffSeasonPrice(e.target.value)}
+                            className="mt-1 p-2 w-full border rounded"
+                            placeholder="Enter Price"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="extraBedPrice" className="block text-sm font-medium">
+                            Extra Bed Price
+                          </label>
+                          <input
+                            type="number"
+                            id="extraBedPrice"
+                            value={extraBedPrice}
+                            onChange={(e) => setExtraBedPrice(e.target.value)}
+                            className="mt-1 p-2 w-full border rounded"
+                            placeholder="Enter Price"
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="directHotelPrice"
+                            className="block text-sm font-medium"
+                          >
+                            Direct Hotel Price
+                          </label>
+                          <input
+                            type="number"
+                            id="directHotelPrice"
+                            value={directHotelPrice}
+                            onChange={(e) => setDirectHotelPrice(e.target.value)}
+                            className="mt-1 p-2 w-full border rounded"
+                            placeholder="Enter Price"
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="thirdPartyPrice"
+                            className="block text-sm font-medium"
+                          >
+                            Third Party Price
+                          </label>
+                          <input
+                            type="number"
+                            id="thirdPartyPrice"
+                            value={thirdPartyPrice}
+                            onChange={(e) => setThirdPartyPrice(e.target.value)}
+                            className="mt-1 p-2 w-full border rounded"
+                            placeholder="Enter Price"
+                          />
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            {/* <div className="flex gap-2 mb-4">
         <div className="w-1/2">
           <label htmlFor="offSeasonPrice" className="block text-sm font-medium">
             Off-Season Price
@@ -656,8 +957,8 @@ const Hotel = ({ isOpen, onClose }) => {
             placeholder="Enter Price"
           />
         </div>
-      </div>
-      <div className="flex gap-2 mb-4">
+        </div>
+        <div className="flex gap-2 mb-4">
         <div className="w-1/2">
           <label
             htmlFor="directHotelPrice"
@@ -690,14 +991,17 @@ const Hotel = ({ isOpen, onClose }) => {
             placeholder="Enter Price"
           />
         </div>
-      </div>
+      </div> */}
+
+          </div>
+        }))}
     </div>,
   ];
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg z-50 transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
-        } mt-4 sm:mt-8 md:mt-12 lg:w-[800px] sm:w-[400px] md:w-[500px]`}
+      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg z-50 transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[950px]"
+        } mt-4 sm:mt-8 md:mt-12 lg:w-[900px] sm:w-[400px] md:w-[500px]`}
     >
       <button
         onClick={onClose}
@@ -710,9 +1014,9 @@ const Hotel = ({ isOpen, onClose }) => {
       </div>
       <div className="border-b border-gray-300 shadow-sm"></div>
 
-      <form className="p-4 overflow-y-auto h-[calc(100vh-160px)]">
+      <div className="p-4 overflow-y-auto h-[calc(100vh-160px)]">
         {pages[currentPage]}
-      </form>
+      </div>
 
       <div className="flex justify-start items-center p-3 bg-white shadow-lg rounded w-full fixed bottom-12 left-0">
         {currentPage > 0 && (

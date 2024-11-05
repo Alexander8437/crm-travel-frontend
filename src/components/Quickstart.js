@@ -3,7 +3,7 @@ import BodyHeader from "./BodyHeader";
 
 const Quickstart = () => {
   return (
-    <div className="w-full ml-20 mt-0">
+    <div className="w-full ml-0 mt-0">
       <BodyHeader />
       <div className="flex flex-col lg:flex-row min-h-screen overflow-auto bg-[#e2e8f0] w-full ">
         {/* Left Section */}

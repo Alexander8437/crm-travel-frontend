@@ -66,7 +66,8 @@ const MasterList = () => {
           ...country,
           status: country.status ? 'Active' : 'Inactive'
         }));
-        setCountryData(formattedData);
+        const sortedData = formattedData.sort((a, b) => a.countryName.localeCompare(b.countryName));
+        setCountryData(sortedData);
       } catch (error) {
         console.error('Error fetching country data:', error);
       }
@@ -81,7 +82,8 @@ const MasterList = () => {
           ...state,
           status: state.status ? 'Active' : 'Inactive'
         }));
-        setStateData(formattedData);
+        const sortedData = formattedData.sort((a, b) => a.stateName.localeCompare(b.stateName));
+        setStateData(sortedData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }

@@ -76,9 +76,9 @@ const Navbar = () => {
 
 
   return (
-    <div className="flex flex-col md:flex-row">
+    <div className="w-full flex flex-col md:flex-row">
       {/* Make Navbar sticky */}
-      <div className="fixed top-0 left-0 w-full h-12 z-20 bg-gradient-to-r from-[#db272e] to-[#5b2727] p-2 flex justify-between items-center ">
+      <div className="w-full h-12 z-20 bg-gradient-to-r from-[#db272e] to-[#5b2727] p-2 flex justify-between items-center ">
         <div className="flex-1 flex justify-between items-center">
           {/* Left: Logo + Plus Icon + Search Icon */}
           <div className="flex items-center ml-6 space-x-4 md:space-x-8">
@@ -89,9 +89,9 @@ const Navbar = () => {
                 className="w-auto h-6 md:w-auto md:h-6 filter brightness-0 invert"
               />
             </Link>
-            <span className="text-white text-3xl md:text-3xl">+</span>
-            <div className="hidden md:flex items-center">
-              <IoSearch className="text-white w-6 h-6" />
+            <span className="text-[#B4B4B8] hover:text-white text-3xl md:text-3xl cursor-pointer">+</span>
+            <div className="hidden md:flex items-center cursor-pointer">
+              <IoSearch className="text-[#B4B4B8] hover:text-white w-6 h-6" />
             </div>
           </div>
 
@@ -103,7 +103,7 @@ const Navbar = () => {
           </div>
 
           {/* Right: Profile and Icons */}
-          <div className={`flex items-center gap-10
+          <div className={`flex items-center gap-6
             ${isOpen ? "block" : "hidden"} md:flex`}>
             <TfiEmail className="w-7 h-7 p-1 cursor-pointer  text-[#B4B4B8] hover:text-white" />
             <FaRegBell className="w-7 h-7 p-1 cursor-pointer  text-[#B4B4B8] hover:text-white" />

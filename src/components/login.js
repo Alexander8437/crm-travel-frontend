@@ -49,13 +49,13 @@ function Login() {
     const ivBase64 = btoa(String.fromCharCode(...iv));
     const encryptedTokenBase64 = btoa(String.fromCharCode(...encryptedToken));
 
+    const expiryTime = Date.now() + 24 * 60 * 60 * 1000; // Calculate the expiration time in milliseconds
     // Save the key, iv, and encrypted token in localStorage
     localStorage.setItem('encryptionKey', JSON.stringify(await crypto.subtle.exportKey('jwk', key)));
     localStorage.setItem('iv', ivBase64);
     localStorage.setItem('encryptedToken', encryptedTokenBase64);
+    localStorage.setItem('expiryTime', expiryTime);
   }
-
-  // console.log(ApiData)
 
   const handleLogin = async (e) => {
     e.preventDefault();
