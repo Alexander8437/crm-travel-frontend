@@ -274,7 +274,7 @@ function Login() {
     //     </div>
     //   </div>
     // </div>
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex overflow-hidden">
       {/* Left side of the page (hidden on small screens) */}
       {/* <div className="login-backgroundImage flex-1 hidden lg:flex bg-cover bg-center" style={{
       backgroundImage: `url('./assets/images/login/travel.png')`, 
