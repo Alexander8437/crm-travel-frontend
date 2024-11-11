@@ -25,32 +25,6 @@ const Sidebar = () => {
   const [homeStyle, setHomeStyle] = useState([])
   const [addData, setAddData] = useState([])
 
-
-  // const showNewMember = () => {
-  //   setAddNewMember(true)
-  // }
-  // const showRole = () => {
-  //   setAddRole(true)
-  // }
-  // const showState = () => {
-  //   setAddData([])
-  //   setAddData(['state'])
-  // }
-  // const showDestination = () => {
-  //   setAddDestination(true)
-  // }
-  // const showHotel = () => {
-  //   setAddHotel(true)
-  // }
-
-  // const showItinerary = () => {
-  //   setAddItinerary(true)
-  // }
-  // const showNewPackage = () => {
-  //   setAddNewPackage(true)
-  // }
-
-
   return (
     <>
       <div
@@ -70,14 +44,14 @@ const Sidebar = () => {
           </div>
           {/* Animated Submenu */}
           <div
-            className="submenu fixed left-16 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
             <div className="flex flex-col">
               <p>Home</p>
               {/* <Link to='/home' className="block px-4 py-2 hover:bg-gray-600 rounded"> */}
               <Link to='/home'>
-                <button class="w-[90%] mt-6 p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-3"
+                <button class="w-[90%] mt-6 p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-3 hover:text-black"
                 >
                   Quickstart
                 </button>
@@ -85,7 +59,7 @@ const Sidebar = () => {
               {/* </Link> */}
               {/* <Link to='/home/dashboard' className="block px-4 py-2 hover:bg-gray-600 rounded">       */}
               <Link to='/home/dashboard'>
-                <button className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-3">
+                <button className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-3 hover:text-black">
                   Dashboard
                 </button>
               </Link>
@@ -109,15 +83,15 @@ const Sidebar = () => {
           {/* <div className="submenu fixed left-20 top-0 h-screen pointer-events-none transform -translate-x-full opacity-0 transition-all duration-1000 ease-in-out group-hover:translate-x-0 group-hover:opacity-100 group-hover:pointer-events-auto bg-[#f9f9f9] p-4 rounded shadow-lg space-y-2 mt-2"
           style={{ width: '340px', zIndex: "1" }}> */}
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-black p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
             <div className="flex flex-col">
               <p className="font-bold">Package</p>
               {/* <Link to='/home' className="block px-4 py-2 hover:bg-gray-600 rounded"> */}
               <div className="mt-4 border-b-2">
-                <h6 className="flex font-bold gap-4 items-center">
-                  <FaListUl size="18px" />
+                <h6 className="flex gap-4 font-normal items-center hover:text-black hover:cursor-pointer">
+                  <FaListUl size="16px" />
                   All Package List
                 </h6>
               </div>
@@ -163,11 +137,11 @@ const Sidebar = () => {
           </div>
           {/* Animated Submenu */}
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-black p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
             <div className="flex flex-col">
-              <p className="font-bold">Booking</p>
+              <p className="">Booking</p>
               <div className='flex justify-center items-center flex-col mt-6'>
 
                 <button class="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-2"
@@ -200,11 +174,11 @@ const Sidebar = () => {
             <p className={`menu-name text-[14px] mt-2 ${homeStyle[0] === 'MyTeams' ? 'text-white' : 'text-[#B4B4B8]'} `}>My Teams</p>
           </div>
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-black p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
             <div className="flex flex-col h-full">
-              <p className="font-bold text-lg  mb-4">My Teams</p>
+              <p className="text-lg  mb-4">My Teams</p>
 
               {/* Members Section Header */}
               <div className="flex items-center py-4 border-b-2">
@@ -222,7 +196,7 @@ const Sidebar = () => {
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a9 9 0 00-9 9h18a9 9 0 00-9-9z"
                   />
                 </svg>
-                <p className="text-sm font-semibold">Members</p>
+                <p className="text-sm ">Members</p>
               </div>
 
               {/* Member Item */}
@@ -290,11 +264,11 @@ const Sidebar = () => {
             <p className={`menu-name text-[14px] mt-2 ${homeStyle[0] === 'Reports' ? 'text-white' : 'text-[#B4B4B8]'} `}>Reports</p>
           </div>
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-black p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
             <div className="flex flex-col">
-              <p className="font-bold">Reports</p>
+              <p className="">Reports</p>
             </div>
           </div>
         </div>
@@ -307,11 +281,11 @@ const Sidebar = () => {
             <p className={`menu-name text-[14px] mt-2 ${homeStyle[0] === 'Sales' ? 'text-white' : 'text-[#B4B4B8]'} `}>Sales</p>
           </div>
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-black p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "270px" }}
           >
             <div className="flex flex-col">
-              <p className="font-bold">Sales</p>
+              <p className="">Sales</p>
             </div>
           </div>
         </div>
@@ -324,21 +298,21 @@ const Sidebar = () => {
             <p className={`menu-name text-[14px] mt-2 ${homeStyle[0] === 'Masters' ? 'text-white' : 'text-[#B4B4B8]'} `}>Masters</p>
           </div>
           <div
-            className="submenu fixed left-20 top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-black p-4 rounded shadow-lg space-y-2 mt-2"
+            className="submenu fixed left-[74px] top-10 h-screen pointer-events-none transform opacity-0 scale-95 transition-all duration-900 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto bg-[#f9f9f9] text-[#333338] p-4 z-2 shadow-lg space-y-2 mt-2"
             style={{ width: "340px" }}
           >
-            <div className="flex flex-col h-full overflow-auto pb-8">
-              <p className="font-bold">Masters</p>
+            <div className="flex flex-col h-full overflow-hidden pb-8">
+              <p className="">Masters</p>
               <Link to="/home/master-list">
                 <p className="py-2 my-4 border-b-2 flex items-center gap-4">
                   <FaListUl size="18px" />
                   All Master
                 </p>
               </Link>
-              <div className='mt-6'>
+              <div className='mt-2 overflow-auto'>
                 <div className="flex justify-center">
                   <button
-                    className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-3"
+                    className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md"
                     onClick={() => {
                       setAddData([]);
                       setAddData(['Country'])

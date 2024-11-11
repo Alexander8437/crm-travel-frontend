@@ -12,6 +12,7 @@
     "chart.js": "^4.4.4",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
+    "formik": "^2.4.6",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-date-range": "^2.0.1",
@@ -21,7 +22,9 @@
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
     "react-select": "^5.8.1",
-    "web-vitals": "^2.1.4"
+    "react-toastify": "^10.0.6",
+    "web-vitals": "^2.1.4",
+    "yup": "^1.4.0"
   },
   "scripts": {
     "start": "set PORT=3002 && react-scripts start",

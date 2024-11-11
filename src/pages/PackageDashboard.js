@@ -9,7 +9,7 @@ const PackageDashboard = () => {
 
   return (
     <div
-      className="myteams-container w-full ml-20"
+      className="myteams-container w-full"
     // style={{ marginLeft: "100px" }}
     >
       <div className="flex flex-col md:flex-row justify-between h-full bg-gray-100 border-b border-gray-300 mb-5">
@@ -65,14 +65,14 @@ const ListView = () => {
   const navigate = useNavigate();
   return (
     <TableComponent
-      columns={["Name", "Due Date", "Priority", "Owner", "View"]}
-      rows={[
+      columns={[{ header: "Name", accessor: "name" }, { header: "Due Date", accessor: "dueDate" }, { header: "Priority", accessor: "priority" }, { header: "Owner", accessor: "owner" }, { header: "View", accessor: "view" }]}
+      data={[
         {
-          Name: "Task 1",
-          "Due Date": "12/12/2021",
-          Priority: "High",
-          Owner: "John Doe",
-          View: <button
+          name: "Task 1",
+          dueDate: "12/12/2021",
+          priority: "High",
+          owner: "John Doe",
+          view: <button
             onClick={() => navigate("/home/package-view")}
             type="button"
             className="bg-gray-50 border pl-2 pr-2">
@@ -187,7 +187,7 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
 
   return (
     <>
-      <div className="flex justify-between items-center py-4 bg-white shadow-md px-6 rounded-md lg:flex-row sm:flex-col">
+      <div className="flex flex-col gap-3 justify-between items-center py-4 bg-white shadow-md px-6 rounded-md lg:flex-row sm:flex-col">
         <h2 className="text-xl font-bold">Tasks</h2>
 
         <div></div>

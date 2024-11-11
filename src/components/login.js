@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../apiConfig/config';
 import axios from 'axios';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { toast } from "react-toastify"
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  // const [username, setUsername] = useState('');
+  // const [password, setPassword] = useState('');
   const [errors, setErrors] = useState('');
   const navigate = useNavigate()
 
@@ -49,35 +52,87 @@ function Login() {
     const ivBase64 = btoa(String.fromCharCode(...iv));
     const encryptedTokenBase64 = btoa(String.fromCharCode(...encryptedToken));
 
-    const expiryTime = Date.now() + 24 * 60 * 60 * 1000; // Calculate the expiration time in milliseconds
     // Save the key, iv, and encrypted token in localStorage
     localStorage.setItem('encryptionKey', JSON.stringify(await crypto.subtle.exportKey('jwk', key)));
     localStorage.setItem('iv', ivBase64);
     localStorage.setItem('encryptedToken', encryptedTokenBase64);
-    localStorage.setItem('expiryTime', expiryTime);
   }
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  // console.log(ApiData)
+
+  const validationSchema = Yup.object().shape({
+    username: Yup.string().required('Username is required'),
+    password: Yup.string().required('Password is required')
+  });
+
+
+
+  const handleLogin = async (values, { setSubmitting }) => {
     setErrors('');
 
-    if (username !== '' && password !== '') {
+    try {
+
+      if (values.username.length === 0 || values.password.length === 0) {
+        setErrors('Please fill in all the fields');
+        toast.error("Please fill in all the fields", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        setSubmitting(false);
+        return;
+      }
+
       axios.post(`${api.baseUrl}/signin`, {
-        username,
-        password
+        username: values.username,
+        password: values.password
       })
         .then(async (response) => {
           const token = response.data.accessToken;
           await saveEncryptedToken(token);
-          navigate('/home')
+          toast.success("Logged In", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          navigate('/home');
         })
         .catch(error => {
           setErrors(error.response.data.error.message);
-        })
-    } else {
-      setErrors('username & password cannot empty.')
+          toast.error(error.response.data.error.message, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setSubmitting(false);
+        });
+    } catch (e) {
+      setErrors(e.message);
+      toast.error("Something went wrong.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      setSubmitting(false);
     }
-  }
+
+  };
 
   useEffect(() => {
     localStorage.clear();
@@ -258,37 +313,43 @@ function Login() {
             <div className="flex justify-center w-60 mb-6">
               <img src="/assets/images/login/logo2.jpg" alt="Motherson" className="h-12" />
             </div>
-            <form onSubmit={handleLogin}>
+            <Formik
+              initialValues={{ username: '', password: '' }}
+              // validationSchema={validationSchema}
+              onSubmit={handleLogin}
+            >
+              {({ isSubmitting }) => (
+                <Form>
 
-              {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''}
-              <div className="mb-6">
-                <label className="block text-gray-700">Username</label>
-                <input
-                  type="text"
-                  placeholder="Enter Your Username"
-                  className="border border-gray-300 p-2 w-60 rounded"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setErrors('')
-                  }}
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700">Password</label>
-                <input
-                  type="password"
-                  placeholder="Enter Your Password"
-                  className="border border-gray-300 p-2 w-60 rounded"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setErrors('');
-                  }}
-                />
-              </div>
-              <button type="submit" className="bg-red-600 text-white p-2 w-60 rounded">Log In</button>
-            </form>
+                  {/* {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''} */}
+                  <div className="mb-6">
+                    <label className="block text-gray-700">Username</label>
+                    <Field
+                      type="text"
+                      name="username"
+                      placeholder="Enter Your Username"
+                      className="border border-gray-300 p-2 w-60 rounded"
+                    // value={values.username}
+                    // onChange={handleChange}
+                    />
+                    <ErrorMessage name="username" component="div" className="text-red-600 text-sm" />
+                  </div>
+                  <div className="mb-6">
+                    <label className="block text-gray-700">Password</label>
+                    <Field
+                      type="password"
+                      name="password"
+                      placeholder="Enter Your Password"
+                      className="border border-gray-300 p-2 w-60 rounded"
+                    // value={values.password}
+                    // onChange={handleChange}
+                    />
+                    <ErrorMessage name="password" component="div" className="text-red-600 text-sm" />
+                  </div>
+                  <button type="submit" className="bg-red-600 text-white p-2 w-60 rounded" disabled={isSubmitting}>Log In</button>
+                </Form>
+              )}
+            </Formik>
           </div>
           {/* Three red lines from the top */}
           <div className="absolute -top-80 w-full flex justify-center">
@@ -323,36 +384,36 @@ function Login() {
           <div className="flex justify-center w-60 mb-6">
             <img src="/assets/images/login/logo2.jpg" alt="Motherson" className="h-12" />
           </div>
-          <form onSubmit={handleLogin}>
-            {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''}
-            <div className="mb-6">
-              <label className="block text-gray-700">Username</label>
-              <input
-                type="text"
-                placeholder="Enter Your Username"
-                className="border border-gray-300 p-2 w-full rounded"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setErrors('')
-                }}
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700">Password</label>
-              <input
-                type="password"
-                placeholder="Enter Your Password"
-                className="border border-gray-300 p-2 w-full rounded"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setErrors('')
-                }}
-              />
-            </div>
-            <button type="submit" className="bg-red-600 text-white p-2 w-full rounded">Log In</button>
-          </form>
+          <Formik
+            initialValues={{ username: "", password: "" }}
+            validate={validationSchema}
+            onSubmit={handleLogin}
+          >
+            {({ isSubmitting, values, handleChange }) => (<Form>
+              {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''}
+              <div className="mb-6">
+                <label className="block text-gray-700">Username</label>
+                <Field
+                  type="text"
+                  placeholder="Enter Your Username"
+                  className="border border-gray-300 p-2 w-full rounded"
+                  value={values.username}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-6">
+                <label className="block text-gray-700">Password</label>
+                <input
+                  type="password"
+                  placeholder="Enter Your Password"
+                  className="border border-gray-300 p-2 w-full rounded"
+                  value={values.password}
+                  onChange={handleChange}
+                />
+              </div>
+              <button type="submit" className="bg-red-600 text-white p-2 w-full rounded">Log In</button>
+            </Form>)}
+          </Formik>
         </div>
       </div>
     </div>

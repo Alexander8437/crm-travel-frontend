@@ -5,11 +5,12 @@ import Select from "react-select";
 import api from "../apiConfig/config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { isArray } from "chart.js/helpers";
-
-
+import { toast, ToastContainer } from "react-toastify";
 
 const Hotel = ({ isOpen, onClose }) => {
+  const [priceMaster, setPriceMaster] = useState([])
+  const [roomTypeId, setRoomTypeId] = useState([])
+
   var pricePage = 0;
   // const [pricePage, setPricePage] = useState(0)
   const [country, setCountry] = useState("Select");
@@ -24,11 +25,9 @@ const Hotel = ({ isOpen, onClose }) => {
   const [hotelAddress, setHotelAddress] = useState("");
   const [hotelPincode, setHotelPincode] = useState("");
   const [status, setStatus] = useState(null);
-  const [selectedRoomMaster, setSelectedRoomMaster] = useState(null);
   const [roomMaster, setRoomMaster] = useState([]);
   const [bedSize, setBedSize] = useState("");
   const [maxPerson, setMaxPerson] = useState("");
-  const [roomStatus, setRoomStatus] = useState([null]);
   const [offSeasonPrice, setOffSeasonPrice] = useState("");
   const [extraBedPrice, setExtraBedPrice] = useState("");
   const [directHotelPrice, setDirectHotelPrice] = useState("");
@@ -39,25 +38,18 @@ const Hotel = ({ isOpen, onClose }) => {
   const [stateDetails, setStateDetails] = useState([])
   const [destinationDetails, setDestinationDetails] = useState([])
   const [destinationOption, setDestinationOption] = useState([])
-  const [roomsSelected, setRoomsSelected] = useState([{ id: 0, value: true, label: "Active" }])
-  const [allSelectedRoomType, setAllSelectedRoomType] = useState(Array(addRoomPage).fill(null))
+  const [roomsSelected, setRoomsSelected] = useState([])
+  const [allSelectedRoomType, setAllSelectedRoomType] = useState([])
 
-  // const allSelectedRoomType = [null]
-  const [roomOptions, setRoomOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState(null)
   const [stateSelected, setStateSelected] = useState(null)
   const [selectedDestination, setSelectedDestinations] = useState(null)
-  const [ipAddress, setIpAddress] = useState()
+  const [ipAddress, setIpAddress] = useState("")
   const [user, setUser] = useState(null)
   const [hImage, setHImage] = useState(null)
-  const [roomTypeImage, setRoomTypeImage] = useState(null)
 
-  const seasons = ["Christmas", "New Year", "Weekend", "On Seasons", "Snow Time"]
-
+  const [seasons, setSeasons] = useState([])
   const [hotelData, setHotelData] = useState({})
-  const navigate = useNavigate();
-
-  const [tempRoomSelected, setTempRoomSelected] = useState(null)
 
   const [formDataRoomMaster, setFormDataRoomMaster] = useState([])
 
@@ -86,13 +78,20 @@ const Hotel = ({ isOpen, onClose }) => {
     image: null
   }])
 
-  const [tags, setTags] = useState([{ id: null, bedSize: [] }]);
-  const [inputValue, setInputValue] = useState(['']);
+  const handleInputChange = (index, event) => {
+    const { name, value } = event.target;
+    const updatedPriceMaster = [...priceMaster];
 
-  // Handle input change
-  const handleInputChange = (e) => {
-    setInputValue([e.target.value]);
+    const updatedItem = { ...updatedPriceMaster[index] };
+
+    updatedItem[name] = value;
+
+    updatedPriceMaster[index] = updatedItem;
+
+    setPriceMaster(updatedPriceMaster);
+    console.log(index)
   };
+
 
   // Handle Enter or comma key press
   const handleKeyDown = (e, index) => {
@@ -110,29 +109,18 @@ const Hotel = ({ isOpen, onClose }) => {
 
   // Delete tag function
   const handleDeleteTag = (index, i) => {
-    // setTags(tags.filter((_, i) => i !== index));
     setTotalRoomDetails((prev) =>
       prev.map((item, j) =>
         index === j ? { ...item, bed_size: item.bed_size.filter(data => data !== item.bed_size[i]) } : item))
   };
 
-  const [formAddRoom, setFormAddRoom] = useState([{
-    'roomType': null,
-    'bedSize': '',
-    'paxs': 0,
-    'roomStatus': true,
-    image: null
-  }])
-
   const handleAdd = () => {
     const length = totalRoomDetails.length - 1
-    console.log(length)
-    if (totalRoomDetails[length].bed_size.length <= 0 & totalRoomDetails[length].max_person === null & totalRoomDetails[length].max_person < 1) {
+    if (totalRoomDetails[length].bed_size.length <= 0 || totalRoomDetails[length].max_person === null || totalRoomDetails[length].max_person < 1 || totalRoomDetails[length] === null) {
       alert("Enter Complete Data...")
     } else {
       totalRoomDetails.push(formRoomDetails)
       setAddRoomPage((prev) => prev + 1)
-      // console.log(totalRoomDetails)
     }
   }
 
@@ -270,8 +258,8 @@ const Hotel = ({ isOpen, onClose }) => {
       });
   };
   const handleNext = () => {
-    setCurrentPage((prev) => prev + 1);
-    console.log(currentPage)
+    // setCurrentPage((prev) => prev + 1);
+    // console.log(currentPage)
   };
 
   const handleBack = () => {
@@ -308,6 +296,16 @@ const Hotel = ({ isOpen, onClose }) => {
       .then((response) => setIpAddress(response.data))
       .catch((error) => {
         console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/season/getAll`)
+      .then(response => {
+        setSeasons(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching Room Type Name data :', error);
       });
   }, []);
 
@@ -366,134 +364,224 @@ const Hotel = ({ isOpen, onClose }) => {
   const handleRoomTypeMaster = async (e) => {
     e.preventDefault();
 
-    const formDataHotelRoomType = new FormData()
+    for (let i = 0; totalRoomDetails.length > i; i++) {
+      for (let j = 0; totalRoomDetails[i].bed_size.length > j; j++) {
 
-    // formDataHotelRoomType.append('bed_size', bedSize)
-    // formDataHotelRoomType.append('max_person', maxPerson)
-    // formDataHotelRoomType.append('created_by', user.username)
-    // formDataHotelRoomType.append('modified_by', user.username)
-    // formDataHotelRoomType.append('ipaddress', ipAddress)
-    // formDataHotelRoomType.append('status', roomStatus.value)
-    // formDataHotelRoomType.append('isdelete', false)
-    // formDataHotelRoomType.append('hotel.id', 1) //hotelData.id
-    // formDataHotelRoomType.append('rooms.id', selectedRoomMaster.value)
-    // formDataHotelRoomType.append('image', roomTypeImage)
-
-    // for (var pair of formDataHotelRoomType.entries()) {
-    //   console.log(pair[0] + ', ' + pair[1]);
-    // }
-
-    // await axios.post(`${api.baseUrl}/roomtypes/create`, formDataHotelRoomType, {
-    //   headers: {
-    //     'Authorization': `Bearer ${token}`,
-    //     'Content-Type': 'multipart/form-data',
-    //     'Access-Control-Allow-Origin': '*'
-    //   }
-    // })
-    //   .then(async (response) => {
-    //     alert('Hotel Room Type saved Successfully.');
-    //   })
-    //   .catch(error => console.error(error));
-
-    console.log(allSelectedRoomType)
-    let total = 0;
-    for (let i = 0; i < totalRoomDetails.length; i++) {
-      for (let j = 0; j < totalRoomDetails[i].bed_size.length; j++) {
-        total += 1
+        if (totalRoomDetails[i].bed_size[j] === '' || totalRoomDetails[i].max_person === 0 || totalRoomDetails[i].status === null || totalRoomDetails[i].image === null || starRating === null || contactPersonName === '' || contactEmail === '' || hotelAddress === '' || contactPersonNumber === '' || hotelPincode === '' || status === null || hImage === null
+        ) {
+          toast.error("Please fill all the fields...", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          return
+        }
       }
     }
-    console.log(totalRoomDetails)
+
+    for (let i = 0; totalRoomDetails.length > i; i++) {
+      for (let j = 0; totalRoomDetails[i].bed_size.length > j; j++) {
+
+        const formDataHotelRoomType = new FormData()
+
+        formDataHotelRoomType.append('bed_size', totalRoomDetails[i].bed_size[j])
+        formDataHotelRoomType.append('max_person', totalRoomDetails[i].max_person)
+        formDataHotelRoomType.append('created_by', user.username)
+        formDataHotelRoomType.append('modified_by', user.username)
+        formDataHotelRoomType.append('ipaddress', ipAddress)
+        formDataHotelRoomType.append('status', totalRoomDetails[i].status.value)
+        formDataHotelRoomType.append('isdelete', false)
+        formDataHotelRoomType.append('hotel.id', hotelData.id) //hotelData.id
+        formDataHotelRoomType.append('rooms.id', allSelectedRoomType[i].value)
+        formDataHotelRoomType.append('image', totalRoomDetails[i].image)
+
+        // for (var pair of formDataHotelRoomType.entries()) {
+        //   console.log(pair[0] + ', ' + pair[1]);
+        // }
+
+        await axios.post(`${api.baseUrl}/roomtypes/create`, formDataHotelRoomType, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+            'Access-Control-Allow-Origin': '*'
+          }
+        })
+          .then((response) => {
+            roomTypeId.push(response.data.id)
+          })
+          .catch(error => console.error(error));
+      }
+    }
+    toast.success('Room type saved successfully.', {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+
+    for (let i = 0; i < roomTypeId.length; i++) {
+      for (let j = 0; j < seasons.length; j++) {
+        priceMaster.push({
+          off_season_price: 0,
+          extra_bed_price: 0,
+          direct_booking_price: 0,
+          third_party_price: 0,
+          status: true,
+          created_by: user.username,
+          modified_by: user.username,
+          isdelete: 0,
+          ipaddress: ipAddress,
+          roomtypes: {
+            id: roomTypeId[i]
+          },
+          hotel: {
+            id: hotelData.id
+          },
+          season: {
+            id: seasons[j].id
+          }
+        })
+      }
+    }
     setCurrentPage((prev) => prev + 1);
   }
 
 
   const handleRoomMaterSelect = (i) => {
-    // const newChange = formDataRoomMaster.find(item => item.id === i)
-    // newChange.value = !newChange.value
-    // setFormDataRoomMaster({
-    //   ...formDataRoomMaster,
-    //   newChange
-    // })
-    // formDataRoomMaster[i].status = !formDataRoomMaster[i].status
     const newUpdate = formDataRoomMaster.map(item => item.value === i ? { ...item, status: !item.status } : item)
-    // newUpdate.push({ value: i, label: formDataRoomMaster[i].label, status: !formDataRoomMaster[i].status })
     setFormDataRoomMaster(newUpdate)
-    console.log(newUpdate)
   }
 
   const handleHotelMasterSubmit = async (e) => {
     e.preventDefault();
 
+    if (selectedOption === null || stateSelected === null || selectedDestination === null || hotelName === '' || starRating === null || contactPersonName === '' || contactEmail === '' || hotelAddress === '' || contactPersonNumber === '' || hotelPincode === '' || status === null || hImage === null
+    ) {
+      toast.error("Please fill all the fields...", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return
+    }
+
     const formDataHotelMaster = new FormData()
 
-    // formDataHotelMaster.append('country.id', selectedOption.value)
-    // formDataHotelMaster.append('state.id', stateSelected.value)
-    // formDataHotelMaster.append('destination.id', selectedDestination.value)
-    // formDataHotelMaster.append('hname', hotelName)
-    // formDataHotelMaster.append('hdescription', editorData)
-    // formDataHotelMaster.append('star_ratings', starRating.value)
-    // formDataHotelMaster.append('hcontactname', contactPersonName)
-    // formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
-    // formDataHotelMaster.append('hcontactemail', contactEmail)
-    // formDataHotelMaster.append('haddress', hotelAddress)
-    // formDataHotelMaster.append('hpincode', hotelPincode)
-    // formDataHotelMaster.append('ipaddress', ipAddress)
-    // formDataHotelMaster.append('status', status.value)
-    // formDataHotelMaster.append('isdelete', false)
-    // formDataHotelMaster.append('created_by', user.username)
-    // formDataHotelMaster.append('modified_by', user.username)
-    // formDataHotelMaster.append('image', hImage)
+    formDataHotelMaster.append('country.id', Number(selectedOption.value))
+    formDataHotelMaster.append('state.id', Number(stateSelected.value))
+    formDataHotelMaster.append('destination.id', Number(selectedDestination.value))
+    formDataHotelMaster.append('hname', hotelName)
+    formDataHotelMaster.append('hdescription', editorData)
+    formDataHotelMaster.append('star_ratings', starRating.value)
+    formDataHotelMaster.append('hcontactname', contactPersonName)
+    formDataHotelMaster.append('hcontactnumber', contactPersonNumber)
+    formDataHotelMaster.append('hcontactemail', contactEmail)
+    formDataHotelMaster.append('haddress', hotelAddress)
+    formDataHotelMaster.append('hpincode', hotelPincode)
+    formDataHotelMaster.append('ipaddress', ipAddress)
+    formDataHotelMaster.append('status', status.value)
+    formDataHotelMaster.append('isdelete', Boolean(false))
+    formDataHotelMaster.append('created_by', user.username)
+    formDataHotelMaster.append('modified_by', user.username)
+    formDataHotelMaster.append('image', hImage)
 
     // for (var pair of formDataHotelMaster.entries()) {
-    //   console.log(pair[0] + ', ' + pair[1]);
+    //   console.log(pair[0] + ', ' + pair[1] + ' ' + typeof (pair[1]));
     // }
 
 
-    // await axios.post(`${api.baseUrl}/hotel/create`, formDataHotelMaster, {
-    //   headers: {
-    //     // 'Authorization': `Bearer ${token}`,
-    //     'Content-Type': 'multipart/form-data',
-    //     'Access-Control-Allow-Origin': '*'
-    //   }
-    // })
-    //   .then(async (response) => {
-    //     setHotelData(response.data)
-    //   })
-    //   .catch(error => console.error(error));
+    await axios.post(`${api.baseUrl}/hotel/create`, formDataHotelMaster, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then(async (response) => {
+        toast.success('Hotel saved Successfully.', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        setHotelData(response.data)
+      })
+      .catch(error => console.error(error));
 
-    // alert('Hotel saved Successfully.');
-    // navigate(`/home/master-list/hotel`)
-    // onClose();
     setCurrentPage((prev) => prev + 1);
     const data = formDataRoomMaster.filter(item => item.status === true)
     setRoomsSelected(data)
-    // setAllSelectedRoomType(data)
   }
 
-  const handleSubmit = () => {
-    // Handle the submission logic here
-    console.log({
-      country,
-      state,
-      destination,
-      hotelName,
-      starRating,
-      editorData,
-      contactPersonName,
-      contactPersonNumber,
-      contactEmail,
-      hotelAddress,
-      hotelPincode,
-      status,
-      // roomTypeName,
-      bedSize,
-      maxPerson,
-      // roomStatus,
-      offSeasonPrice,
-      extraBedPrice,
-      directHotelPrice,
-      thirdPartyPrice,
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    for (let i = 0; i < priceMaster.length; i++) {
+      if (priceMaster[i].off_season_price === 0 || priceMaster[i].extra_bed_price === 0 || priceMaster[i].direct_booking_price === 0 || priceMaster[i].third_party_price === 0) {
+        toast.error("Please fill all the fields...", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return
+      }
+    }
+
+    let val = 0;
+    for (let i = 0; i < priceMaster.length; i++) {
+      if (val === 5) {
+        val = 0
+      }
+      // const payload = {
+      //   "off_season_price": priceMaster[i].off_season_price,
+      //   "extra_bed_price": priceMaster[i].extra_bed_price,
+      //   "direct_booking_price": priceMaster[i].direct_booking_price,
+      //   "third_party_price": priceMaster[i].third_party_price,
+      //   "status": 1,
+      //   "created_by": user.username,
+      //   "modified_by": user.username,
+      //   "isdelete": 0,
+      //   "ipaddress": ipAddress,
+      //   "roomtypes": priceMaster[i].roomtypes,
+      //   "hotel": {
+      //     "id": hotelData.id
+      //   },
+      //   "season": {
+      //     "id": seasons[val].id
+      //   }
+      // }
+      // console.log(priceMaster[i])
+      await axios.post(`${api.baseUrl}/hotelprice/create`, priceMaster[i], {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      })
+        .then(async (response) => {
+          console.log(response.data)
+        })
+        .catch(error => console.log(error));
+      val += 1;
+    }
+    alert("done")
     onClose();
   };
 
@@ -712,14 +800,6 @@ const Hotel = ({ isOpen, onClose }) => {
             <label>{item.label}</label>
           </div>
         ))}
-        {/* <div className="flex gap-2">
-          <input type="checkbox" />
-          <label>Standard</label>
-        </div>
-        <div className="flex gap-2">
-          <input type="checkbox" />
-          <label>Standard</label>
-        </div> */}
       </div>
     </div>,
 
@@ -738,7 +818,7 @@ const Hotel = ({ isOpen, onClose }) => {
                 <Select
                   className="w-full"
                   options={roomsSelected}
-                  value={allSelectedRoomType[index]}
+                  value={allSelectedRoomType[index] || ''}
                   onChange={(selectedOption) => handleChange(index, selectedOption)}
                   placeholder="Select Room Type"
                 />
@@ -764,15 +844,6 @@ const Hotel = ({ isOpen, onClose }) => {
                 Bed Size
               </label>
               <div className="border border-gray-300 rounded p-2 mt-1 bg-white flex items-start flex-wrap w-full min-h-[calc(100% - 20px)] mb-2">
-                {/*
-          <input
-            type="text"
-            id="bedSize"
-            value={bedSize}
-            onChange={(e) => setBedSize(e.target.value)}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Bed Size"
-          /> */}
 
                 {roomDetails.bed_size.map((tag, i) => (
                   <div
@@ -841,7 +912,7 @@ const Hotel = ({ isOpen, onClose }) => {
       {totalRoomDetails.map((items, i) =>
         items.bed_size.map((item, j) => {
           let k = 0
-          if ((i + j) !== 0) { k = pricePage += 1 }
+          if ((i + j) !== 0) { pricePage += seasons.length; k = pricePage }
           return <div className="my-1">
             <div className="flex justify-between bg-red-700 text-white p-2 rounded mb-4 cursor-pointer" onClick={() => toggleAccordion(k)}>
               <h3 className="">{items.roomMasterSelected} - ({item})</h3>
@@ -856,7 +927,7 @@ const Hotel = ({ isOpen, onClose }) => {
                   <tr className="bg-gray-100">
                     {seasons.map(item => (
 
-                      <th className="py-2 px-4 border-2 border-black">{item}</th>
+                      <th className="py-2 px-4 border-2 border-black">{item.seasonName}</th>
 
                     ))}
                   </tr>
@@ -864,8 +935,8 @@ const Hotel = ({ isOpen, onClose }) => {
                 <tbody className="border-2 border-black">
                   <tr>
                     {/* Budget Column */}
-                    {seasons.map(item => (
-                      <td className="py-2 px-4 border-2 border-black">
+                    {seasons.map((item, l) => {
+                      return (<td className="py-2 px-4 border-2 border-black">
                         <div className="mb-2">
                           <label htmlFor="offSeasonPrice" className="block text-sm font-medium">
                             Off-Season Price
@@ -873,8 +944,9 @@ const Hotel = ({ isOpen, onClose }) => {
                           <input
                             type="number"
                             id="offSeasonPrice"
-                            value={offSeasonPrice}
-                            onChange={(e) => setOffSeasonPrice(e.target.value)}
+                            name="off_season_price"
+                            value={priceMaster[k + l]?.off_season_price || ''}
+                            onChange={(event) => handleInputChange(k + l, event)}
                             className="mt-1 p-2 w-full border rounded"
                             placeholder="Enter Price"
                           />
@@ -886,8 +958,9 @@ const Hotel = ({ isOpen, onClose }) => {
                           <input
                             type="number"
                             id="extraBedPrice"
-                            value={extraBedPrice}
-                            onChange={(e) => setExtraBedPrice(e.target.value)}
+                            name="extra_bed_price"
+                            value={priceMaster[k + l]?.extra_bed_price || ''}
+                            onChange={(event) => handleInputChange(k + l, event)}
                             className="mt-1 p-2 w-full border rounded"
                             placeholder="Enter Price"
                           />
@@ -902,8 +975,9 @@ const Hotel = ({ isOpen, onClose }) => {
                           <input
                             type="number"
                             id="directHotelPrice"
-                            value={directHotelPrice}
-                            onChange={(e) => setDirectHotelPrice(e.target.value)}
+                            name="direct_booking_price"
+                            value={priceMaster[k + l]?.direct_booking_price || ''}
+                            onChange={(event) => handleInputChange(k + l, event)}
                             className="mt-1 p-2 w-full border rounded"
                             placeholder="Enter Price"
                           />
@@ -918,81 +992,20 @@ const Hotel = ({ isOpen, onClose }) => {
                           <input
                             type="number"
                             id="thirdPartyPrice"
-                            value={thirdPartyPrice}
-                            onChange={(e) => setThirdPartyPrice(e.target.value)}
+                            name="third_party_price"
+                            value={priceMaster[k + l]?.third_party_price || ''}
+                            onChange={(event) => handleInputChange(k + l, event)}
                             className="mt-1 p-2 w-full border rounded"
                             placeholder="Enter Price"
                           />
                         </div>
-                      </td>
-                    ))}
+                      </td>)
+                    })}
+
                   </tr>
                 </tbody>
               </table>
             </div>
-            {/* <div className="flex gap-2 mb-4">
-        <div className="w-1/2">
-          <label htmlFor="offSeasonPrice" className="block text-sm font-medium">
-            Off-Season Price
-          </label>
-          <input
-            type="number"
-            id="offSeasonPrice"
-            value={offSeasonPrice}
-            onChange={(e) => setOffSeasonPrice(e.target.value)}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Price"
-          />
-        </div>
-        <div className="w-1/2">
-          <label htmlFor="extraBedPrice" className="block text-sm font-medium">
-            Extra Bed Price
-          </label>
-          <input
-            type="number"
-            id="extraBedPrice"
-            value={extraBedPrice}
-            onChange={(e) => setExtraBedPrice(e.target.value)}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Price"
-          />
-        </div>
-        </div>
-        <div className="flex gap-2 mb-4">
-        <div className="w-1/2">
-          <label
-            htmlFor="directHotelPrice"
-            className="block text-sm font-medium"
-          >
-            Direct Hotel Price
-          </label>
-          <input
-            type="number"
-            id="directHotelPrice"
-            value={directHotelPrice}
-            onChange={(e) => setDirectHotelPrice(e.target.value)}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Price"
-          />
-        </div>
-        <div className="w-1/2">
-          <label
-            htmlFor="thirdPartyPrice"
-            className="block text-sm font-medium"
-          >
-            Third Party Price
-          </label>
-          <input
-            type="number"
-            id="thirdPartyPrice"
-            value={thirdPartyPrice}
-            onChange={(e) => setThirdPartyPrice(e.target.value)}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="Enter Price"
-          />
-        </div>
-      </div> */}
-
           </div>
         }))}
     </div>,
@@ -1031,14 +1044,6 @@ const Hotel = ({ isOpen, onClose }) => {
         {currentPage < pages.length - 1 && (
 
           <div className="flex space-x-4 ml-2">
-            {/* <button
-              type="button"
-              onClick={handleNext}
-              className="bg-red-700 text-white px-4 py-2 rounded shadow ml-2"
-            >
-              Next
-            </button> */}
-
             <button
               type="button"
               onClick={currentPage === 0 ? handleHotelMasterSubmit : handleRoomTypeMaster}

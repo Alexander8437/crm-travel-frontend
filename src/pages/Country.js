@@ -1,6 +1,7 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import api from "../apiConfig/config";
+import { toast } from "react-toastify";
 
 const Country = ({ isOpen, onClose }) => {
   const [countryName, setCountryName] = useState();
@@ -8,7 +9,7 @@ const Country = ({ isOpen, onClose }) => {
   const [pCode, setPCode] = useState('');
   const [status, setStatus] = useState(true)
   const [user, setUser] = useState({})
-
+  const fileInputRef = useRef(null);
 
   const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
@@ -50,6 +51,16 @@ const Country = ({ isOpen, onClose }) => {
     getDecryptedToken()
       .then(token => {
         setTokens(token);
+
+        return axios.get(`${api.baseUrl}/getbytoken`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      })
+      .then(response => {
+        setUser(response.data);
       })
       .catch(error => console.error('Error fetching protected resource:', error))
   }, [])
@@ -58,9 +69,19 @@ const Country = ({ isOpen, onClose }) => {
 
 
   const [formData, setFormData] = useState({
-    countryName, code, pCode, ipAddress: "", status,
+    countryName: "", code: "", pCode: "", ipAddress: "", status,
     image: null,
   });
+
+  const handleReset = () => {
+    setFormData({
+      countryName: "", code: "", pCode: "",
+      image: null,
+    })
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";  // Clear the file input
+    }
+  }
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -82,15 +103,30 @@ const Country = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     const formDatasend = new FormData();
-    formDatasend.append('countryName', formData.countryName)
-    formDatasend.append('code', formData.code)
-    formDatasend.append('pCode', formData.pCode)
-    formDatasend.append('ipAddress', formData.ipAddress)
-    formDatasend.append('status', formData.status)
-    formDatasend.append('image', formData.image)
-    formDatasend.append('createdby', user.username)
-    formDatasend.append('modifiedby', user.username)
-    formDatasend.append('isdelete', false)
+    formDatasend.append('countryName', formData.countryName);
+    formDatasend.append('code', formData.code);
+    formDatasend.append('pCode', formData.pCode);
+    formDatasend.append('ipAddress', formData.ipAddress);
+    formDatasend.append('status', formData.status);
+    formDatasend.append('image', formData.image);
+    formDatasend.append('createdby', user.username);
+    formDatasend.append('modifiedby', user.username);
+    formDatasend.append('isdelete', false);
+
+    if (formData.countryName === '' || formData.code === '' || formData.pCode === '' ||
+      formData.image === null
+    ) {
+      toast.error("Please fill all the fields...", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
 
     // for (let [key, value] of formDatasend.entries()) {
     //   console.log(`${key}: ${value}`);
@@ -106,12 +142,22 @@ const Country = ({ isOpen, onClose }) => {
       }
     )
       .then(async (response) => {
-        alert("Country created...");
+        toast.success("Country saved Successfully.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
         setFormData({
           countryName: "", code: "", pCode: "", ipAddress: "",
           image: null,
-
         })
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";  // Clear the file input
+        }
       })
       .catch(error => console.log(error));
   };
@@ -219,6 +265,7 @@ const Country = ({ isOpen, onClose }) => {
             </label>
             <input
               type="file"
+              ref={fileInputRef}
               className="w-full text-gray-700 mt-1 p-[4.5px] bg-white rounded border border-gray-200"
               name="image"
               onChange={handleFileChange}
@@ -236,6 +283,7 @@ const Country = ({ isOpen, onClose }) => {
           <button
             type="button"
             className="bg-red-700 text-white px-4 py-2 rounded shadow"
+            onClick={handleReset}
           >
             Reset
           </button>

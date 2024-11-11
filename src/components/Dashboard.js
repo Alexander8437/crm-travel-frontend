@@ -11,6 +11,7 @@ import {
   ArcElement,
 } from "chart.js";
 import BodyHeader from "./BodyHeader";
+import Table from '../pages/TableComponent';
 
 // Register necessary Chart.js components
 ChartJS.register(
@@ -134,11 +135,37 @@ const Dashboard = () => {
     togglePeriodDropdown(); // Close dropdown after selection
   };
 
+  const columns = [
+    { header: "QUERY", accessor: "query" },
+    { header: "DATE", accessor: "date" },
+    { header: "FLIGHT PICK UP TIME", accessor: "flightPickUpTime" },
+    { header: "RETURN TIME", accessor: "returnTime" },
+    { header: "TOUR", accessor: "tour" },
+    { header: "GUEST", accessor: "guest" },
+    { header: "PAX", accessor: "pax" },
+    { header: "HOTEL TYPE", accessor: "hotelType" },
+    { header: "DRIVER GUIDE", accessor: "driverGuide" },
+  ];
+
+  const data = [
+    {
+      query: "#MTS000039",
+      date: "14-07-2024",
+      flightPickUpTime: "IG-9231",
+      returnTime: "14:00Hrs.",
+      tour: "Dubai Airport to Hotel Radisson Blue",
+      guest: "Alex",
+      pax: "A-2",
+      hotelType: "PVT",
+      driverGuide: "Radisson"
+    },
+  ];
+
   return (
-    <div className="w-full ml-0 mt-0">
+    <div className="w-full mt-0">
       <BodyHeader />
-      <div className="bg-[#e2e8f0] m-0">
-        <div className="dashboard ml-10 mr-10 pt-4">
+      <div className="bg-[#e2e8f0] m-0 py-4 h-full">
+        <div className="dashboard ml-10 mr-10">
           {/* Period Dropdown */}
           <div className="dashboard-periods relative mb-8" style={{ zIndex: "1" }}>
             <button
@@ -211,7 +238,7 @@ const Dashboard = () => {
             </div>
           </div>
           {/* Graph Entries */}
-          <div className="grid grid-cols-12 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="grid-cols-4 bg-white p-4 rounded-lg shadow-md w-full">
               <h3 className="font-bold text-xl text-center">
                 Top 10 Destinations
@@ -229,13 +256,13 @@ const Dashboard = () => {
               <Line data={weeklySalesData} />
             </div>
           </div>
-          <div className="flex flex-row gap-8 w-full mt-8">
-            <div className="bg-white p-4 rounded-lg shadow-md w-1/3">
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-8">
+            <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="font-bold text-xl text-center">Leads Source</h3>
               <Bar data={leadsSourceData} />
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-md w-2/3" >
+            <div className="bg-white p-4 rounded-lg shadow-md" >
               <h2 className="text-lg font-bold mb-4">Scheduled Payments</h2>
               <div className="space-y-4">
                 {/* Scheduled Payment Entries */}
@@ -291,7 +318,7 @@ const Dashboard = () => {
           </div>
 
           {/* Tour Master Sheet Table */}
-          <div className="table-container mt-8 overflow-x-auto">
+          {/* <div className="table-container mt-8 overflow-x-auto">
             <h3
               className="text-white font-bold text-2xl mb-4 text-center py-2"
               style={{ backgroundColor: "#6c757d" }}
@@ -594,6 +621,20 @@ const Dashboard = () => {
                 </tr>
               </tbody>
             </table>
+          </div> */}
+          <div className="table-container mt-8 mb-20 overflow-x-auto">
+            <h3
+              className="text-white font-bold text-2xl mb-4 text-center py-2"
+              style={{ backgroundColor: "#6c757d" }}
+            >
+              Tour Master Sheet
+            </h3>
+            <div className='w-full overflow-auto'>
+              <Table
+                columns={columns}
+                data={data}
+              />
+            </div>
           </div>
         </div>
       </div>

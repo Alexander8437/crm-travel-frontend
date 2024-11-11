@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import api from "../apiConfig/config";
 import Select from 'react-select'
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Destination = ({ isOpen, onClose }) => {
   const [editorData, setEditorData] = useState('');
@@ -21,7 +22,7 @@ const Destination = ({ isOpen, onClose }) => {
   const [tags, setTags] = useState([]);
   const [newImage, setNewImage] = useState('')
   const [user, setUser] = useState({})
-
+  const fileInputRef = useRef(null);
 
   const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
@@ -63,20 +64,26 @@ const Destination = ({ isOpen, onClose }) => {
     getDecryptedToken()
       .then(token => {
         setTokens(token);
+
+        return axios.get(`${api.baseUrl}/getbytoken`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      })
+      .then(response => {
+        setUser(response.data);
       })
       .catch(error => console.error('Error fetching protected resource:', error))
   }, [])
 
   const [formData, setFormData] = useState({
     destinationName: "",
-    // descripation: "",
     ipAddress: "",
     status: true,
-    // { keyAttractionName: "" }
-    // ], // Array of attractions
     country,  // Example country ID
     state,    // Example state ID
-    // image: null, // Image file
   });
 
   const handleChange = (selectedOption) => {
@@ -107,7 +114,6 @@ const Destination = ({ isOpen, onClose }) => {
     setStateSlected(stateSelected);
     setStateId(stateSelected.value)
   }
-
 
   const handleInputKeyChange = (e) => {
     setInputKeyValue(e.target.value);
@@ -158,21 +164,6 @@ const Destination = ({ isOpen, onClose }) => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   axios.get(`${api.baseUrl}/state/get`
-  //   )
-  //     .then(response => {
-  //       const formattedOptions = response.data.map(item => ({
-  //         value: item.id, // or any unique identifier
-  //         label: item.countryName // or any display label you want
-  //       }));
-  //       setCountryDetails(formattedOptions);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching data:', error);
-  //     });
-  // }, []);
-
   useEffect(() => {
     axios.get(`${api.baseUrl}/ipAddress`)
       .then((response) => {
@@ -186,10 +177,17 @@ const Destination = ({ isOpen, onClose }) => {
   }, []);
 
   const handleReset = () => {
-    setCountry("Select");
-    setState("Select");
-    setDestination("");
-    setDescription("");
+    setFormData({
+      destinationName: "",
+      status: true,
+      image: null,
+    });
+    setTags([]);
+    setSelectedOption(null);
+    setStateSlected(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";  // Clear the file input
+    }
   };
 
 
@@ -215,9 +213,22 @@ const Destination = ({ isOpen, onClose }) => {
     formDataToSend.append('modified_by', user.username)
     formDataToSend.append('isdelete', false)
 
-    for (let [key, value] of formDataToSend.entries()) {
-      console.log(`${key}: ${value}`);
+    if (formData.destinationName.length === 0) {
+      toast.error("Please fill all the fields...", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
     }
+
+    // for (let [key, value] of formDataToSend.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
 
     await axios.post(`${api.baseUrl}/destination/create`, formDataToSend, {
 
@@ -228,7 +239,15 @@ const Destination = ({ isOpen, onClose }) => {
       }
     })
       .then(async (response) => {
-        alert('Destination saved Successfully.');
+        toast.success('Destination saved Successfully.', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
         setFormData({
           destinationName: "",
           status: true,
@@ -303,29 +322,6 @@ const Destination = ({ isOpen, onClose }) => {
             placeholder="Enter Destination Name"
           />
         </div>
-        {/* <div className="mb-4">
-          <label htmlFor="description" className="block text-sm font-medium">
-            Description
-          </label> */}
-        {/* <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 p-2 w-full border rounded h-36 resize-none" // Increased height
-            placeholder="Enter a brief description"
-          /> */}
-        {/* <CKEditor
-            editor={ClassicEditor}
-            data={editorData}
-            config={{
-              toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
-            }}
-            onChange={(event, editor) => {
-              const data = editor.getData();
-              setEditorData(data);
-            }}
-          />
-        </div> */}
 
         <div className="mb-4">
           <label htmlFor="key_attraction" className="block text-sm font-medium">
@@ -385,6 +381,7 @@ const Destination = ({ isOpen, onClose }) => {
               type="file"
               className="w-full text-gray-700 mt-1 p-[4.5px] bg-white rounded border border-gray-200"
               name="image"
+              ref={fileInputRef}
               onChange={handleImageChange}
             />
           </div>
@@ -403,7 +400,7 @@ const Destination = ({ isOpen, onClose }) => {
           </button>
           <button
             type="button"
-            // onClick={handleReset}
+            onClick={handleReset}
             className="bg-red-700 text-white px-4 py-2 rounded shadow"
           >
             Reset

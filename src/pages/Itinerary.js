@@ -421,11 +421,11 @@ const Itinerary = ({ isOpen, onClose }) => {
   // Fetch destinations
   useEffect(() => {
     axios
-      .get(`${api.baseUrl}/destinations`)
+      .get(`${api.baseUrl}/destination/getall`)
       .then((response) => {
         const options = response.data.map((destination) => ({
           value: destination.id,
-          label: destination.name,
+          label: destination.destinationName,
         }));
         setDestinationOptions(options);
       })

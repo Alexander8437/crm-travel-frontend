@@ -155,8 +155,8 @@ const Bookings = () => {
   }
 
   return (
-    <div className="p-4 w-full bg-gray-50" style={{ marginLeft: "100px" }}>
-      <div className="flex justify-between items-center mb-4">
+    <div className="p-4 w-full bg-gray-50 h-full">
+      <div className="flex flex-col gap-3 md:flex-row justify-between items-center mb-4">
         <div className="flex space-x-2">
           <select className="border border-gray-300 rounded px-2 py-1">
             <option>Select Users</option>
@@ -169,7 +169,7 @@ const Bookings = () => {
         </div>
       </div>
       <div className="flex justify-between items-center mb-4">
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-3">
           <button className="bg-gray-200 text-black px-4 py-2 rounded">Archive</button>
           <button className="bg-red-500 text-white px-4 py-2 rounded">Hot</button>
           <button className="bg-yellow-500 text-white px-4 py-2 rounded">Warm</button>
@@ -178,8 +178,8 @@ const Bookings = () => {
         </div>
       </div>
       <hr />
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div className="flex space-x-2">
+      <div className="flex flex-col gap-3 justify-between items-center mb-4 mt-4 lg:flex-row">
+        <div className="flex flex-wrap gap-3">
           <button className="bg-blue-500 text-white px-4 py-2 rounded">In Progress (154)</button>
           <button className="bg-gray-200 text-black px-4 py-2 rounded">Recent (222)</button>
           <button className="bg-gray-200 text-black px-4 py-2 rounded">Confirmed Proposals (64)</button>
@@ -196,7 +196,10 @@ const Bookings = () => {
         </div>
       </div>
 
-      <TableComponent columns={columns} data={data} />
+      <div className="w-full overflow-auto">
+
+        <TableComponent columns={columns} data={data} />
+      </div>
       {/* <table className="min-w-full bg-white">
         <thead>
           <tr>

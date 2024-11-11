@@ -8,6 +8,8 @@ const MasterList = () => {
   const [activeTab, setActiveTab] = useState('country');
   const [countryData, setCountryData] = useState([]);
   const [stateData, setStateData] = useState([]);
+  const [destinationData, setDestinationData] = useState([]);
+  const [hotelData, setHotelData] = useState([]);
   const navigate = useNavigate()
 
   const tabs = [
@@ -29,8 +31,8 @@ const MasterList = () => {
     },
     state: {
       columns: [
-        { header: 'Country Name', accessor: 'countryName' },
         { header: 'State Name', accessor: 'stateName' },
+        { header: 'Country Name', accessor: 'countryName' },
         { header: 'Code', accessor: 'code' },
         { header: 'Status', accessor: 'status' },
       ],
@@ -38,23 +40,25 @@ const MasterList = () => {
     },
     destination: {
       columns: [
-        { header: 'Destination', accessor: 'name' },
-        { header: 'Attractions', accessor: 'attractions' },
+        { header: 'Destination Name', accessor: 'destinationName' },
+        { header: 'State Name', accessor: 'stateName' },
+        { header: 'Country Name', accessor: 'countryName' },
+        { header: 'Attractions', accessor: 'keyofattractions' },
+        { header: 'Status', accessor: 'status' },
       ],
-      data: [
-        { name: 'Paris', attractions: 'Eiffel Tower, Louvre' },
-        { name: 'Rome', attractions: 'Colosseum, Vatican City' },
-      ],
+      data: destinationData,
     },
     hotel: {
       columns: [
-        { header: 'Hotel Name', accessor: 'name' },
-        { header: 'Location', accessor: 'location' },
+        { header: 'Hotel Name', accessor: 'hname' },
+        { header: 'Country', accessor: 'countryName' },
+        { header: 'State', accessor: 'stateName' },
+        { header: 'Destination', accessor: 'destinationName' },
+        { header: 'Address', accessor: 'haddress' },
+        { header: 'Pin Code', accessor: 'hpincode' },
+        { header: 'Status', accessor: 'status' },
       ],
-      data: [
-        { name: 'The Ritz', location: 'Paris' },
-        { name: 'The Plaza', location: 'New York' },
-      ],
+      data: hotelData,
     },
   };
 
@@ -66,7 +70,9 @@ const MasterList = () => {
           ...country,
           status: country.status ? 'Active' : 'Inactive'
         }));
-        const sortedData = formattedData.sort((a, b) => a.countryName.localeCompare(b.countryName));
+        const sortedData = formattedData.sort((a, b) => {
+          return a.countryName.localeCompare(b.countryName);  // Replace 'name' with the key to sort by
+        });
         setCountryData(sortedData);
       } catch (error) {
         console.error('Error fetching country data:', error);
@@ -75,35 +81,76 @@ const MasterList = () => {
 
     const fetchStateData = async () => {
       try {
-        const response = await axios.get(
-          'https://updated-crm-travel-server-production.up.railway.app/Motherson/crm/v1/state/get'
-        );
+        const response = await axios.get(`${api.baseUrl}/state/get`);
         const formattedData = response.data.map((state) => ({
           ...state,
-          status: state.status ? 'Active' : 'Inactive'
+          status: state.status ? 'Active' : 'Inactive',
+          countryName: state.country.countryName
         }));
-        const sortedData = formattedData.sort((a, b) => a.stateName.localeCompare(b.stateName));
+        const sortedData = formattedData.sort((a, b) => {
+          return a.stateName.localeCompare(b.stateName);  // Replace 'name' with the key to sort by
+        });
         setStateData(sortedData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }
     };
 
+    const fetchDestinationData = async () => {
+      try {
+        const response = await axios.get(`${api.baseUrl}/destination/getall`);
+        const formattedData = response.data.map((item) => ({
+          ...item,
+          status: item.status ? 'Active' : 'Inactive',
+          countryName: item.country.countryName,
+          stateName: item.state.stateName
+        }));
+        const sortedData = formattedData.sort((a, b) => {
+          return a.destinationName.localeCompare(b.destinationName);  // Replace 'name' with the key to sort by
+        });
+        setDestinationData(sortedData);
+      } catch (error) {
+        console.error('Error fetching state data:', error);
+      }
+    };
+
+    const fetchHotelData = async () => {
+      try {
+        const response = await axios.get(`${api.baseUrl}/hotel/getAll`);
+        const formattedData = response.data.map((item) => ({
+          ...item,
+          status: item.status ? 'Active' : 'Inactive',
+          countryName: item.country.countryName,
+          stateName: item.state.stateName,
+          destinationName: item.destination.destinationName,
+        }));
+        const sortedData = formattedData.sort((a, b) => {
+          return a.hname.localeCompare(b.hname);  // Replace 'name' with the key to 
+        });
+        setHotelData(sortedData);
+      } catch (error) {
+        console.error('Error fetching state data:', error);
+      }
+    }
+
     if (activeTab === 'country') {
       fetchCountryData();
     } else if (activeTab === 'state') {
       fetchStateData();
-    } else if (activeTab === 'hotel')
-      navigate('/home/master-list/hotel')
+    } else if (activeTab === 'destination') {
+      fetchDestinationData();
+    } else if (activeTab === 'hotel') {
+      fetchHotelData();
+    }
   }, [activeTab]);
 
   return (
-    <div className="h-24 w-full ml-[100px]">
+    <div className="h-24 mb-10 w-full p-4">
       <div className="pb-1">
         <h2 className="text-2xl p-1">Master List</h2>
       </div>
-      <div className="relative inline-block">
-        <ul className="flex gap-4 py-2 border-b border-gray-300">
+      <div className="relative inline-block w-full  border-b">
+        <ul className="flex gap-4 py-0 border-gray-300">
           {tabs.map((tab) => (
             <li
               key={tab.key}
@@ -118,19 +165,7 @@ const MasterList = () => {
       </div>
       <div className="mt-4">
         <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2">
-            <select className="border border-gray-300 rounded px-2 py-1">
-              <option>Select Users</option>
-            </select>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Assign</button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button className="bg-orange-500 text-white px-4 py-2 rounded">B2C Customer</button>
-            <button className="bg-orange-500 text-white px-4 py-2 rounded">B2B Customer</button>
-          </div>
-        </div>
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-3">
             <button className="bg-gray-200 text-black px-4 py-2 rounded">Archive</button>
             <button className="bg-red-500 text-white px-4 py-2 rounded">Hot</button>
             <button className="bg-yellow-500 text-white px-4 py-2 rounded">Warm</button>
@@ -139,29 +174,12 @@ const MasterList = () => {
           </div>
         </div>
         <hr />
-        <div className="flex justify-between items-center mb-4 mt-4">
-          <div className="flex space-x-2">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">In Progress (154)</button>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Recent (222)</button>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Confirmed Proposals (64)</button>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Rejected</button>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Un Assigned</button>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Call Back</button>
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Overall (6074)</button>
-          </div>
-          <div className="flex space-x-2">
-            <select className="border border-gray-300 rounded px-2 py-1">
-              <option>Select Email Template</option>
-            </select>
-            <button className="bg-orange-500 text-white px-4 py-2 rounded">Email</button>
-          </div>
-        </div>
-        {
+        <div className='w-full  overflow-auto'>
           <Table
             columns={tableData[activeTab].columns}
             data={tableData[activeTab].data}
           />
-        }
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import api from "../apiConfig/config";
 import Select from 'react-select'
+import { toast } from "react-toastify";
 
 const State = ({ isOpen, onClose }) => {
   const [countryDetails, setCountryDetails] = useState([])
@@ -11,6 +12,8 @@ const State = ({ isOpen, onClose }) => {
   const [countryId, setCountryId] = useState(null)
   const [status, setStatus] = useState(true)
   const [user, setUser] = useState({})
+
+  const fileInputRef = useRef(null);
 
 
   const [token, setTokens] = useState(null)
@@ -53,6 +56,15 @@ const State = ({ isOpen, onClose }) => {
     getDecryptedToken()
       .then(token => {
         setTokens(token);
+        return axios.get(`${api.baseUrl}/getbytoken`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      })
+      .then(response => {
+        setUser(response.data);
       })
       .catch(error => console.error('Error fetching protected resource:', error))
   }, [])
@@ -61,6 +73,16 @@ const State = ({ isOpen, onClose }) => {
     setSelectedOption(selectedOption);
     setCountryId(selectedOption.value)
   };
+
+  const handleReset = () => {
+    setFormData({
+      stateName: "", code: "", image: null
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";  // Clear the file input
+    }
+    setSelectedOption(null)
+  }
 
   const handleFileChange = (event) => {
     setFormData({
@@ -91,7 +113,7 @@ const State = ({ isOpen, onClose }) => {
   };
 
   const [formData, setFormData] = useState({
-    stateName, code, ipAddress: "", status,
+    stateName: "", code: "", ipAddress: "", status,
     image: null, created_by: "", modified_by: ""
   });
 
@@ -129,6 +151,19 @@ const State = ({ isOpen, onClose }) => {
     //   console.log(`${key}: ${value}`);
     // }
 
+    if (formData.stateName.length === 0 || formData.code.length === 0) {
+      toast.error("Please fill all the fields...", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+
     await axios.post(`${api.baseUrl}/state/create`, formDataToSend,
       {
         headers: {
@@ -138,11 +173,22 @@ const State = ({ isOpen, onClose }) => {
         }
       })
       .then((response) => {
-        alert('State saved Successfully.');
+        toast.success("State saved Successfully.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
         setFormData({
           stateName: "", code: "", ipAddress: "",
           image: null
         });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";  // Clear the file input
+        }
         setSelectedOption(null)
       })
       .catch(error => console.error(error));
@@ -245,6 +291,7 @@ const State = ({ isOpen, onClose }) => {
               type="file"
               className="w-full text-gray-700 mt-1 p-[4.5px] bg-white rounded border border-gray-200"
               name="image"
+              ref={fileInputRef}
               multiple
               onChange={handleFileChange}
             />
@@ -260,7 +307,7 @@ const State = ({ isOpen, onClose }) => {
           </button>
           <button
             type="button"
-            // onClick={handleReset}
+            onClick={handleReset}
             className="bg-red-700 text-white px-4 py-2 rounded shadow"
           >
             Reset
