@@ -274,18 +274,7 @@ function Login() {
     //     </div>
     //   </div>
     // </div>
-    <div className="min-h-screen flex overflow-hidden">
-      {/* Left side of the page (hidden on small screens) */}
-      {/* <div className="login-backgroundImage flex-1 hidden lg:flex bg-cover bg-center" style={{
-      backgroundImage: `url('./assets/images/login/travel.png')`, 
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: '100%',
-      backgroundPosition: 'top right',
-    }}> */}
-      {/* Add other content on the left side here if needed */}
-      {/* </div> */}
-
-      {/* Right side of the page (hidden on small screens) */}
+    <div className="min-h-screen flex overflow-hidden max-w-full">
       <div className="flex-1 hidden lg:flex relative flex items-center justify-center bg-cover bg-center" style={{
         backgroundImage: `url('/assets/images/login/travel.png')`, backgroundRepeat: 'no-repeat',
         backgroundSize: '100%',
@@ -293,15 +282,15 @@ function Login() {
       }}>
 
         {/* Login form box (visible on large screens) */}
-        <div className="relative z-10 flex">
+        <div className="relative z-10 flex max-sm:w-full">
           {/* Red background half cover (hidden on small screens) */}
           <div className="bg-red-600 w-1/2 h-full hidden lg:flex items-center justify-center"></div>
 
           {/* White login box with loginb1.png background and curved corners */}
           <div
-            className="bg-white mr-20 p-8 rounded-lg shadow-lg border-8 border-black relative"
+            className="bg-white mr-24 p-8 rounded-lg shadow-lg border-8 border-black relative"
             style={{
-              width: '1300px',
+              width: '1200px',
               height: '500px',
               backgroundImage: `url('/assets/images/login/login-image.png')`,
               backgroundSize: 'cover',
