@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaCaretDown, FaFilter, FaSort, FaArrowsAltH, FaPlus } from "react-icons/fa";
 import TableComponent from "./TableComponent";
+import axios from "axios";
+import api from "../apiConfig/config";
 
 // The main dashboard component
 const PackageDashboard = () => {
@@ -9,7 +11,7 @@ const PackageDashboard = () => {
 
   return (
     <div
-      className="myteams-container w-full"
+      className="myteams-container w-full h-full"
     // style={{ marginLeft: "100px" }}
     >
       <div className="flex flex-col md:flex-row justify-between h-full bg-gray-100 border-b border-gray-300 mb-5">
@@ -60,27 +62,135 @@ const KanbanBoard = () => (
   </>
 );
 
-// List View Component
+// List View 
 const ListView = () => {
   const navigate = useNavigate();
+  const [packageList, setPackageList] = useState([])
+  const [packageThemeList, setPackageThemeList] = useState([])
+  const [destination, setDestination] = useState([])
+  const [packIti, setPackIti] = useState([])
+  const [packItiDetail, setPackItiDetail] = useState([])
+  const [hotelList, setHotelList] = useState([])
+
+  const handleView = (option) => {
+    const pack = packIti.filter(item => option.id === item.packid)
+    option.itinary = pack
+    let packDe = []
+    for (let i = 0; i < pack.length; i++) {
+      packDe.push(packItiDetail.map(item => item.packitid.id === item.id))
+    }
+    option.packItiDetail = packDe
+    const hotels = hotelList.map()
+    navigate(`/home/package-list/${option.id}`, { state: { option } })
+  }
+
+  const ViewTheme = (data) => {
+    const arr = data.split(",").map(Number);  // Result: [1, 2, 3]packageTheme/getall
+    let total = []
+    for (let i = 0; i < arr.length; i++) {
+      const filterlist = packageThemeList.filter(item => item.id === arr[i])
+      total.push(filterlist[0])
+    }
+    return total.map(item => item.title).join(", ")
+  }
+
+  const ViewDestination = (view) => {
+    let d = destination.filter(item => item.id === view)
+    let k = d[0]
+    return d.length === 0 ? '' : k.destinationName
+  }
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageitinerary/getAll`)
+      .then((response) => {
+        setPackIti(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageitinerarydetails/getAll`)
+      .then((response) => {
+        setPackItiDetail(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageTheme/getall`)
+      .then((response) => {
+        setPackageThemeList(response.data);
+      })
+      .catch(error => console.error(error))
+  }, [])
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/hotel/getAll`)
+      .then((response) => {
+        setHotelList(response.data);
+      })
+      .catch(error => console.error(error))
+  }, [])
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/destination/getall`)
+      .then((response) => {
+        setDestination(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packages/getAll`)
+      .then((response) => {
+        const sortedData = response.data.sort((a, b) => {
+          return a.pkName.localeCompare(b.pkName);  // Replace 'name' with the key to sort by
+        });
+        setPackageList(sortedData);
+      })
+      .catch(error => console.error(error))
+  }, [])
+
   return (
-    <TableComponent
-      columns={[{ header: "Name", accessor: "name" }, { header: "Due Date", accessor: "dueDate" }, { header: "Priority", accessor: "priority" }, { header: "Owner", accessor: "owner" }, { header: "View", accessor: "view" }]}
-      data={[
-        {
-          name: "Task 1",
-          dueDate: "12/12/2021",
-          priority: "High",
-          owner: "John Doe",
-          view: <button
-            onClick={() => navigate("/home/package-view")}
-            type="button"
-            className="bg-gray-50 border pl-2 pr-2">
-            View
-          </button>,
-        },
-      ]}
-      isSelectable={true} />
+    <table className="min-w-full bg-white">
+      <thead>
+        <tr className='truncate border-collapse'>
+          <th className="py-2 px-4 border"></th>
+          <th className="py-2 px-4 border">Package Name</th>
+          <th className="py-2 px-4 border">From</th>
+          <th className="py-2 px-4 border">To</th>
+          <th className="py-2 px-4 border">Package Category</th>
+          <th className="py-2 px-4 border">Package Theme</th>
+          <th className="py-2 px-4 border">Package Type</th>
+          <th className="py-2 px-4 border">No. of Days</th>
+          <th className="py-2 px-4 border">No. of Nights</th>
+          <th className="py-2 px-4 border">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {packageList.map((option, index) => (
+          <tr key={index} className="border-collapse text-center truncate">
+            <td className="py-2 px-4 border">{index + 1}</td>
+            <td className="py-2 px-4 border">{option.pkName}</td>
+            <td className="py-2 px-4 border">{ViewDestination(option.fromCityId)}</td>
+            <td className="py-2 px-4 border">{ViewDestination(option.toCityId)}</td>
+            <td className="py-2 px-4 border">{option.pkCategory}</td>
+            <td className="py-2 px-4 border">{ViewTheme(option.pkthem) ? ViewTheme(option.pkthem) : ""}</td>
+            <td className="py-2 px-4 border">{option.packageType}</td>
+            <td className="py-2 px-4 border">{option.days}</td>
+            <td className="py-2 px-4 border">{option.nights}</td>
+            <td className="py-2 px-4 border"><button onClick={() => handleView(option)}>Action</button></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 };
 

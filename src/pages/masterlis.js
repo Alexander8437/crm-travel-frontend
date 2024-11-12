@@ -10,6 +10,8 @@ const MasterList = () => {
   const [stateData, setStateData] = useState([]);
   const [destinationData, setDestinationData] = useState([]);
   const [hotelData, setHotelData] = useState([]);
+  const [customerData, setCustomerData] = useState([]);
+  const [vendorData, setVendorData] = useState([]);
   const navigate = useNavigate()
 
   const tabs = [
@@ -17,6 +19,8 @@ const MasterList = () => {
     { key: 'state', label: 'State' },
     { key: 'destination', label: 'Destination' },
     { key: 'hotel', label: 'Hotel' },
+    { key: 'customer', label: 'Customer' },
+    { key: 'vendor', label: 'Vendor' },
   ];
 
   const tableData = {
@@ -59,6 +63,24 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
       ],
       data: hotelData,
+    },
+    customer: {
+      columns: [
+        { header: 'First Name', accessor: 'firstName' },
+        { header: 'Last Name', accessor: 'lastName' },
+        { header: 'E-mail', accessor: 'email' },
+        { header: 'Lead Source', accessor: 'leadSource' }
+      ],
+      data: customerData,
+    },
+    vendor: {
+      columns: [
+        { header: 'Name', accessor: 'vendorName' },
+        { header: 'E-Mail', accessor: 'vendorEmail' },
+        { header: 'Contact', accessor: 'vendorContactNo' },
+        { header: 'Lead Source', accessor: 'vendorAddress' }
+      ],
+      data: vendorData,
     },
   };
 
@@ -133,6 +155,48 @@ const MasterList = () => {
       }
     }
 
+    const fetchCustomerData = async () => {
+      try {
+        const response = await axios.get(`${api.baseUrl}/customer/getall`);
+        const formattedData = response.data.map((item) => ({
+          ...item,
+          status: item.status ? 'Active' : 'Inactive',
+          firstName: item.fName,
+          lastName: item.lName,
+          email: item.emailId,
+          leadSource: item.leadSource,
+        }));
+        const sortedData = formattedData.sort((a, b) => {
+          return a.firstName.localeCompare(b.firstName);  // Replace 'name' with the key to 
+        });
+        setCustomerData(sortedData);
+      } catch (error) {
+        console.error('Error fetching state data:', error);
+      }
+    }
+
+    const fetchVendorData = async () => {
+      try {
+        const response = await axios.get(`${api.baseUrl}/vendor/getAll`);
+        // const formattedData = response.data.map((item) => ({
+        //   ...item,
+        //   status: item.status ? 'Active' : 'Inactive',
+        //   firstName: item.fName,
+        //   lastName: item.lName,
+        //   email: item.emailId,
+        //   leadSource: item.leadSource,
+        // }));
+        const sortedData = response.data.sort((a, b) => {
+          return a.vendorName.localeCompare(b.vendorName);  // Replace 'name' with the key to 
+        });
+        setVendorData(sortedData);
+      } catch (error) {
+        console.error('Error fetching state data:', error);
+      }
+    }
+
+
+
     if (activeTab === 'country') {
       fetchCountryData();
     } else if (activeTab === 'state') {
@@ -141,11 +205,15 @@ const MasterList = () => {
       fetchDestinationData();
     } else if (activeTab === 'hotel') {
       fetchHotelData();
+    } else if (activeTab === 'customer') {
+      fetchCustomerData()
+    } else if (activeTab === 'vendor') {
+      fetchVendorData()
     }
   }, [activeTab]);
 
   return (
-    <div className="h-24 mb-10 w-full p-4">
+    <div className="h-24 mb-10 w-full p-4 bg-gray-50">
       <div className="pb-1">
         <h2 className="text-2xl p-1">Master List</h2>
       </div>

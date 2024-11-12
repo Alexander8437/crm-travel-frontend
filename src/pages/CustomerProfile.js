@@ -1,29 +1,106 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { FaTrash } from 'react-icons/fa6';
+import { useLocation } from 'react-router-dom';
+import api from '../apiConfig/config';
 
 const CustomerProfile = () => {
   const [tab, setTab] = React.useState('profile');
+  const location = useLocation(); // Unix timestamp in milliseconds
+  const option = location.state?.option;
+
+  const [destination, setDestination] = useState([])
+  const [itinerariesList, setItinerayList] = useState([])
+  const [inclusion, setInclusion] = useState([])
+  const [viewInclusion, setViewInclusion] = useState([])
+  const [exclusion, setExclusion] = useState([])
+  const [viewExclusion, setViewExclusion] = useState([])
+
+  const ViewDestination = (view) => {
+    let d = destination.filter(item => item.id === view)
+    let k = d[0]
+    return d.length === 0 ? '' : k.destinationName
+  }
+
+  // useEffect(() => {
+
+  // })
+
+  useEffect(() => {
+    console.log(option)
+    axios.get(`${api.baseUrl}/destination/getall`)
+      .then((response) => {
+        setDestination(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+
+  }, []);
+
+  const viewInclusions = (ids) => {
+    const incl = inclusion.filter(item => item.id === ids)
+    return incl.length !== 0 ? incl[0].inclusionname : ''
+  }
+
+  const viewExclusions = (ids) => {
+    const incl = exclusion.filter(item => item.id === ids)
+    return incl.length !== 0 ? incl[0].exclusionname : ''
+  }
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/itinerarys/getAll`)
+      .then((response) => {
+        setItinerayList(response.data)
+        // handleData(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/inclusion/getall`)
+      .then((response) => {
+        setInclusion(response.data)
+        // handleInclusion(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/exclusion/getall`)
+      .then((response) => {
+        setExclusion(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
   return (
-    <div className="p-4 w-full ml-20  bg-gray-100"
+    <div className="p-4 w-full ml-0  bg-gray-100 mb-10"
     // style={{ marginLeft: "100px" }}
     >
       <div className="bg-white p-4 rounded shadow">
         <div className="flex flex-col md:flex-row justify-between mb-4">
           <div className="mb-2 md:mb-0">
-            <p>Customer Name : Mr. Gaurav Kr Gupta</p>
-            <p>Owner Name : Gaurav Gupta</p>
-            <p>Last Remark :</p>
+            <p>Package Name : {option.pkName}</p>
+            <p>Package Categories : {option.pkCategory}</p>
+            <p>Package Specifications : {option.pkSpecifications}</p>
           </div>
           <div className="mb-2 md:mb-0">
-            <p>Contact No : 8899008899</p>
-            <p>Customer Type: B2C</p>
+            <p>From City : {ViewDestination(option.fromCityId)}</p>
+            <p>Destination City : {ViewDestination(option.toCityId)}</p>
           </div>
           <div className="mb-2 md:mb-0">
-            <p>Email ID : abc@gmail.com</p>
+            <p>Fixed Departure Destinations : {option.fixed_departure_destinations}</p>
+            {/* <p>Fixed Departure Destinations : {option.fixed_departure_destinations}</p> */}
           </div>
           <div className="mb-2 md:mb-0">
-            <p>Active Since : 02-Aug-17 05:26:00</p>
+            <p>{option.days} days/{option.nights} nights</p>
           </div>
         </div>
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
@@ -33,20 +110,6 @@ const CustomerProfile = () => {
             <button className="bg-yellow-500 text-white px-4 py-2 rounded">+ To Do</button>
             <button className="bg-red-500 text-white px-4 py-2 rounded">+ New Query</button>
           </div>
-        </div>
-      </div>
-
-      <div className="bg-white p-4 rounded shadow mt-4">
-        <div className="flex overflow-x-auto space-x-4 mb-4">
-          {['profile', 'queries', 'bookings', 'todos', 'chats', 'contacts', 'feedback', 'remarks'].map((item) => (
-            <button
-              key={item}
-              className={`px-4 py-2 ${tab === item ? 'bg-blue-500 text-white rounded-md' : ''}`}
-              onClick={() => setTab(item)}
-            >
-              {item.charAt(0).toUpperCase() + item.slice(1)} {item === 'queries' && <span className="bg-white text-red-500 rounded-full px-2">236</span>}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -62,24 +125,16 @@ const CustomerProfile = () => {
 
       <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mt-4">
         <div className="bg-white p-4 rounded shadow w-full md:w-1/2">
-          <div className="flex justify-between items-center mb-4">
-            <p className="font-bold">I want to go :</p>
-            <button className="bg-gray-200 px-4 py-2 rounded">+ Add</button>
-          </div>
           <table className="w-full">
             <thead>
               <tr className="bg-gray-200">
-                <th className="p-2">Destination</th>
-                <th className="p-2">Action</th>
+                <th className="p-2">Destination Covered</th>
               </tr>
             </thead>
             <tbody>
-              {['Goa (India)', '(Singapore)', '(USA)', 'Goa (India)'].map((destination, index) => (
+              {option.destinationCoveredIds.map((destination, index) => (
                 <tr key={index} className="border-b">
-                  <td className="p-2 text-center">{destination}</td>
-                  <td className="p-2 text-center">
-                    <button className="text-red-500"><FaTrash /></button>
-                  </td>
+                  <td className="p-2">{ViewDestination(destination)}</td>
                 </tr>
               ))}
             </tbody>
@@ -87,8 +142,93 @@ const CustomerProfile = () => {
         </div>
 
         <div className="bg-white p-4 rounded shadow w-full md:w-1/2 mt-4 md:mt-0">
-          <p className="font-bold mb-4">Customer Profile / Preferences</p>
           <table className="w-full">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2">Itineraries</th>
+                {/* <th className="p-2">Action</th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {/* {option.itinary.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="p-2">{item.daytitle}</td>
+                </tr>
+              ))} */}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mt-4">
+        <div className="bg-white p-4 rounded shadow w-full">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2">Hotel</th>
+              </tr>
+            </thead>
+            <tbody>
+              {option.inclusionids.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="p-2">{viewInclusions(item)}</td>
+                  {/* <td className="p-2 text-center">
+                    <button className="text-red-500"><FaTrash /></button>
+                  </td> */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mt-4">
+        <div className="bg-white p-4 rounded shadow w-full md:w-1/2">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2">Inclusion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {option.inclusionids.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="p-2">{viewInclusions(item)}</td>
+                  {/* <td className="p-2 text-center">
+                    <button className="text-red-500"><FaTrash /></button>
+                  </td> */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="bg-white p-4 rounded shadow w-full md:w-1/2 mt-4 md:mt-0">
+          {/* <p className="font-bold mb-4">Itineraries</p> */}
+          {/* <div className='w-full'> */}
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="p-2">Exclusion</th>
+                {/* <th className="p-2">Action</th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {option.exclusionids.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="p-2">{viewExclusions(item)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* <ul>
+            {itinerariesList.map(item =>
+              <li className='p-2 border-b-2'>{item.daytitle}</li>
+            )}
+          </ul> */}
+          {/* </div> */}
+
+          {/* <table className="w-full">
             <tbody>
               <tr className="border-b">
                 <td className="p-2">Food:</td>
@@ -111,7 +251,7 @@ const CustomerProfile = () => {
                 </td>
               </tr>
             </tbody>
-          </table>
+          </table> */}
         </div>
       </div>
     </div>

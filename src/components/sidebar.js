@@ -90,10 +90,12 @@ const Sidebar = () => {
               <p className="font-bold">Package</p>
               {/* <Link to='/home' className="block px-4 py-2 hover:bg-gray-600 rounded"> */}
               <div className="mt-4 border-b-2">
-                <h6 className="flex gap-4 font-normal items-center hover:text-black hover:cursor-pointer">
-                  <FaListUl size="16px" />
-                  All Package List
-                </h6>
+                <Link to='package-list'>
+                  <h6 className="flex gap-4 font-normal items-center hover:text-black hover:cursor-pointer">
+                    <FaListUl size="16px" />
+                    All Package List
+                  </h6>
+                </Link>
               </div>
               <div className="mt-6 flex flex-col justify-center items-center">
                 <button class="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-2"

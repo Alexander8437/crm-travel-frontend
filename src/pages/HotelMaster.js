@@ -32,7 +32,7 @@ const HotelMaster = () => {
 
   return (
     <>
-      <div className="p-4 w-full bg-gray-50 overflow-x-auto ml-20">
+      <div className="p-4 w-full bg-gray-50 overflow-x-auto">
         <MasterList />
         <div className="flex justify-between items-center mb-4 w-full">
           <div className="flex space-x-2">

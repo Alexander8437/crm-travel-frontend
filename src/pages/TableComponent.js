@@ -2,11 +2,12 @@ import React from 'react';
 
 const TableComponent = ({ columns, data, isSelectable }) => {
   return (
-    <table className="min-w-full bg-white border">
+    // <table className="min-w-full bg-white border">
+    <table className="min-w-full bg-white">
       <thead>
-        <tr>
+        <tr className='truncate border-collapse'>
           {columns.map((column, index) => (
-            <th key={index} className="py-2 px-4 border-b">
+            <th key={index} className="py-2 px-4 border">
               {column.header}
             </th>
           ))}
@@ -14,9 +15,9 @@ const TableComponent = ({ columns, data, isSelectable }) => {
       </thead>
       <tbody>
         {data.map((row, rowIndex) => (
-          <tr key={rowIndex} className="border-b text-center">
+          <tr key={rowIndex} className="border-collapse text-center">
             {columns.map((column, colIndex) => (
-              <td key={colIndex} className="py-2 px-4">
+              <td key={colIndex} className="py-2 px-4 border">
                 {typeof column.render === 'function'
                   ? column.render(row)
                   : row[column.accessor]}

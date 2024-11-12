@@ -17,7 +17,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const [selectedPackageType, setSelectedPackageType] = useState("domestic");
   const [isFixedDeparture, setIsFixedDeparture] = useState(false);
   const [editorData, setEditorData] = useState("");
-  const [packageData, setPackageData] = useState({});
+  const [packageData, setPackageData] = useState();
   const [packageItinerayData, setPackageItinerayData] = useState({});
   const [packageItinerayDetails, setPackageItinerayDetails] = useState({});
   const [selectedItineraries, setSelectedItineraries] = useState([]);
@@ -549,6 +549,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const handleItinearaySubmit = async (e) => {
     e.preventDefault();
 
+    // console.log(packageData)
+
     for (let i = 0; i < formItinaryData.length; i++) {
       let val = [...formItinaryData[i].hotel]
       let updateVal = val.filter(item => item.hotelName !== null)
@@ -588,23 +590,24 @@ const NewPackageForm = ({ isOpen, onClose }) => {
         meald = meald + (formItinaryData[i].breakfast ? ', Dinner' : 'Dinner')
       }
       let payload = {
-        daynumber: i + 1,
-        cityname: formItinaryData[i].cityname,
-        daytitle: formItinaryData[i].daytitle.label,
-        program: formItinaryData[i].program,
-        meals: meald,
-        createdby: user.username,
-        modifiedby: user.username,
-        ipaddress: ipAddress,
-        status: 1,
-        isdelete: 0,
-        transport: {
-          id: formItinaryData[i].transport.value
+        "daynumber": i + 1,
+        "cityname": formItinaryData[i].cityname,
+        "daytitle": formItinaryData[i].daytitle.label,
+        "program": formItinaryData[i].program,
+        "meals": meald,
+        "createdby": user.username,
+        "modifiedby": user.username,
+        "ipaddress": ipAddress,
+        "status": 1,
+        "isdelete": 0,
+        "transport": {
+          "id": formItinaryData[i].transport.value
         },
-        packid: {
-          id: packageData.id
+        "packid": {
+          "id": packageData.id
         }
       }
+      console.log(payload)
 
       await axios.post(`${api.baseUrl}/packageitinerary/create`, payload, {
         headers: {
@@ -644,6 +647,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             "id": formItinaryData[i].hotel[j].mealType.value
           }]
         }
+        console.log(packageItinerayDetails)
 
         await axios.post(`${api.baseUrl}/packageitinerarydetails/create`, payloadItineararyDetails, {
           headers: {
@@ -668,9 +672,9 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     const selectedPackagesStr = selectedPackageTheme.map((option) => option.value).join(",");
     const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
     const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
-    const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(",");
-    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.value).join(",");
-    const packageCategoriesStr = packageCategories.map((option) => option).join(",");
+    const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
+    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.label).join(", ");
+    const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
 
     const formDataPackageMaster = new FormData()
 
@@ -714,9 +718,9 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
     formDataPackageMaster.append('image', pkImage)
 
-    for (var pair of formDataPackageMaster.entries()) {
-      console.log(pair[0] + ' = ' + pair[1]);
-    }
+    // for (var pair of formDataPackageMaster.entries()) {
+    //   console.log(pair[0] + ' = ' + pair[1]);
+    // }
 
     await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
       headers: {
@@ -727,6 +731,15 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     })
       .then((response) => {
         setPackageData(response.data)
+        toast.success("Package Created...", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       })
       .catch(error => console.error(error));
 

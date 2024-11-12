@@ -68,11 +68,12 @@ const PageRoute = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/packages" element={<Packages />} /> {/* Add the Package route */}
             <Route path="/packageDashboard" element={<PackageDashboard />} />
+            <Route path={'/package-list/:id'} element={<CustomerProfile />} />
             <Route path="/master-list" element={<MasterList />} />
             <Route path="/master-list/hotel" element={<HotelMaster />} />
             {/* <Route path="/master-list/hotel" element={<HotelMaster />} /> */}
             <Route path='/master-list/hotel/:id' element={<HotelMasterAddRoom />} />
-            <Route path="/package-view" element={<CustomerProfile />} />
+            {/* <Route path="/package-view" element={<CustomerProfile />} /> */}
             <Route path="/booking-dashboard" element={<Bookings />} />
             <Route path='/' />
             {/* Add other routes as needed */}
