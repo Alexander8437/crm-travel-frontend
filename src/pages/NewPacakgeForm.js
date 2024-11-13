@@ -641,23 +641,24 @@ const NewPackageForm = ({ isOpen, onClose }) => {
         meald = meald + (formItinaryData[i].breakfast ? ', Dinner' : 'Dinner')
       }
       let payload = {
-        "daynumber": i + 1,
-        "cityname": formItinaryData[i].cityname,
-        "daytitle": formItinaryData[i].daytitle.label,
-        "program": formItinaryData[i].program,
-        "meals": meald,
-        "createdby": user.username,
-        "modifiedby": user.username,
-        "ipaddress": ipAddress,
-        "status": 1,
-        "isdelete": 0,
-        "transport": {
-          "id": formItinaryData[i].transport.value
+        daynumber: i + 1,
+        cityname: formItinaryData[i].cityname,
+        daytitle: formItinaryData[i].daytitle.label,
+        program: formItinaryData[i].program,
+        meals: meald,
+        createdby: user.username,
+        modifiedby: user.username,
+        ipaddress: ipAddress,
+        status: 1,
+        isdelete: 0,
+        transport: {
+          id: formItinaryData[i].transport.value
         },
-        "packid": {
-          "id": packageData.id
+        packid: {
+          id: packageData.id
         }
       }
+      console.log(payload)
 
       await axios.post(`${api.baseUrl}/packageitinerary/create`, payload, {
         headers: {
@@ -679,29 +680,29 @@ const NewPackageForm = ({ isOpen, onClose }) => {
         // let mel = 
         setFormItinaryData(upd)
         let payloadItineararyDetails = {
-          "ipaddress": ipAddress,
-          "status": 1,
-          "isdelete": 0,
-          "createdby": user.username,
-          "modifiedby": user.username,
-          "category": formItinaryData[i].hotel[j].category,
-          "packitid": {
-            "id": packageItinerayData.id
+          ipaddress: ipAddress,
+          status: 1,
+          isdelete: 0,
+          createdby: user.username,
+          modifiedby: user.username,
+          category: formItinaryData[i].hotel[j].category,
+          packitid: {
+            id: packageItinerayData.id
           },
-          "activities": itiActivity,
-          "sightseeingIds": siteSee,
-          "roomtypes": {
-            "id": formItinaryData[i].hotel[j].roomType.value
+          activities: itiActivity,
+          sightseeingIds: siteSee,
+          roomtypes: {
+            id: formItinaryData[i].hotel[j].roomType.value
           },
-          "mealPackages": [{
-            "id": formItinaryData[i].hotel[j].mealType.value
+          mealPackages: [{
+            id: formItinaryData[i].hotel[j].mealType.value
           }]
         }
-        // console.log(packageItinerayDetails)
+        console.log(packageItinerayDetails)
 
         await axios.post(`${api.baseUrl}/packageitinerarydetails/create`, payloadItineararyDetails, {
           headers: {
-            // 'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
             'Access-Control-Allow-Origin': '*'
           }
         })
@@ -858,8 +859,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const handlePolicySubmit = (e) => {
     e.preventDefault();
 
-    // for (let i = 0; i < policyList.length; i++) {
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < policyList.length; i++) {
+      // for (let i = 0; i < 0; i++) {
       const policyPayload = {
         policytitle: policyList[i].policyName,
         policydescription: policyList[i].policyDescription,
