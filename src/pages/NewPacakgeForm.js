@@ -577,8 +577,20 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     }))
   }
 
-  const handlePackagePriceSubmit = () => {
-    console.log(packagePrice)
+  const handlePackagePriceSubmit = (e) => {
+    e.preventDefault();
+    let pricePackge = {
+      markup: 2500,
+      basiccost: 9900,
+      gst: 495,
+      totalcost: 12895,
+      createdby: user.username,
+      modifiedby: user.username,
+      ipaddress: ipAddress,
+      status: 1,
+      isdelete: 0,
+      packid: 4
+    }
   }
 
 
@@ -589,7 +601,6 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
     // for (let i = 0; i < formItinaryData.length; i++) {
     for (let i = 0; i < 0; i++) {
-
 
       let val = [...formItinaryData[i].hotel]
       let updateVal = val.filter(item => item.hotelName !== null)
@@ -709,80 +720,80 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
 
     // destinationCoveredId
-    // const destinationCoveredStr = selectedDestinations.map((option) => option.value).join(",")
-    // const selectedPackagesStr = selectedPackageTheme.map((option) => option.value).join(",");
-    // const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
-    // const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
-    // const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
-    // const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.label).join(", ");
-    // const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
+    const destinationCoveredStr = selectedDestinations.map((option) => option.value).join(",")
+    const selectedPackagesStr = selectedPackageTheme.map((option) => option.value).join(",");
+    const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
+    const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
+    const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
+    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.label).join(", ");
+    const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
 
-    // const formDataPackageMaster = new FormData()
+    const formDataPackageMaster = new FormData()
 
 
-    // if (formData.pkName === '' || selectedStartCity === null || selectedEndCity === null || destinationCoveredStr === '' || selectedPackagesStr === '' || packageSpecification === '' || formData.days === 0 || formData.nights === 0 || packageCategoriesStr === '' || formData.SupplierId === null ||
-    //   pkImage === null
-    // ) {
-    //   toast.error("Please fill all the fields...", {
-    //     position: "top-center",
-    //     autoClose: 5000,
-    //     hideProgressBar: false,
-    //     closeOnClick: true,
-    //     pauseOnHover: true,
-    //     draggable: true,
-    //     progress: undefined,
-    //   });
-    //   return;
-    // }
+    if (formData.pkName === '' || selectedStartCity === null || selectedEndCity === null || destinationCoveredStr === '' || selectedPackagesStr === '' || packageSpecification === '' || formData.days === 0 || formData.nights === 0 || packageCategoriesStr === '' || formData.SupplierId === null ||
+      pkImage === null
+    ) {
+      toast.error("Please fill all the fields...", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
 
-    // formDataPackageMaster.append('pkName', formData.pkName)
+    formDataPackageMaster.append('pkName', formData.pkName)
 
-    // formDataPackageMaster.append('fromCityId', selectedStartCity.value)
-    // formDataPackageMaster.append('toCityId', selectedEndCity.value)
-    // formDataPackageMaster.append('destinationCoveredId', destinationCoveredStr)
-    // formDataPackageMaster.append('description', editorData)
-    // formDataPackageMaster.append('pkCategory', selectedPackagesStr)
-    // formDataPackageMaster.append('pkSpecifications', packageSpecification)
-    // formDataPackageMaster.append('days', formData.days)
-    // formDataPackageMaster.append('nights', formData.nights)
-    // formDataPackageMaster.append('is_fixed_departure', isFixedDeparture)
-    // formDataPackageMaster.append('fixed_departure_destinations', isFixedDeparture ? selectedDestinationDepartureStr : '')
-    // formDataPackageMaster.append('packageType', packageCategoriesStr)
-    // formDataPackageMaster.append('created_by', user.username)
-    // formDataPackageMaster.append('modified_by', user.username)
-    // formDataPackageMaster.append('ipaddress', ipAddress)
-    // formDataPackageMaster.append('status', formData.status)
-    // formDataPackageMaster.append('isdelete', 0)
-    // formDataPackageMaster.append('inclusionid', selectedInclusionsStr)
-    // formDataPackageMaster.append('exclusionid', selectedExclusionsStr)
-    // formDataPackageMaster.append('SupplierId', formData.SupplierId)
-    // formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
-    // formDataPackageMaster.append('image', pkImage)
+    formDataPackageMaster.append('fromCityId', selectedStartCity.value)
+    formDataPackageMaster.append('toCityId', selectedEndCity.value)
+    formDataPackageMaster.append('destinationCoveredId', destinationCoveredStr)
+    formDataPackageMaster.append('description', editorData)
+    formDataPackageMaster.append('pkCategory', selectedPackagesStr)
+    formDataPackageMaster.append('pkSpecifications', packageSpecification)
+    formDataPackageMaster.append('days', formData.days)
+    formDataPackageMaster.append('nights', formData.nights)
+    formDataPackageMaster.append('is_fixed_departure', isFixedDeparture)
+    formDataPackageMaster.append('fixed_departure_destinations', isFixedDeparture ? selectedDestinationDepartureStr : '')
+    formDataPackageMaster.append('packageType', packageCategoriesStr)
+    formDataPackageMaster.append('created_by', user.username)
+    formDataPackageMaster.append('modified_by', user.username)
+    formDataPackageMaster.append('ipaddress', ipAddress)
+    formDataPackageMaster.append('status', formData.status)
+    formDataPackageMaster.append('isdelete', 0)
+    formDataPackageMaster.append('inclusionid', selectedInclusionsStr)
+    formDataPackageMaster.append('exclusionid', selectedExclusionsStr)
+    formDataPackageMaster.append('SupplierId', formData.SupplierId)
+    formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
+    formDataPackageMaster.append('image', pkImage)
 
     // for (var pair of formDataPackageMaster.entries()) {
     //   console.log(pair[0] + ' = ' + pair[1]);
     // }
 
-    // await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
-    //   headers: {
-    //     'Authorization': `Bearer ${token}`,
-    //     'Content-Type': 'multipart/form-data',
-    //     'Access-Control-Allow-Origin': '*'
-    //   }
-    // })
-    //   .then((response) => {
-    //     setPackageData(response.data)
-    //     toast.success("Package Created...", {
-    //       position: "top-center",
-    //       autoClose: 5000,
-    //       hideProgressBar: false,
-    //       closeOnClick: true,
-    //       pauseOnHover: true,
-    //       draggable: true,
-    //       progress: undefined,
-    //     });
-    //   })
-    //   .catch(error => console.error(error));
+    await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then((response) => {
+        setPackageData(response.data)
+        toast.success("Package Created...", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch(error => console.error(error));
 
     setPage(2);
   };
