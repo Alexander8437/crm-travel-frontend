@@ -20,6 +20,7 @@ import NewVendorForm from '../pages/NewVendorForm';
 import NewTransportationForm from '../pages/NewTransportationForm';
 import { MdOutlineKeyboardArrowRight } from 'react-icons/md';
 import { BsGraphUpArrow } from 'react-icons/bs';
+import NewPolicyForm from '../pages/NewPolicyForm';
 
 const Sidebar = () => {
   const [homeStyle, setHomeStyle] = useState([])
@@ -382,7 +383,10 @@ const Sidebar = () => {
                   </button>
                 </div>
                 <div className="flex justify-center">
-                  <button className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-2">
+                  <button className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-2" onClick={() => {
+                    setAddData([]);
+                    setAddData(['Policy'])
+                  }}>
                     Policies
                     <span>
                       <IoMdAdd size="16px" />
@@ -452,6 +456,9 @@ const Sidebar = () => {
       </div>
       <div className="submenu-menu" style={{ right: addData[0] === 'Transportation' ? "0" : "-100%" }}>
         <NewTransportationForm isOpen={addData[0] === 'Transportation'} onClose={() => setAddData([])} />
+      </div>
+      <div className="submenu-menu" style={{ right: addData[0] === 'Policy' ? "0" : "-100%" }}>
+        <NewPolicyForm isOpen={addData[0] === 'Policy'} onClose={() => setAddData([])} />
       </div>
     </>
   );

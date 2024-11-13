@@ -11,10 +11,10 @@ const State = ({ isOpen, onClose }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [countryId, setCountryId] = useState(null)
   const [status, setStatus] = useState(true)
-  const [user, setUser] = useState({})
 
   const fileInputRef = useRef(null);
 
+  const [user, setUser] = useState({})
 
   const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {

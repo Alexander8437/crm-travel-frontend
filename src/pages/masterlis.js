@@ -3,6 +3,8 @@ import axios from 'axios';
 import Table from './TableComponent';
 import { useNavigate } from 'react-router-dom';
 import api from '../apiConfig/config';
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+
 
 const MasterList = () => {
   const [activeTab, setActiveTab] = useState('country');
@@ -13,6 +15,98 @@ const MasterList = () => {
   const [customerData, setCustomerData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
   const navigate = useNavigate()
+
+  // Reusable ToggleSwitch Component
+  const ToggleSwitch = ({ isOn, handleToggle }) => {
+    return (
+      <div
+        className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${isOn ? 'bg-green-500' : 'bg-gray-300'
+          }`}
+        onClick={handleToggle}
+      >
+        <div
+          className={`w-3 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6' : 'translate-x-0'
+            }`}
+        />
+      </div>
+    );
+  };
+
+  const addIconsToData = (data, updateStatus) =>
+    data.map((item) => ({
+      ...item,
+      status: (
+        <ToggleSwitch
+          isOn={item.status === 'Active'}
+          handleToggle={() => updateStatus(item)}
+        />
+      ),
+      Action: (
+        <div className="flex gap-2 justify-center">
+          <FaEdit
+            className="text-purple-600 cursor-pointer"
+            onClick={() => handleEdit(item)}
+          />
+          <FaTrashAlt
+            className="text-red-600 cursor-pointer"
+            onClick={() => handleDelete(item)}
+          />
+        </div>
+      ),
+    }));
+  const fetchData = async (endpoint, setData, updateStatus) => {
+    try {
+      const response = await axios.get(`${api.baseUrl}/${endpoint}`);
+      const formattedData = response.data.map((item) => ({
+        ...item,
+        status: item.status ? 'Active' : 'Inactive',
+      }));
+      setData(addIconsToData(formattedData, updateStatus));
+    } catch (error) {
+      console.error(`Error fetching ${endpoint} data:`, error);
+    }
+  };
+
+  const handleStatusToggle = (item) => {
+    // Logic to toggle the status (e.g., API call to update backend)
+    console.log('Toggling status for:', item);
+  };
+
+  const handleEdit = (item) => {
+    console.log('Editing:', item);
+    navigate(`/edit/${item.id}`);
+  };
+
+  const handleDelete = (item) => {
+    console.log('Deleting:', item);
+    // Add delete logic here
+  };
+
+  useEffect(() => {
+    switch (activeTab) {
+      case 'country':
+        fetchData('country/get', setCountryData, handleStatusToggle);
+        break;
+      case 'state':
+        fetchData('state/get', setStateData, handleStatusToggle);
+        break;
+      case 'destination':
+        fetchData('destination/get', setDestinationData, handleStatusToggle);
+        break;
+      case 'hotel':
+        fetchData('hotel/get', setHotelData, handleStatusToggle);
+        break;
+      case 'customer':
+        fetchData('customer/get', setCustomerData, handleStatusToggle);
+        break;
+      case 'vendor':
+        fetchData('vendor/get', setVendorData, handleStatusToggle);
+        break;
+      default:
+        break;
+    }
+  }, [activeTab]);
+
 
   const tabs = [
     { key: 'country', label: 'Country' },
@@ -30,8 +124,9 @@ const MasterList = () => {
         { header: 'Code', accessor: 'code' },
         { header: 'Phone Code', accessor: 'pCode' },
         { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
       ],
-      data: countryData,
+      data: addIconsToData(countryData),
     },
     state: {
       columns: [
@@ -39,8 +134,9 @@ const MasterList = () => {
         { header: 'Country Name', accessor: 'countryName' },
         { header: 'Code', accessor: 'code' },
         { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
       ],
-      data: stateData,
+      data: addIconsToData(stateData),
     },
     destination: {
       columns: [
@@ -49,38 +145,43 @@ const MasterList = () => {
         { header: 'Country Name', accessor: 'countryName' },
         { header: 'Attractions', accessor: 'keyofattractions' },
         { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
       ],
-      data: destinationData,
+      data: addIconsToData(destinationData),
     },
     hotel: {
       columns: [
         { header: 'Hotel Name', accessor: 'hname' },
         { header: 'Country', accessor: 'countryName' },
         { header: 'State', accessor: 'stateName' },
-        { header: 'Destination', accessor: 'destinationName' },
+        { header: 'City', accessor: 'destinationName' },
         { header: 'Address', accessor: 'haddress' },
-        { header: 'Pin Code', accessor: 'hpincode' },
         { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
       ],
-      data: hotelData,
+      data: addIconsToData(hotelData),
     },
     customer: {
       columns: [
         { header: 'First Name', accessor: 'firstName' },
         { header: 'Last Name', accessor: 'lastName' },
         { header: 'E-mail', accessor: 'email' },
-        { header: 'Lead Source', accessor: 'leadSource' }
+        { header: 'Lead Source', accessor: 'leadSource' },
+        { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
       ],
-      data: customerData,
+      data: addIconsToData(customerData),
     },
     vendor: {
       columns: [
         { header: 'Name', accessor: 'vendorName' },
         { header: 'E-Mail', accessor: 'vendorEmail' },
         { header: 'Contact', accessor: 'vendorContactNo' },
-        { header: 'Lead Source', accessor: 'vendorAddress' }
+        { header: 'Lead Source', accessor: 'vendorAddress' },
+        { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
       ],
-      data: vendorData,
+      data: addIconsToData(vendorData),
     },
   };
 
@@ -218,7 +319,7 @@ const MasterList = () => {
         <h2 className="text-2xl p-1">Master List</h2>
       </div>
       <div className="relative inline-block w-full  border-b">
-        <ul className="flex gap-4 py-0 border-gray-300">
+        <ul className="flex gap-4 py-0 border-gray-300 mb-6">
           {tabs.map((tab) => (
             <li
               key={tab.key}
@@ -231,16 +332,7 @@ const MasterList = () => {
           ))}
         </ul>
       </div>
-      <div className="mt-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex flex-wrap gap-3">
-            <button className="bg-gray-200 text-black px-4 py-2 rounded">Archive</button>
-            <button className="bg-red-500 text-white px-4 py-2 rounded">Hot</button>
-            <button className="bg-yellow-500 text-white px-4 py-2 rounded">Warm</button>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">Cold</button>
-            <button className="bg-gray-500 text-white px-4 py-2 rounded">No Status</button>
-          </div>
-        </div>
+      <div className="mt-4 mb-6">
         <hr />
         <div className='w-full  overflow-auto'>
           <Table

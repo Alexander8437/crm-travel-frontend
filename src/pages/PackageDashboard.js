@@ -4,6 +4,7 @@ import { FaCaretDown, FaFilter, FaSort, FaArrowsAltH, FaPlus } from "react-icons
 import TableComponent from "./TableComponent";
 import axios from "axios";
 import api from "../apiConfig/config";
+import NewPackageForm from "./NewPacakgeForm";
 
 // The main dashboard component
 const PackageDashboard = () => {
@@ -71,27 +72,79 @@ const ListView = () => {
   const [packIti, setPackIti] = useState([])
   const [packItiDetail, setPackItiDetail] = useState([])
   const [hotelList, setHotelList] = useState([])
+  const [packageTheme, setPackageTheme] = useState([])
+  const [packD, setPackD] = useState([])
+  const [siteSeeings, setSiteSeeings] = useState([])
 
   const handleView = (option) => {
     const pack = packIti.filter(item => option.id === item.packid)
     option.itinary = pack
-    let packDe = []
+
+    let p = []
     for (let i = 0; i < pack.length; i++) {
-      packDe.push(packItiDetail.map(item => item.packitid.id === item.id))
+      let k = packItiDetail.filter(item => item.packitid.id === pack[i].id)
+      p.push(k[0])
     }
-    option.packItiDetail = packDe
-    const hotels = hotelList.map()
+
+    let k = p.filter(item => item !== undefined)
+    let site = []
+    for (let i = 0; i < k.length; i++) {
+      site.push(...k[i].sightseeingIds)
+    }
+
+    let newSet = new Set(site)
+    let siteSeeing = []
+    let site1 = [...newSet]
+    // console.log(site1)
+    for (let i = 0; i < site1.length; i++) {
+      let j = siteSeeings.filter(item => item.id === site1[i])[0]
+      siteSeeing.push(j)
+    }
+
+    let h = []
+    let roomT = []
+    for (let i = 0; i < k.length; i++) {
+      let newH = hotelList.filter(item => item.id === k[i].roomtypes.hotel.id)
+      let filRoom = hotelList.map(item => item.id === k[i].roomtypes.hotel.id ? item : '')
+      let newFilRoom = filRoom
+      h.push(newH[0])
+    }
+    let hset = new Set(h)
+    let harr = [...hset]
+    option.packItiDetail = k
+    option.sightseeingIds = newSet
+    option.sightseeings = siteSeeing
+    option.hotels = harr
     navigate(`/home/package-list/${option.id}`, { state: { option } })
   }
 
-  const ViewTheme = (data) => {
-    const arr = data.split(",").map(Number);  // Result: [1, 2, 3]packageTheme/getall
-    let total = []
-    for (let i = 0; i < arr.length; i++) {
-      const filterlist = packageThemeList.filter(item => item.id === arr[i])
-      total.push(filterlist[0])
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/sightseeing/getAll`)
+        .then((response) => {
+          setSiteSeeings(response.data)
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+      return
     }
-    return total.map(item => item.title).join(", ")
+    fetchData()
+  }, []);
+
+  const ViewTheme = (data) => {
+    // setPackageTheme([])
+    // const arr = data.split(",").map(Number);  // Result: [1, 2, 3]packageTheme/getall
+    // let total = []
+    // for (let i = 0; i < arr.length; i++) {
+    //   const filterlist = packageThemeList.filter(item => item.id === arr[i])
+    //   //   let d = filterlist[0]?.title
+    //   total.push(filterlist[0])
+    //   console.log(filterlist[0])
+    // }
+    // console.log(arr)
+    // // setPackageTheme(total)
+    // return packageTheme.length === 0 ? '' : total.map(item => item.title).join(", ")
   }
 
   const ViewDestination = (view) => {
@@ -101,61 +154,85 @@ const ListView = () => {
   }
 
   useEffect(() => {
-    axios.get(`${api.baseUrl}/packageitinerary/getAll`)
-      .then((response) => {
-        setPackIti(response.data)
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, []);
-
-  useEffect(() => {
-    axios.get(`${api.baseUrl}/packageitinerarydetails/getAll`)
-      .then((response) => {
-        setPackItiDetail(response.data)
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, []);
-
-  useEffect(() => {
-    axios.get(`${api.baseUrl}/packageTheme/getall`)
-      .then((response) => {
-        setPackageThemeList(response.data);
-      })
-      .catch(error => console.error(error))
-  }, [])
-
-  useEffect(() => {
-    axios.get(`${api.baseUrl}/hotel/getAll`)
-      .then((response) => {
-        setHotelList(response.data);
-      })
-      .catch(error => console.error(error))
-  }, [])
-
-  useEffect(() => {
-    axios.get(`${api.baseUrl}/destination/getall`)
-      .then((response) => {
-        setDestination(response.data)
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, []);
-
-
-  useEffect(() => {
-    axios.get(`${api.baseUrl}/packages/getAll`)
-      .then((response) => {
-        const sortedData = response.data.sort((a, b) => {
-          return a.pkName.localeCompare(b.pkName);  // Replace 'name' with the key to sort by
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/packageitinerary/getAll`)
+        .then((response) => {
+          setPackIti(response.data)
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
         });
-        setPackageList(sortedData);
-      })
-      .catch(error => console.error(error))
+      return
+    };
+    fetchData()
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/packageitinerarydetails/getAll`)
+        .then((response) => {
+          setPackItiDetail(response.data)
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        })
+      return
+    }
+    fetchData()
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/packageTheme/getall`)
+        .then((response) => {
+          setPackageThemeList(response.data);
+        })
+        .catch(error => console.error(error))
+      return
+    }
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/hotel/getAll`)
+        .then((response) => {
+          setHotelList(response.data);
+        })
+        .catch(error => console.error(error))
+      return
+    }
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/destination/getall`)
+        .then((response) => {
+          setDestination(response.data)
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+      return
+    }
+    fetchData()
+  }, []);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/packages/getAll`)
+        .then((response) => {
+          const sortedData = response.data.sort((a, b) => {
+            return a.pkName.localeCompare(b.pkName);  // Replace 'name' with the key to sort by
+          });
+          setPackageList(sortedData);
+        })
+        .catch(error => console.error(error));
+      return
+    }
+    fetchData()
   }, [])
 
   return (
@@ -164,13 +241,13 @@ const ListView = () => {
         <tr className='truncate border-collapse'>
           <th className="py-2 px-4 border"></th>
           <th className="py-2 px-4 border">Package Name</th>
-          <th className="py-2 px-4 border">From</th>
-          <th className="py-2 px-4 border">To</th>
-          <th className="py-2 px-4 border">Package Category</th>
-          <th className="py-2 px-4 border">Package Theme</th>
-          <th className="py-2 px-4 border">Package Type</th>
-          <th className="py-2 px-4 border">No. of Days</th>
-          <th className="py-2 px-4 border">No. of Nights</th>
+          <th className="py-2 px-4 border">From City</th>
+          <th className="py-2 px-4 border">To City</th>
+          <th className="py-2 px-4 border">Category</th>
+          {/* <th className="py-2 px-4 border">Theme</th> */}
+          <th className="py-2 px-4 border">Type</th>
+          <th className="py-2 px-4 border">Days/Nights</th>
+          {/* <th className="py-2 px-4 border">No. of Nights</th> */}
           <th className="py-2 px-4 border">Action</th>
         </tr>
       </thead>
@@ -182,10 +259,10 @@ const ListView = () => {
             <td className="py-2 px-4 border">{ViewDestination(option.fromCityId)}</td>
             <td className="py-2 px-4 border">{ViewDestination(option.toCityId)}</td>
             <td className="py-2 px-4 border">{option.pkCategory}</td>
-            <td className="py-2 px-4 border">{ViewTheme(option.pkthem) ? ViewTheme(option.pkthem) : ""}</td>
+            {/* <td className="py-2 px-4 border">{ViewTheme(option.pkthem)}</td> */}
             <td className="py-2 px-4 border">{option.packageType}</td>
-            <td className="py-2 px-4 border">{option.days}</td>
-            <td className="py-2 px-4 border">{option.nights}</td>
+            <td className="py-2 px-4 border">{option.days}/{option.nights}</td>
+            {/* <td className="py-2 px-4 border"></td> */}
             <td className="py-2 px-4 border"><button onClick={() => handleView(option)}>Action</button></td>
           </tr>
         ))}
@@ -242,6 +319,7 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
   const [plusDropdown, setPlusDropdown] = useState(false);
   const [towerDropdown, setTowerDropdown] = useState(false);
   const [arrowsDropdown, setArrowsDropdown] = useState(false);
+  const [addData, setAddData] = useState([])
 
   const workflowRef = useRef(null);
   const createTaskRef = useRef(null);
@@ -295,12 +373,16 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [arrowsRef]);
 
+  const ShowPackage = () => {
+    setAddData(['NewPackageForm'])
+  }
+
   return (
     <>
       <div className="flex flex-col gap-3 justify-between items-center py-4 bg-white shadow-md px-6 rounded-md lg:flex-row sm:flex-col">
-        <h2 className="text-xl font-bold">Tasks</h2>
+        <h2 className="text-xl font-bold">Packages</h2>
 
-        <div></div>
+        {/* <div></div> */}
 
         <div className="flex items-center">
           <button
@@ -310,7 +392,7 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
               } py-2 px-4 rounded-md mr-2`}
             onClick={() => setIsListViewSelected(false)}
           >
-            Kanban Board
+            Package Board
           </button>
           <button
             className={`btn ${isListViewSelected
@@ -324,7 +406,7 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
         </div>
 
         <div className="flex items-center">
-          <div className="relative" ref={workflowRef}>
+          {/* <div className="relative" ref={workflowRef}>
             <button
               className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 py-2 px-4 rounded-md flex items-center"
               onClick={() => setWorkflowDropdown(!workflowDropdown)}
@@ -347,22 +429,23 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
                 </a>
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="relative ml-2" ref={createTaskRef}>
             <button
               className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 py-2 px-4 rounded-md flex items-center"
               onClick={() => setCreateTaskDropdown(!createTaskDropdown)}
             >
-              Create Task <FaCaretDown className="ml-2" />
+              Create <FaCaretDown className="ml-2" />
             </button>
             {createTaskDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                 <a
-                  href="#task1"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  // href="#task1"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:cursor-pointer"
+                  onClick={ShowPackage}
                 >
-                  Create task
+                  Create Package
                 </a>
                 <a
                   href="#task2"
@@ -376,7 +459,7 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
         </div>
       </div>
       {/* Filter, Plus, Sort, and Arrow buttons */}
-      <div className="flex md:flex- mt-3 justify-center md:justify-between items-center rounded-md bg-white p-3 border-b border-gray-300 mb-4">
+      {/* <div className="flex md:flex- mt-3 justify-center md:justify-between items-center rounded-md bg-white p-3 border-b border-gray-300 mb-4">
         <div className="flex items-center">
           <input
             type="text"
@@ -385,17 +468,17 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
           />
           <button className="bg-white border border-gray-300 rounded px-2 py-1">
             <FaFilter />
-          </button>
+          </button> */}
 
-          {/* Plus Button Dropdown */}
-          <div className="relative" ref={plusRef}>
+      {/* Plus Button Dropdown */}
+      {/* <div className="relative" ref={plusRef}>
             <button
               className="bg-white border border-gray-300 rounded px-2 py-1"
               onClick={() => setPlusDropdown(!plusDropdown)}
             >
               <FaPlus className="ml-1" />
-            </button>
-            {plusDropdown && (
+            </button> */}
+      {/* {plusDropdown && (
               <div className="absolute bg-white min-w-[160px] shadow-md z-10 mt-2 rounded border border-gray-300">
                 {[
                   "Name",
@@ -423,14 +506,14 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
                   </a>
                 ))}
               </div>
-            )}
-          </div>
+            )} */}
+      {/* </div>
 
 
-        </div>
-        <div className="flex">
-          {/* Sort Button Dropdown */}
-          <div className="relative" ref={towerRef}>
+        </div> */}
+      {/* <div className="flex"> */}
+      {/* Sort Button Dropdown */}
+      {/* <div className="relative" ref={towerRef}>
             <button
               className="bg-white border border-gray-300 rounded px-2 py-1"
               onClick={() => setTowerDropdown(!towerDropdown)}
@@ -450,10 +533,10 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
-          {/* Arrows Button Dropdown */}
-          <div className="relative" ref={arrowsRef}>
+      {/* Arrows Button Dropdown */}
+      {/* <div className="relative" ref={arrowsRef}>
             <button
               className="bg-white border border-gray-300 rounded px-2 py-1"
               onClick={() => setArrowsDropdown(!arrowsDropdown)}
@@ -476,6 +559,9 @@ const PackageDashboardTab = ({ isListViewSelected, setIsListViewSelected }) => {
           </div>
 
         </div>
+      </div> */}
+      <div className="submenu-menu" style={{ right: addData[0] === 'NewPackageForm' ? "0" : "-100%" }}>
+        <NewPackageForm isOpen={addData[0] === 'NewPackageForm'} onClose={() => setAddData([])} />
       </div>
     </>
   );

@@ -15,19 +15,49 @@ const CustomerProfile = () => {
   const [viewInclusion, setViewInclusion] = useState([])
   const [exclusion, setExclusion] = useState([])
   const [viewExclusion, setViewExclusion] = useState([])
+  const [hotelList, setHotelList] = useState([])
+  const [itinaryList, setItinearyList] = useState([])
+  const [siteSeeing, setSiteSeeing] = useState([])
+
+  // console.log(option)
+
+  // let k = option.packItiDetail.map(item => item.roomtypes.hotel.id)
+  // let set = new Set(k)
+  // let newSet = [...set]
+  // console.log(newSet)
+  // setHotelList(newSet)
 
   const ViewDestination = (view) => {
     let d = destination.filter(item => item.id === view)
     let k = d[0]
     return d.length === 0 ? '' : k.destinationName
   }
-
   // useEffect(() => {
+  //   console.log(option)
+  // }, [])
 
-  // })
+  const handleView = (data) => {
+    let site = siteSeeing.filter(item => item.id === data)
+    // site.length === 0 ? '' : site[0].title
+    console.log(site)
+    return ''
+  }
 
   useEffect(() => {
-    console.log(option)
+    const fetchData = async () => {
+      await axios.get(`${api.baseUrl}/sightseeing/getAll`)
+        .then((response) => {
+          setSiteSeeing(response.data)
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+      return
+    }
+    fetchData()
+  }, []);
+
+  useEffect(() => {
     axios.get(`${api.baseUrl}/destination/getall`)
       .then((response) => {
         setDestination(response.data)
@@ -35,7 +65,18 @@ const CustomerProfile = () => {
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
+  }, []);
 
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageitinerary/getAll`)
+      .then((response) => {
+        const list = response.data.filter(item => item.packid.id === option.id)
+        setItinearyList(list)
+        // console.log(option)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
   }, []);
 
   const viewInclusions = (ids) => {
@@ -52,7 +93,6 @@ const CustomerProfile = () => {
     axios.get(`${api.baseUrl}/itinerarys/getAll`)
       .then((response) => {
         setItinerayList(response.data)
-        // handleData(response.data)
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -69,6 +109,17 @@ const CustomerProfile = () => {
         console.error('Error fetching data:', error);
       });
   }, []);
+
+  // useEffect(() => {
+  //   axios.get(`${api.baseUrl}/inclusion/getall`)
+  //     .then((response) => {
+  //       setInclusion(response.data)
+  //       // handleInclusion(response.data)
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching data:', error);
+  //     });
+  // }, []);
 
   useEffect(() => {
     axios.get(`${api.baseUrl}/exclusion/getall`)
@@ -123,12 +174,54 @@ const CustomerProfile = () => {
         </div>
       </div>
 
+
+      <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mt-4">
+        <div className="bg-white p-4 rounded shadow w-full">
+          <div className="bg-gray-200 w-full flex justify-center">
+            <th className="p-2 text-center w-full">Itineraries</th>
+          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="bg-white border-collapse ">
+                <th className="p-2 border">Day</th>
+                <th className="p-2 border">City Name</th>
+                <th className="p-2 border">Title</th>
+                <th className="p-2 border">Program</th>
+                <th className="p-2 border">Meals</th>
+                <th className="p-2 border">Transport</th>
+                {/* <th className="p-2">Hotel Name</th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {option.itinary.map((item, index) => (
+                <tr key={index} className="border-b ">
+                  <td className="p-2 border text-center">{item.daynumber}</td>
+                  <td className="p-2 border text-center">{item.cityname}</td>
+                  <td className="p-2 border text-center">{item.daytitle}</td>
+                  <td className="p-2 border">{item.program.length > 5 ? item.program.slice(0, 20) + "..." : item.program}</td>
+                  <td className="p-2 border text-center">{item.meals}</td>
+                  <td className="p-2 border text-center">{item.transport.transportmode}</td>
+                  {/* <td className="p-2 border">{item.}</td> */}
+                  {/* <td className="p-2 text-center">
+                    <button className="text-red-500"><FaTrash /></button>
+                  </td> */}
+                </tr>
+              ))}
+              {option.itinary.length === 0 && (
+                <tr className="p-2 border w-full text-center">No Itineraries Found
+                </tr>)
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mt-4">
         <div className="bg-white p-4 rounded shadow w-full md:w-1/2">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-200">
-                <th className="p-2">Destination Covered</th>
+                <th className="p-2">Activities</th>
               </tr>
             </thead>
             <tbody>
@@ -145,16 +238,16 @@ const CustomerProfile = () => {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-200">
-                <th className="p-2">Itineraries</th>
+                <th className="p-2">Site Seeing</th>
                 {/* <th className="p-2">Action</th> */}
               </tr>
             </thead>
             <tbody>
-              {/* {option.itinary.map((item, index) => (
+              {Array.isArray(option.sightseeings) && option.sightseeings.map((item, index) => (
                 <tr key={index} className="border-b">
-                  <td className="p-2">{item.daytitle}</td>
+                  <td className="p-2">{item?.title}</td>
                 </tr>
-              ))} */}
+              ))}
             </tbody>
           </table>
         </div>
@@ -162,19 +255,28 @@ const CustomerProfile = () => {
 
       <div className="flex flex-col md:flex-row space-x-0 md:space-x-4 mt-4">
         <div className="bg-white p-4 rounded shadow w-full">
+          <div className="bg-gray-200 w-full flex justify-center">
+            <th className="p-2 text-center w-full">Hotel</th>
+          </div>
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2">Hotel</th>
+              <tr className="bg-white border-collapse ">
+                <th className="p-2 border">Hotel Name</th>
+                <th className="p-2 border">Room Type</th>
+                <th className="p-2 border">Address</th>
+                <th className="p-2 border">Meals</th>
+                <th className="p-2 border">Destination</th>
+                {/* <th className="p-2">Hotel Name</th> */}
               </tr>
             </thead>
-            <tbody>
-              {option.inclusionids.map((item, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-2">{viewInclusions(item)}</td>
-                  {/* <td className="p-2 text-center">
-                    <button className="text-red-500"><FaTrash /></button>
-                  </td> */}
+            <tbody className='text-center'>
+              {Array.isArray(option.hotels) && option.hotels.map((item, index) => (
+                <tr key={index} className="border-collapse">
+                  <td className="p-2 border">{item?.hname}</td>
+                  <td className="p-2 border">{item.hname}</td>
+                  <td className="p-2 border">{item.haddress}</td>
+                  <td className="p-2 border">Meals</td>
+                  <td className="p-2 border">{item.destination.destinationName}</td>
                 </tr>
               ))}
             </tbody>

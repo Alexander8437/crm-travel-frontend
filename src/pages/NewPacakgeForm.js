@@ -8,6 +8,7 @@ import axios from "axios";
 import PackageItinerary from "./PackageItinerary";
 import { data } from "autoprefixer";
 import { toast } from "react-toastify";
+import e from "cors";
 
 const NewPackageForm = ({ isOpen, onClose }) => {
   const [nights, setNights] = useState(0);
@@ -171,6 +172,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const [allItinerary, setAllItineray] = useState([])
   const [displayIti, setDisplayIti] = useState([])
   const [listTransport, setListTransport] = useState([])
+  const [policyList, setPolicyList] = useState([])
 
   useEffect(() => {
     Promise.all([
@@ -206,6 +208,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
       axios.get(`${api.baseUrl}/mealspackage/getall`),  //index 7
       axios.get(`${api.baseUrl}/activities/getAll`),  //index 8
       axios.get(`${api.baseUrl}/sightseeing/getAll`),  //index 9
+      axios.get(`${api.baseUrl}/policy/getallpolicy`),  //index 10
     ]).then((response) => {
 
       const formattedOptions = response[0].data.map(item => ({
@@ -269,6 +272,14 @@ const NewPackageForm = ({ isOpen, onClose }) => {
         label: item.title,
       }));
       setSiteSeeingData(formattedSiteSeeing);
+
+      const formattedPolicy = response[10].data.map((item) => ({
+        value: item.id,
+        label: item.policyName,
+        description: item.policyDescription
+      }));
+      // console.log(first)
+      setPolicyList(response[10].data);
     });
   }, []);
 
@@ -328,6 +339,16 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const handleActivityChange = (selectedOption, i) => {
     const updateVal = formItinaryData.map((item, inde) => inde === i ? { ...item, activities: selectedOption } : item)
     setFormItinaryData(updateVal)
+  }
+
+  const handlePolicyChange = (event, index) => {
+    let name = policyList.map(item => item.id === index.id ? { ...item, policyName: event.target.value } : item)
+    setPolicyList(name)
+  }
+
+  const handlePolicyDes = (item, data) => {
+    let desc = policyList.map(prev => prev.id === item.id ? { ...prev, policyDescription: data } : prev)
+    setPolicyList(desc)
   }
 
   const CustomOptions = (props) => {
@@ -545,13 +566,31 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     setFormItinaryData(updateVal)
   }
 
+  const [packagePrice, setPackagePrice] = useState({ markup: 0, basic_cost: 0, gst: 0, total: 0 })
+
+  const handlePriceChange = (e) => {
+    const { name, value } = e.target
+    setPackagePrice(prev => ({ ...prev, [name]: value }))
+
+    setPackagePrice(prev => ({
+      ...prev, total: Number(prev.basic_cost) + Number(prev.gst) + Number(prev.markup)
+    }))
+  }
+
+  const handlePackagePriceSubmit = () => {
+    console.log(packagePrice)
+  }
+
 
   const handleItinearaySubmit = async (e) => {
     e.preventDefault();
 
     // console.log(packageData)
 
-    for (let i = 0; i < formItinaryData.length; i++) {
+    // for (let i = 0; i < formItinaryData.length; i++) {
+    for (let i = 0; i < 0; i++) {
+
+
       let val = [...formItinaryData[i].hotel]
       let updateVal = val.filter(item => item.hotelName !== null)
       for (let j = 0; j < updateVal.length; j++) {
@@ -571,7 +610,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     }
 
 
-    for (let i = 0; i < formItinaryData.length; i++) {
+    // for (let i = 0; i < formItinaryData.length; i++) {
+    for (let i = 0; i < 0; i++) {
 
       const val = [...formItinaryData[i].hotel]
       const updateVal = val.filter(item => item.hotelName !== null)
@@ -607,7 +647,6 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           "id": packageData.id
         }
       }
-      console.log(payload)
 
       await axios.post(`${api.baseUrl}/packageitinerary/create`, payload, {
         headers: {
@@ -647,7 +686,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             "id": formItinaryData[i].hotel[j].mealType.value
           }]
         }
-        console.log(packageItinerayDetails)
+        // console.log(packageItinerayDetails)
 
         await axios.post(`${api.baseUrl}/packageitinerarydetails/create`, payloadItineararyDetails, {
           headers: {
@@ -662,86 +701,88 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           .catch(error => console.error(error));
       }
     }
+    setPage(3)
   }
+
   const handlePageChange = async (e) => {
     e.preventDefault();
 
 
     // destinationCoveredId
-    const destinationCoveredStr = selectedDestinations.map((option) => option.value).join(",")
-    const selectedPackagesStr = selectedPackageTheme.map((option) => option.value).join(",");
-    const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
-    const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
-    const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
-    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.label).join(", ");
-    const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
+    // const destinationCoveredStr = selectedDestinations.map((option) => option.value).join(",")
+    // const selectedPackagesStr = selectedPackageTheme.map((option) => option.value).join(",");
+    // const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
+    // const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
+    // const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
+    // const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.label).join(", ");
+    // const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
 
-    const formDataPackageMaster = new FormData()
+    // const formDataPackageMaster = new FormData()
 
 
-    if (formData.pkName === '' || selectedStartCity === null || selectedEndCity === null || destinationCoveredStr === '' || selectedPackagesStr === '' || packageSpecification === '' || formData.days === 0 || formData.nights === 0 || packageCategoriesStr === '' || formData.SupplierId === null ||
-      pkImage === null
-    ) {
-      toast.error("Please fill all the fields...", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return;
-    }
+    // if (formData.pkName === '' || selectedStartCity === null || selectedEndCity === null || destinationCoveredStr === '' || selectedPackagesStr === '' || packageSpecification === '' || formData.days === 0 || formData.nights === 0 || packageCategoriesStr === '' || formData.SupplierId === null ||
+    //   pkImage === null
+    // ) {
+    //   toast.error("Please fill all the fields...", {
+    //     position: "top-center",
+    //     autoClose: 5000,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //   });
+    //   return;
+    // }
 
-    formDataPackageMaster.append('pkName', formData.pkName)
+    // formDataPackageMaster.append('pkName', formData.pkName)
 
-    formDataPackageMaster.append('fromCityId', selectedStartCity.value)
-    formDataPackageMaster.append('toCityId', selectedEndCity.value)
-    formDataPackageMaster.append('destinationCoveredId', destinationCoveredStr)
-    formDataPackageMaster.append('description', editorData)
-    formDataPackageMaster.append('pkCategory', selectedPackagesStr)
-    formDataPackageMaster.append('pkSpecifications', packageSpecification)
-    formDataPackageMaster.append('days', formData.days)
-    formDataPackageMaster.append('nights', formData.nights)
-    formDataPackageMaster.append('is_fixed_departure', isFixedDeparture)
-    formDataPackageMaster.append('fixed_departure_destinations', isFixedDeparture ? selectedDestinationDepartureStr : '')
-    formDataPackageMaster.append('packageType', packageCategoriesStr)
-    formDataPackageMaster.append('created_by', user.username)
-    formDataPackageMaster.append('modified_by', user.username)
-    formDataPackageMaster.append('ipaddress', ipAddress)
-    formDataPackageMaster.append('status', formData.status)
-    formDataPackageMaster.append('isdelete', 0)
-    formDataPackageMaster.append('inclusionid', selectedInclusionsStr)
-    formDataPackageMaster.append('exclusionid', selectedExclusionsStr)
-    formDataPackageMaster.append('SupplierId', formData.SupplierId)
-    formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
-    formDataPackageMaster.append('image', pkImage)
+    // formDataPackageMaster.append('fromCityId', selectedStartCity.value)
+    // formDataPackageMaster.append('toCityId', selectedEndCity.value)
+    // formDataPackageMaster.append('destinationCoveredId', destinationCoveredStr)
+    // formDataPackageMaster.append('description', editorData)
+    // formDataPackageMaster.append('pkCategory', selectedPackagesStr)
+    // formDataPackageMaster.append('pkSpecifications', packageSpecification)
+    // formDataPackageMaster.append('days', formData.days)
+    // formDataPackageMaster.append('nights', formData.nights)
+    // formDataPackageMaster.append('is_fixed_departure', isFixedDeparture)
+    // formDataPackageMaster.append('fixed_departure_destinations', isFixedDeparture ? selectedDestinationDepartureStr : '')
+    // formDataPackageMaster.append('packageType', packageCategoriesStr)
+    // formDataPackageMaster.append('created_by', user.username)
+    // formDataPackageMaster.append('modified_by', user.username)
+    // formDataPackageMaster.append('ipaddress', ipAddress)
+    // formDataPackageMaster.append('status', formData.status)
+    // formDataPackageMaster.append('isdelete', 0)
+    // formDataPackageMaster.append('inclusionid', selectedInclusionsStr)
+    // formDataPackageMaster.append('exclusionid', selectedExclusionsStr)
+    // formDataPackageMaster.append('SupplierId', formData.SupplierId)
+    // formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
+    // formDataPackageMaster.append('image', pkImage)
 
     // for (var pair of formDataPackageMaster.entries()) {
     //   console.log(pair[0] + ' = ' + pair[1]);
     // }
 
-    await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-        'Access-Control-Allow-Origin': '*'
-      }
-    })
-      .then((response) => {
-        setPackageData(response.data)
-        toast.success("Package Created...", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      })
-      .catch(error => console.error(error));
+    // await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
+    //   headers: {
+    //     'Authorization': `Bearer ${token}`,
+    //     'Content-Type': 'multipart/form-data',
+    //     'Access-Control-Allow-Origin': '*'
+    //   }
+    // })
+    //   .then((response) => {
+    //     setPackageData(response.data)
+    //     toast.success("Package Created...", {
+    //       position: "top-center",
+    //       autoClose: 5000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //       progress: undefined,
+    //     });
+    //   })
+    //   .catch(error => console.error(error));
 
     setPage(2);
   };
@@ -803,12 +844,53 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     }
   };
 
+  const handlePolicySubmit = (e) => {
+    e.preventDefault();
+
+    // for (let i = 0; i < policyList.length; i++) {
+    for (let i = 0; i < 0; i++) {
+      const policyPayload = {
+        policytitle: policyList[i].policyName,
+        policydescription: policyList[i].policyDescription,
+        createdby: user.username,
+        modifiedby: user.username,
+        ipaddress: ipAddress,
+        status: 1,
+        isdelete: 0,
+        policy: {
+          id: policyList[i].id
+        },
+        packitid: {
+          id: 2
+        }
+      }
+      axios.post(`${api.baseUrl}/policydetails/create`, policyPayload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Access-Control-Allow-Origin': '*'
+        }
+      })
+        .then((response) => {
+          toast.success("Policy Created...", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        })
+        .catch(error => console.error(error));
+    }
+    setPage(4)
+  }
 
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // console.log(formData)
+
   };
 
   return (
@@ -1642,75 +1724,55 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             )}
           </>
         )}
-        {page === 3 && (
-          <>
-            {/* <div className="mb-4">
-          <h3 className="bg-red-700 text-white p-2 rounded">Discount</h3>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="destinations" className="block text-sm font-medium">Value</label>
-          <input
-            type="text"
-            id="noOfNights"
-            name="noOfNights"
-            value={formData.noOfNights}
-            onChange={handleInputChange}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="No of Nights"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="destinations" className="block text-sm font-medium">Conditions</label>
-          <input
-            type="text"
-            id="noOfNights"
-            name="noOfNights"
-            value={formData.noOfNights}
-            onChange={handleInputChange}
-            className="mt-1 p-2 w-full border rounded"
-            placeholder="No of Nights"
-            />
-            </div>
-        <div className="flex justify-between mb-6 gap-2">
-          <div className="w-1/2">
-            <label htmlFor="destinations" className="block text-sm font-medium">Valid From</label>
-            <input
-              type="date"
-              id="noOfNights"
-              name="noOfNights"
-              value={formData.noOfNights}
-              onChange={handleInputChange}
-              className="mt-1 p-2 w-full border rounded"
-              placeholder="No of Nights"
-            />
+        {page === 3 && (<>
+          <div className="mb-4 w-full">
+            <h3 className="bg-red-700 text-white p-2 rounded">
+              Package Policy
+            </h3>
           </div>
-          <div className="w-1/2">
-            <label htmlFor="destinations" className="block text-sm font-medium">Valid Till</label>
-            <input
-              type="date"
-              id="noOfNights"
-              name="noOfNights"
-              value={formData.noOfNights}
-              onChange={handleInputChange}
-              className="mt-1 p-2 w-full border rounded"
-              placeholder="No of Nights"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            {policyList.map((item, index) =>
+              <div className="bg-white p-4 rounded">
+                <input
+                  type="text"
+                  id="policyName"
+                  name="policyName"
+                  value={item.policyName}
+                  onChange={(e) => handlePolicyChange(e, item)}
+                  className="mt-1 h-[38px] p-2 w-full boreder-2 border-gray-500 bg-gray-50 rounded"
+                  placeholder="Enter Package Title..." />
+                <CKEditor
+                  className=""
+                  name="policyDescription"
+                  editor={ClassicEditor}
+                  // data={editorData}
+                  config={{
+                    toolbar: [
+                      "heading",
+                      "|",
+                      "bold",
+                      "italic",
+                      "link",
+                      "bulletedList",
+                      "numberedList",
+                      "blockQuote",
+                    ],
+                  }}
+                  data={item.policyDescription}
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+                    handlePolicyDes(item, data)
+                  }}
+                />
+              </div>
+            )}
           </div>
-        </div> */}
 
-            <div className="flex justify-between mb-4 w-full gap-2">
-              {/* <div className="w-1/3">
-            <label htmlFor="destinations" className="block text-sm font-medium">Package Code</label>
-            <input
-              type="text"
-              id="packageCode"
-              name="packageCode"
-              value={formData.packageCode}
-              onChange={handleInputChange}
-              className="mt-1 p-2 w-full border rounded"
-              placeholder="Enter Package Code..."
-            />
-          </div> */}
+        </>
+        )}
+        {page === 4 && (
+          <>
+            {/* <div className="flex justify-between mb-4 w-full gap-2">
               <div className="w-1/2">
                 <label
                   htmlFor="destinations"
@@ -1745,7 +1807,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
                   placeholder="No of Nights"
                 />
               </div>
-            </div>
+            </div> */}
             <div className="mb-4">
               <h3 className="bg-red-700 text-white p-2 rounded">
                 Package Price
@@ -1757,16 +1819,37 @@ const NewPackageForm = ({ isOpen, onClose }) => {
                   htmlFor="destinations"
                   className="block text-sm font-medium"
                 >
-                  Actual Price
+                  Mark Up
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="noOfNights"
-                  name="noOfNights"
-                  value={formData.noOfNights}
-                  onChange={handleInputChange}
+                  name="markup"
+                  min={0}
+                  value={packagePrice.markup}
+                  onChange={handlePriceChange}
                   className="mt-1 p-2 w-full border rounded"
-                  placeholder="No of Nights"
+                  placeholder="Mark Up"
+                />
+              </div>
+              <div className="w-1/3">
+                <label
+                  htmlFor="destinations"
+                  className="block text-sm font-medium"
+                >
+                  Basic Cost
+                </label>
+                <input
+                  type="number"
+                  id="noOfNights"
+                  name="basic_cost"
+                  min={0}
+                  value={packagePrice.basic_cost}
+                  onChange={handlePriceChange}
+                  // value={formData.noOfNights}
+                  // onChange={handleInputChange}
+                  className="mt-1 p-2 w-full border rounded"
+                  placeholder="Basic Cost"
                 />
               </div>
               <div className="w-1/3">
@@ -1777,31 +1860,35 @@ const NewPackageForm = ({ isOpen, onClose }) => {
                   GST
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  min={0}
                   id="noOfNights"
-                  name="noOfNights"
-                  value={formData.noOfNights}
-                  onChange={handleInputChange}
+                  name="gst"
+                  value={packagePrice.gst}
+                  onChange={handlePriceChange}
+                  // value={formData.noOfNights}
+                  // onChange={handleInputChange}
                   className="mt-1 p-2 w-full border rounded"
-                  placeholder="No of Nights"
+                  placeholder="GST"
                 />
               </div>
-              <div className="w-1/3">
+            </div>
+            <div className="flex justify-between mb-4 w-full gap-2">
+              <div className="truncate flex gap-4  items-center">
                 <label
                   htmlFor="destinations"
-                  className="block text-sm font-medium"
+                  className="block text-lg  font-bold"
                 >
-                  Total Price
+                  Total Cost:
                 </label>
-                <input
-                  type="text"
-                  id="noOfNights"
-                  name="noOfNights"
-                  value={formData.noOfNights}
-                  onChange={handleInputChange}
+                <span
+                  type="number"
+                  id="noOfDays"
+                  name="noOfDays"
+                  // value={packagePrice.total}
                   className="mt-1 p-2 w-full border rounded"
-                  placeholder="No of Nights"
-                />
+                  placeholder="Total Cost"
+                >{packagePrice.total}</span>
               </div>
             </div>
           </>
@@ -1862,6 +1949,31 @@ const NewPackageForm = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 className="bg-red-700 text-white px-4 py-2 rounded shadow mr-1"
+                onClick={handlePolicySubmit}
+              >
+                Save & Continue
+              </button>
+              <button
+                type="button"
+                className="bg-red-700 text-white px-4 py-2 rounded shadow"
+              >
+                Reset
+              </button>
+            </>
+          )}
+          {page === 4 && (
+            <>
+              <button
+                type="submit"
+                className="bg-red-700 text-white px-4 py-2 rounded shadow mr-1"
+                onClick={() => setPage(3)}
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                className="bg-red-700 text-white px-4 py-2 rounded shadow mr-1"
+                onClick={handlePackagePriceSubmit}
               >
                 Submit
               </button>

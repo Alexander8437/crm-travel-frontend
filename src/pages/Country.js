@@ -8,9 +8,9 @@ const Country = ({ isOpen, onClose }) => {
   const [code, setCode] = useState();
   const [pCode, setPCode] = useState('');
   const [status, setStatus] = useState(true)
-  const [user, setUser] = useState({})
   const fileInputRef = useRef(null);
 
+  const [user, setUser] = useState({})
   const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();

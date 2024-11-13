@@ -68,6 +68,7 @@ function Login() {
 
 
   const handleLogin = async (values, { setSubmitting }) => {
+
     setErrors('');
 
     try {
@@ -375,29 +376,27 @@ function Login() {
           </div>
           <Formik
             initialValues={{ username: "", password: "" }}
-            validate={validationSchema}
+            // validate={validationSchema}
             onSubmit={handleLogin}
           >
             {({ isSubmitting, values, handleChange }) => (<Form>
-              {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''}
+              {/* {errors ? <p className='text-red-600 text-sm mb-4'>{errors}</p> : ''} */}
               <div className="mb-6">
                 <label className="block text-gray-700">Username</label>
                 <Field
                   type="text"
+                  name="username"
                   placeholder="Enter Your Username"
                   className="border border-gray-300 p-2 w-full rounded"
-                  value={values.username}
-                  onChange={handleChange}
                 />
               </div>
               <div className="mb-6">
                 <label className="block text-gray-700">Password</label>
-                <input
+                <Field
                   type="password"
                   placeholder="Enter Your Password"
                   className="border border-gray-300 p-2 w-full rounded"
-                  value={values.password}
-                  onChange={handleChange}
+                  name="password"
                 />
               </div>
               <button type="submit" className="bg-red-600 text-white p-2 w-full rounded">Log In</button>
