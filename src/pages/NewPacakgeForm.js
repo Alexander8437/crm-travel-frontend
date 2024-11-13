@@ -599,8 +599,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
     // console.log(packageData)
 
-    // for (let i = 0; i < formItinaryData.length; i++) {
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < formItinaryData.length; i++) {
+      // for (let i = 0; i < 0; i++) {
 
       let val = [...formItinaryData[i].hotel]
       let updateVal = val.filter(item => item.hotelName !== null)
@@ -621,8 +621,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     }
 
 
-    // for (let i = 0; i < formItinaryData.length; i++) {
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < formItinaryData.length; i++) {
+      // for (let i = 0; i < 0; i++) {
 
       const val = [...formItinaryData[i].hotel]
       const updateVal = val.filter(item => item.hotelName !== null)
