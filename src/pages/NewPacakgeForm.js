@@ -580,7 +580,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
   const handlePackagePriceSubmit = (e) => {
     e.preventDefault();
     let pricePackge = {
-      markup: 2500,
+      markup: 0,
       basiccost: 9900,
       gst: 495,
       totalcost: 12895,
@@ -725,7 +725,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
     const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
     const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
-    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.label).join(", ");
+    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.value).join(",");
     const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
 
     const formDataPackageMaster = new FormData()
@@ -770,9 +770,9 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
     formDataPackageMaster.append('image', pkImage)
 
-    // for (var pair of formDataPackageMaster.entries()) {
-    //   console.log(pair[0] + ' = ' + pair[1]);
-    // }
+    for (var pair of formDataPackageMaster.entries()) {
+      console.log(pair[0] + ' = ' + pair[1]);
+    }
 
     await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
       headers: {
@@ -824,7 +824,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
   const handleChange = (selectedOptions) => {
     setSelectedDestinations(selectedOptions);
-    console.log(selectedOptions);
+    // console.log(selectedOptions);
   };
 
   const handleItineraryChange = (selectedOption, index) => {
