@@ -27,65 +27,26 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [addData, setAddData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for the "+" dropdown
+  const [showSearchField, setShowSearchField] = useState(false); // State for the "+" dropdown
+  const [user, setUser] = useState({ username: "Aditi", email: "AditiShahi@gmail.com", roles: "Admin" });
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const isOpenRef = useRef(null);
 
-  const [user, setUser] = useState({})
-  async function decryptToken(encryptedToken, key, iv) {
-    const dec = new TextDecoder();
-
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: iv,
-      },
-      key,
-      encryptedToken
-    );
-
-    return dec.decode(new Uint8Array(decrypted));
-  }
-
-  // Function to retrieve and decrypt the token
-  async function getDecryptedToken() {
-    const keyData = JSON.parse(localStorage.getItem('encryptionKey'));
-    const ivBase64 = localStorage.getItem('iv');
-    const encryptedTokenBase64 = localStorage.getItem('encryptedToken');
-
-
-    if (!keyData || !ivBase64 || !encryptedTokenBase64) {
-      throw new Error('No token found');
-    }
-
-    // Convert back from base64
-    const key = await crypto.subtle.importKey('jwk', keyData, { name: "AES-GCM" }, true, ['encrypt', 'decrypt']);
-    const iv = new Uint8Array(atob(ivBase64).split('').map(char => char.charCodeAt(0)));
-    const encryptedToken = new Uint8Array(atob(encryptedTokenBase64).split('').map(char => char.charCodeAt(0)));
-
-    return await decryptToken(encryptedToken, key, iv);
-  }
-
-  // Example usage to make an authenticated request
-  useEffect(() => {
-    getDecryptedToken()
-      .then(token => {
-        return axios.get(`${api.baseUrl}/getbytoken`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      })
-      .then(response => {
-        setUser(response.data);
-      })
-      .catch(error => console.error('Error fetching protected resource:', error))
-  }, [])
 
   const getFirstCharacter = (word) => {
     return word ? word.charAt(0) : "";
   };
+
+  // Fetch User Data
+  useEffect(() => {
+    // Fetching and setting user (Omitted for Brevity)
+  }, []);
+  useEffect(() => {
+    // Simulating fetching user data
+    setUser({ username: "Aditi", email: "AditiShahi@gmail.com", roles: "Admin" });
+  }, []);
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -105,7 +66,6 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isOpenRef.current && !isOpenRef.current.contains(event.target)) {
@@ -140,10 +100,10 @@ const Navbar = () => {
                 +
               </span>
               {dropdownOpen && (
-                <div className="absolute top-10 left-0 w-48 bg-white shadow-lg rounded-md p-2 text-black">
+                <div className="absolute top-10 left-0 w-48 bg-white shadow-lg rounded-md  text-black">
                   <ul className="space-y-2">
                     <li
-                      className="hover:bg-gray-200 p-2 rounded cursor-pointer"
+                      className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2  rounded cursor-pointer"
                       onClick={() => {
                         setAddData([]);
                         setAddData(["Vendors"]);
@@ -151,11 +111,11 @@ const Navbar = () => {
                     >
                       New Vendors
                     </li>
-                    <li className="hover:bg-gray-200 p-2 rounded cursor-pointer">
+                    <li className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer">
                       New Customer
                     </li>
                     <li
-                      className="hover:bg-gray-200 p-2 rounded cursor-pointer"
+                      className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
                       onClick={() => {
                         setAddData([]);
                         setAddData(["NewPackageForm"]);
@@ -164,7 +124,7 @@ const Navbar = () => {
                       New Package
                     </li>
                     <li
-                      className="hover:bg-gray-200 p-2 rounded cursor-pointer"
+                      className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
                       onClick={() => {
                         setAddData([]);
                         setAddData(["Transportation"]);
@@ -174,7 +134,7 @@ const Navbar = () => {
                     </li>
                     <hr className="border-gray-300" />
                     <li
-                      className="hover:bg-gray-200 p-2 rounded cursor-pointer"
+                      className="hover:bg-gray-200 hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
                       onClick={() => {
                         setAddData([]);
                         setAddData(["NewMember"]);
@@ -223,9 +183,21 @@ const Navbar = () => {
                 onClose={() => setAddData([])}
               />
             </div>
-            <div className="hidden md:flex items-center cursor-pointer">
+            <div
+              className="hidden md:flex items-center cursor-pointer"
+              onClick={
+                () => setShowSearchField(!showSearchField)
+              }
+            >
               <IoSearch className="text-[#B4B4B8] hover:text-white w-6 h-6" />
             </div>
+            {showSearchField && (
+              <input
+                type="text"
+                placeholder="Search"
+                className="border-2 border-gray-300 rounded-md p-1"
+              />
+            )}
           </div>
 
           {/* Hamburger Menu */}
@@ -279,24 +251,24 @@ const Navbar = () => {
 
                   {/* Dropdown Links */}
                   <div className="flex flex-col p-2 space-y-2">
-                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded">
+                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer">
                       <FaUserAlt />
                       <p>My Profile</p>
                     </div>
-                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded">
+                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer">
                       <FaCog />
                       <p>Personalization</p>
                     </div>
-                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded">
+                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer">
                       <FaCog />
                       <p>Portal Settings</p>
                     </div>
-                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded">
+                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer">
                       <FaUserCircle />
                       <p>My Accounts</p>
                     </div>
                     <div
-                      className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded"
+                      className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer"
                       onClick={handleLogout}
                     >
                       <FaSignOutAlt />

@@ -4,19 +4,24 @@ import api from "../apiConfig/config";
 import Select from "react-select";
 
 const NewQuery = ({ isOpen, onClose }) => {
-  const [customer, setCustomer] = useState("Select");
-  const [email, setEmail] = useState();
-  const [pCode, setPCode] = useState("");
+  const [customer, setCustomer] = useState([]);
   const [destination, setDestination] = useState("");
   const [status, setStatus] = useState(true);
   const [user, setUser] = useState({});
-  const [state, setState] = useState([
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      key: "selection",
-    },
-  ]);
+
+  const RoomTypeOptions = [
+    { value: "budget", label: "Budget" },
+    { value: "deluxe", label: "Deluxe" },
+    { value: "luxury", label: "Luxury" },
+    { value: "standard", label: "Standard" },
+  ];
+  const MealTypeOptions = [
+    { value: 1, label: "Thai" },
+    { value: 2, label: "Indian" },
+    { value: 3, label: "Chineese" },
+    { value: 4, label: "Italian" },
+    { value: 5, label: "American" },
+  ];
 
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
@@ -86,12 +91,60 @@ const NewQuery = ({ isOpen, onClose }) => {
 
   const [formData, setFormData] = useState({
     customer,
-    email,
-    pCode,
+    // Name: "",
+    // customerEmail: "",
+    // customerPhone: "",
+    // pCode,
     ipAddress: "",
     status,
-    image: null,
+
+    requirementType: "",
+    travelDate: "",
+    toTravelDate: "",
+    nights: 0,
+    days: 0,
+    totalTravellers: 1,
+    adults: 1,
+    kids: 0,
+    infants: 0,
+    salutation: "",
+    fname: "",
+    lname: "",
+    emailId: "",
+    contactNo: "",
+    leadSource: "",
+    foodPreferences: "",
+    basicCost: 0,
+    gst: 0,
+    totalCost: 0,
+    queryType: "",
+    queryCreatedFrom: "",
+    emailStatus: 0,
+    leadStatus: 0,
+    pkg: null,
+    did: null,
+    fromcityid: null,
+    userId: {
+      id: 0
+    }
+
   });
+
+  const handleDateChange = (e) => {
+    // const { name, value } = e.target
+    // if (name === "travelDate") {
+    //   let datef = new Date(value)
+    //   let newDate = new Date()
+    //   newDate.setDate(datef.getDate() + formData.days)
+    //   setFormData(prev => ({ ...prev, travelDate: value, toTravelDate: newDate.toDateString() }))
+    // } else {
+    //   let datef = new Date(value)
+    //   let dateChange = datef.getDate()
+    //   let newDate = new Date()
+    //   newDate.setDate(datef.getDate() - formData.days)
+    //   setFormData(prev => ({ ...prev, travelDate: newDate.toDateString(), toTravelDate: value }))
+    // }
+  }
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -108,46 +161,186 @@ const NewQuery = ({ isOpen, onClose }) => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formDatasend = new FormData();
-    formDatasend.append("countryName", formData.countryName);
-    formDatasend.append("code", formData.code);
-    formDatasend.append("pCode", formData.pCode);
-    formDatasend.append("ipAddress", formData.ipAddress);
-    formDatasend.append("status", formData.status);
-    formDatasend.append("image", formData.image);
-    formDatasend.append("createdby", user.username);
-    formDatasend.append("modifiedby", user.username);
-    formDatasend.append("isdelete", false);
-
-    for (let [key, value] of formDatasend.entries()) {
-      console.log(`${key}: ${value}`);
+  const [iti, setIti] = useState([])
+  const [packages, setPackages] = useState([])
+  const [newQuery, setNewQuery] = useState(
+    {
+      "requirementType": "",
+      "travelDate": "",
+      "nights": 0,
+      "days": 0,
+      "totalTravellers": 1,
+      "adults": 1,
+      "kids": 0,
+      "infants": 0,
+      "salutation": "",
+      "fname": "",
+      "lname": "",
+      "emailId": "",
+      "contactNo": "",
+      "leadSource": "",
+      "foodPreferences": "",
+      "basicCost": 0,
+      "gst": 0,
+      "totalCost": 0,
+      "queryType": "",
+      "queryCreatedFrom": "",
+      "emailStatus": 0,
+      "leadStatus": 0,
+      "pkg": {
+        "id": 0
+      },
+      "did": {
+        "id": 0
+      },
+      "fromcityid": {
+        "id": 0
+      },
+      "userId": {
+        "id": 0
+      }
     }
+  )
 
-    // await axios.post(`${api.baseUrl}/country/create`, formDatasend, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //       "Access-Control-Allow-Origin": "*",
-    //     },
-    //   })
-    //   .then(async (response) => {
-    //     alert("Country created...");
-    //     setFormData({
-    //       countryName: "",
-    //       code: "",
-    //       pCode: "",
-    //       ipAddress: "",
-    //       image: null,
-    //     });
-    //   })
-    //   .catch((error) => console.log(error));
-  };
+  const [hotelList, setHotelList] = useState([])
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/hotel/getAll`)
+      .then((response) => {
+        setHotelList(response.data)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
+  const [viewPrice, setViewPrice] = useState({
+    markup: 0,
+    basiccost: 0,
+    gst: 0,
+    totalcost: 0,
+    packid: 0
+
+  })
+  const [viewPolicy, setViewPolicy] = useState([])
+  const [viewHotel, setViewHotel] = useState([])
+  const handlePackageChange = (selected) => {
+    console.log(selected)
+    setViewPolicy([])
+    setViewPrice({ markup: 0, basiccost: 0, gst: 0, totalcost: 0, packid: 0 })
+    setFormData(prev => ({ ...prev, days: selected.days, nights: selected.nights }))
+
+
+    let itiList = itinerarys.filter(item => item.packid === selected.value)
+    let pkd = pkgItiDet.filter(item => item.packitid.packid === selected.value)
+
+    let catHote = pkd.map(item => ({
+      category: item.category,
+      roomtypes: item.roomtypes,
+      mealsType: item.mealspackageIds
+    }))
+    console.log(pkgItiDet)
+    // console.log(catHote)
+
+    let vH = catHote.filter(item => item.roomtypes !== null)
+
+    console.log(vH)
+    let viewdat = vH.map(item => ({ category: item.category, hotel: item.roomtypes?.hotel, roomtypes: item.roomtypes }))
+    let viewcat = vH.map(item => item.category)
+    var newH = new Set(viewcat)
+    let catList = [...newH]
+    // console.log(viewdat)
+    // let data = catList.map(item => item === )
+    setViewHotel(viewdat)
+    // console.log([...newH])
+
+    setIti(itiList)
+
+    let price = packagePrice.filter(item => item.id === selected.value)
+    if (price.length > 0) {
+      setViewPrice({ markup: price[0].markup, basiccost: price[0].basiccost, gst: price[0].gst, totalcost: price[0].totalcost, packid: price[0].packid })
+    }
+    let policyDet = policyDetails.filter(item => item.packitid.packitid === selected.value)
+    setViewPolicy(policyDet)
+    setFormData(prev => ({ ...prev, pkg: selected }))
+  }
+
+  const [viewPackage, setViewPackage] = useState([])
+  const handleDestinationChange = (selected) => {
+    setViewPackage([])
+    setFormData(prev => ({ ...prev, did: selected }))
+    let listPack = packages.filter(item => item.toCityId === selected.id)
+    console.log(listPack)
+    setViewPackage(listPack)
+  }
+
+  const [policyDetails, setPolicyDetails] = useState([])
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/policydetails/getall`)
+      .then((response) => {
+        setPolicyDetails(response.data)
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   useEffect(() => {
-    axios
-      .get(`${api.baseUrl}/ipAddress`)
+    axios.get(`${api.baseUrl}/packages/getAll`)
+      .then((response) => {
+        const formated = response.data.map((item) => ({
+          ...item,
+          value: item.id,
+          label: item.pkName,
+        }))
+        setPackages(formated)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
+  const [itinerarys, setItinerays] = useState([])
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageitinerary/getAll`)
+      .then((response) => {
+        setItinerays(response.data)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
+  const [pkgItiDet, setPkgItiDet] = useState([])
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageitinerarydetails/getAll`)
+      .then((response) => {
+        setPkgItiDet(response.data)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
+  const [mealPlan, setMealPlan] = useState([])
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/mealspackage/getall`)
+      .then((response) => {
+        const format = response.data.map(item => ({
+
+        }))
+        setMealPlan(response.data)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/customer/getall`)
+      .then((response) => {
+        const formated = response.data.map((item) => ({
+          ...item,
+          value: item.id,
+          label: item.salutation + " " + item.fName + " " + item.lName,
+        }))
+        setCustomer(formated)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/ipAddress`)
       .then((response) => {
         setFormData({
           ...formData,
@@ -159,10 +352,79 @@ const NewQuery = ({ isOpen, onClose }) => {
       });
   }, []);
 
+  const [packagePrice, setPackagePrice] = useState([])
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/packageprice/getall`)
+      .then((response) => {
+        setPackagePrice(response.data)
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/destination/getall`)
+      .then((response) => {
+        const format = response.data.map(item => ({
+          ...item,
+          value: item.id,
+          label: item.destinationName
+        }))
+        setDestination(format)
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      requirementType: "Holiday Package",
+      travelDate: formData.travelDate,
+      nights: formData.nights,
+      days: formData.days,
+      totalTravellers: formData.totalTravellers,
+      adults: 2,
+      kids: 1,
+      infants: 1,
+      salutation: formData.customer.salutation,
+      fname: formData.customer.fname,
+      lname: formData.customer.lname,
+      emailId: formData.customer.emailId,
+      contactNo: formData.customer.contactNo,
+      leadSource: formData.leadSource,
+      foodPreferences: "Veg",
+      basicCost: formData.basicCost,
+      gst: formData.gst,
+      totalCost: formData.totalCost,
+      queryType: formData.queryType,
+      queryCreatedFrom: "Facebook",
+      emailStatus: 0,
+      leadStatus: 0,
+      pkg: {
+        id: formData.pkg.id
+      },
+      did: {
+        id: formData.did
+      },
+      fromcityid: {
+        id: formData.fromcityid
+      },
+      userId: {
+        id: user.id
+      }
+    }
+
+    console.log(formData)
+  }
+
   return (
     <div
       className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[1050px]"
-        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[800px] lg:w-[1000px]`}
+        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[800px] lg:w-[1000px] z-30`}
     >
       {/* "X" button positioned outside the form box */}
       <button
@@ -179,6 +441,37 @@ const NewQuery = ({ isOpen, onClose }) => {
 
       <form className="p-4 mb-4 h-[calc(100vh-160px)] overflow-y-auto">
         <div className="mb-6">
+          <h3 className="bg-red-700 text-white p-2 rounded mb-6">
+            Basic Informations
+          </h3>
+        </div>
+        <div className="flex gap-4 mb-6 justify-between">
+          <div className="flex items-center">
+            <input
+              type="radio"
+              id="readymadePackage"
+              name="packageOption"
+              value={true}
+              className="mr-2"
+              checked={true}
+            />
+            <label htmlFor="readymadePackage" className="text-sm font-medium">
+              Package
+            </label>
+          </div>
+          <div className="">
+            <Select
+              options={[
+                { value: "B2B", label: "B2B" },
+                { value: "B2C", label: "B2C" },
+
+              ]}
+              onChange={(selected) => setFormData(prev => ({ ...prev, queryType: selected.label }))}
+              placeholder="Select"
+            />
+          </div>
+        </div>
+        <div className="mb-6">
           <h3 className="bg-red-700 text-white p-2 rounded">
             Customer Details
           </h3>
@@ -190,13 +483,9 @@ const NewQuery = ({ isOpen, onClose }) => {
               Customer Name
             </label>
             <Select
-              options={[
-                { value: "Aditi", label: "Aditi" },
-                { value: "Alex", label: "Alex" },
-                { value: "Ujjawal", label: "Ujjawal" },
-              ]}
-              value={customer}
-              onChange={setCustomer}
+              options={customer}
+              value={formData.customer}
+              onChange={(selected) => setFormData(prev => ({ ...prev, customer: selected }))}
               placeholder="Select Customer"
             />
           </div>
@@ -210,7 +499,7 @@ const NewQuery = ({ isOpen, onClose }) => {
               className="mt-1 p-2 w-full border rounded"
               placeholder=" ******@.com"
               name="code"
-              value={formData.code}
+              value={formData.customer.emailId}
               onChange={handleInputChange}
             />
           </div>
@@ -224,11 +513,29 @@ const NewQuery = ({ isOpen, onClose }) => {
               className="mt-1 p-2 w-full border rounded"
               placeholder=" +91..."
               name="pCode"
-              value={formData.pCode}
+              value={formData.customer.contactNo}
               onChange={
                 handleInputChange
                 // (e) => setCode(e.target.value)
               }
+            />
+          </div>
+        </div>
+        <div className="flex gap-2 mb-4">
+          <div className="w-1/3">
+            <label htmlFor="countryName" className="block text-sm font-medium">
+              Lead Source
+            </label>
+            <Select
+              className="mt-1"
+              options={[
+                { value: "Website", label: "Website" },
+                { value: "LinkedIn", label: "LinkedIn" },
+                { value: "Facebook", label: "Facebook" },
+                { value: "Instagram", label: "Instagram" },
+              ]}
+              onChange={(selected) => setFormData(prev => ({ ...prev, leadSource: selected.value }))}
+              placeholder="Select"
             />
           </div>
         </div>
@@ -237,10 +544,10 @@ const NewQuery = ({ isOpen, onClose }) => {
         </div>
         <div className="flex gap-2 mb-4">
           <div className="w-1/2">
-            <label htmlFor="countryName" className="block text-sm font-medium">
+            <label htmlFor="countryName" className="block text-sm font-medium mb-1">
               From
             </label>
-            <input
+            {/* <input
               type="text"
               id="countryName"
               className="mt-1 p-2 w-full border rounded"
@@ -248,9 +555,14 @@ const NewQuery = ({ isOpen, onClose }) => {
               name="pCode"
               value={formData.pCode}
               onChange={
-                handleInputChange
-                // (e) => setCode(e.target.value)
-              }
+                handleInputChange */}
+            {/* }
+            /> */}
+            <Select
+              options={destination}
+              value={formData.fromcityid}
+              onChange={(selected) => setFormData(prev => ({ ...prev, fromcityid: selected }))}
+              placeholder="Select"
             />
           </div>
           <div className="w-1/2">
@@ -261,13 +573,9 @@ const NewQuery = ({ isOpen, onClose }) => {
               Destination
             </label>
             <Select
-              options={[
-                { value: "Mumbai", label: "Mumbai" },
-                { value: "Los Angeles", label: "Los Angeles" },
-                { value: "Saint Petersburg", label: "Saint Petersburg" },
-              ]}
-              value={destination}
-              onChange={setDestination}
+              options={destination}
+              value={formData.did}
+              onChange={handleDestinationChange}
               placeholder="Select"
             />
           </div>
@@ -281,13 +589,9 @@ const NewQuery = ({ isOpen, onClose }) => {
               Package Name
             </label>
             <Select
-              options={[
-                { value: "3-days", label: "3-days" },
-                { value: "5-days", label: "5-days" },
-                { value: "7-days", label: "7-days" },
-              ]}
-              value={destination}
-              onChange={setDestination}
+              options={viewPackage}
+              value={formData.pkg}
+              onChange={handlePackageChange}
               placeholder="Select"
             />
           </div>
@@ -302,8 +606,8 @@ const NewQuery = ({ isOpen, onClose }) => {
                 className="mt-1 p-2 w-full border rounded"
                 placeholder="where to start"
                 name="code"
-                value={formData.code}
-                onChange={handleInputChange}
+                value={formData.totalTravellers}
+                onChange={(e) => setFormData(prev => ({ ...prev, totalTravellers: e.target.value }))}
               />
             </div>
             <div className="w-1/3">
@@ -319,11 +623,8 @@ const NewQuery = ({ isOpen, onClose }) => {
                 className="mt-1 p-2 w-full border rounded"
                 placeholder=" No of Days"
                 name="pCode"
-                value={formData.pCode}
-                onChange={
-                  handleInputChange
-                  // (e) => setCode(e.target.value)
-                }
+                value={formData.days}
+                onChange={(e) => setFormData(prev => ({ ...prev, days: e.target.value }))}
               />
             </div>
             <div className="w-1/3">
@@ -339,11 +640,8 @@ const NewQuery = ({ isOpen, onClose }) => {
                 className="mt-1 p-2 w-full border rounded"
                 placeholder="No of Nights"
                 name="pCode"
-                value={formData.pCode}
-                onChange={
-                  handleInputChange
-                  // (e) => setCode(e.target.value)
-                }
+                value={formData.nights}
+                onChange={(e) => setFormData(prev => ({ ...prev, nights: e.target.value }))}
               />
             </div>
           </div>
@@ -356,11 +654,11 @@ const NewQuery = ({ isOpen, onClose }) => {
             <input
               type="date"
               id="noOfNights"
-              name="noOfNights"
-              value={formData.noOfNights}
-              onChange={handleInputChange}
+              name="travelDate"
+              value={formData.travelDate}
+              onChange={handleDateChange}
               className="mt-1 p-2 w-full border rounded"
-              placeholder="No of Nights"
+              placeholder=""
             />
           </div>
           <div className="w-1/2">
@@ -370,154 +668,118 @@ const NewQuery = ({ isOpen, onClose }) => {
             <input
               type="date"
               id="noOfNights"
-              name="noOfNights"
-              value={formData.noOfNights}
-              onChange={handleInputChange}
+              name="toTravelDate"
+              value={formData.toTravelDate}
+              onChange={handleDateChange}
               className="mt-1 p-2 w-full border rounded"
-              placeholder="No of Nights"
+              placeholder=""
             />
           </div>
+        </div>
+        <div className="mb-4">
+          <h3 className="bg-red-700 text-white p-2 rounded">
+            Itinerary
+          </h3>
+          <table className="min-w-full bg-white mb-4 border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border-r">Day</th>
+                <th className="py-2 px-4 border-r">Title</th>
+                <th className="py-2 px-4 border-r">City Name</th>
+                <th className="py-2 px-4">Meals</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(iti) && iti.slice(0, formData.days).map(item => (
+
+                <tr>
+                  <td className="py-2 px-4 border">
+                    {item.daynumber}
+                  </td>
+
+                  <td className="py-2 px-4 border">
+                    {item.daytitle}
+                  </td>
+
+                  <td className="py-2 px-4 border">
+                    {item.cityname}
+                  </td>
+
+                  <td className="py-2 px-4 border">
+                    {item.meals}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mb-4">
+          <h3 className="bg-red-700 text-white p-2 rounded">
+            Hotel
+          </h3>
+          <table className="min-w-full bg-white mb-4 border">
+            <thead>
+              <tr className="bg-gray-100">
+                {viewHotel.map(item =>
+                  <th className="py-2 px-4 border-r">{item.category}</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {viewHotel.map(item =>
+                  <td className="py-2 px-4 border-r">
+                    <label className="block text-sm font-medium">
+                      Hotel Name
+                    </label>
+                    <p>{item.hotel?.hname}</p>
+                    <label className="block text-sm font-medium">
+                      Hotel Rating
+                    </label>
+                    <p>{item.hotel?.star_ratings}</p>
+                    <label className="block text-sm font-medium">
+                      Room Type
+                    </label>
+                    <p>{item.roomtypes?.bed_size}</p>
+                    <label className="block text-sm font-medium">
+                      Room Type
+                    </label>
+                    {/* <Select
+                    /> */}
+                  </td>
+                )}
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div className="mb-6">
-          <h3 className="bg-red-700 text-white p-2 rounded">
-            Accommodation & Transportation Details
-          </h3>
+          <h3 className="bg-red-700 text-white p-2 rounded">Booking Price</h3>
         </div>
-        <div className="flex gap-2 mb-4">
-          <div className="w-1/3">
-            <label htmlFor="country" className="block text-sm font-medium mb-1">
-              Hotel Rating
-            </label>
-            <Select
-              options={[
-                { value: "1", label: "Star" },
-                { value: "2", label: "Star" },
-                { value: "3", label: "Star" },
-              ]}
-              value={customer}
-              onChange={setCustomer}
-              placeholder="Select"
-            />
-          </div>
-          <div className="w-1/3">
-            <label htmlFor="country" className="block text-sm font-medium mb-1">
-              Hotel Name
-            </label>
-            <Select
-              options={[
-                { value: "1", label: "Star" },
-                { value: "2", label: "Star" },
-                { value: "3", label: "Star" },
-              ]}
-              value={customer}
-              onChange={setCustomer}
-              placeholder="Select"
-            />
-          </div>
-          <div className="w-1/3">
-            <label htmlFor="country" className="block text-sm font-medium mb-1">
-              Room Type
-            </label>
-            <Select
-              options={[
-                { value: "1", label: "Star" },
-                { value: "2", label: "Star" },
-                { value: "3", label: "Star" },
-              ]}
-              value={customer}
-              onChange={setCustomer}
-              placeholder="Select"
-            />
-          </div>
+
+        <div className="flex gap-10 mb-4">
+          <label>Basic Cost: {viewPrice.basiccost}</label>
+          <label>GST: {viewPrice.gst}</label>
         </div>
-        <div className="flex gap-2 mb-2">
-          <div className="w-1/3">
-            <label htmlFor="code" className="block text-sm font-medium">
-              Number of Rooms
-            </label>
-            <input
-              type="text"
-              id="code"
-              className="mt-1 p-2 w-full border rounded"
-              placeholder=""
-              name="code"
-              value={formData.code}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="w-1/3">
-            <label
-              htmlFor="countryName"
-              className="block text-sm font-medium"
-            >
-              Room Size
-            </label>
-            <input
-              type="text"
-              id="countryName"
-              className="mt-1 p-2 w-full border rounded"
-              placeholder=""
-              name="pCode"
-              value={formData.pCode}
-              onChange={
-                handleInputChange
-                // (e) => setCode(e.target.value)
-              }
-            />
-          </div>
-          <div className="w-1/3">
-            <label
-              htmlFor="countryName"
-              className="block text-sm font-medium"
-            >
-              Bed Type
-            </label>
-            <input
-              type="text"
-              id="countryName"
-              className="mt-1 p-2 w-full border rounded"
-              placeholder=""
-              name="pCode"
-              value={formData.pCode}
-              onChange={
-                handleInputChange
-                // (e) => setCode(e.target.value)
-              }
-            />
-          </div>
-        </div>
+
+
         <div className="mb-6">
-          <h3 className="bg-red-700 text-white p-2 rounded">
-            Booking Details
-          </h3>
-        </div>
-        <div className="flex gap-2">
-          <div className="w-full mb-4">
-            <label htmlFor="status" className="block text-sm font-medium">
-              Status
-            </label>
-            <select
-              id="status"
-              className="mt-1 p-2 w-full border rounded"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-            >
-              <option value={true}>Active</option>
-              <option value={false}>Inactive</option>
-            </select>
-          </div>
+          <h3 className="bg-red-700 text-white p-2 rounded">Policy</h3>
         </div>
 
         {/* Add the checkboxes below the status field */}
         <div className="mb-4">
           <label className="block text-sm font-medium">Include Policies</label>
           <div className="flex flex-col">
-            <label className="flex items-center">
+            {viewPolicy.map(item =>
+              <label className="flex items-center">
+                <input type="checkbox" className="mr-2" />{item.policytitle}
+              </label>
+            )}
+            {/* <label className="flex items-center">
               <input type="checkbox" className="mr-2" />
               Include Terms and Conditions
-            </label>
-            <label className="flex items-center">
+            </label> */}
+            {/* <label className="flex items-center">
               <input type="checkbox" className="mr-2" />
               Include Booking policy
             </label>
@@ -532,12 +794,12 @@ const NewQuery = ({ isOpen, onClose }) => {
             <label className="flex items-center">
               <input type="checkbox" className="mr-2" />
               Include Booking Person Details
-            </label>
+            </label> */}
           </div>
         </div>
-      </form>
+      </form >
       {/* Line with shadow above the buttons */}
-      <div className="flex justify-between items-center p-3 bg-white shadow-lg rounded w-full fixed bottom-10">
+      < div className="flex justify-between items-center p-3 bg-white shadow-lg rounded w-full fixed bottom-10" >
         <div className="flex justify-start space-x-4">
           <button
             type="button"
@@ -553,8 +815,8 @@ const NewQuery = ({ isOpen, onClose }) => {
             Reset
           </button>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

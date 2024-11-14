@@ -50,14 +50,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
 
   const [selectedPackageTheme, setSelectedPackageTheme] = useState([])
 
-  const [addCityAndNight, setAddCityAndNight] = useState([
-    // {
-    //   hotelCity: '',
-    //   hotelCityId: null,
-    //   fromStartDay: 0,
-    //   to: 0
-    // }
-  ]);
+  const [addCityAndNight, setAddCityAndNight] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showItiForm, setShowItiForm] = useState(false);
   const [showIti, setShowIti] = useState([])
@@ -577,13 +570,13 @@ const NewPackageForm = ({ isOpen, onClose }) => {
     }))
   }
 
-  const handlePackagePriceSubmit = (e) => {
+  const handlePackagePriceSubmit = async (e) => {
     e.preventDefault();
     let pricePackge = {
       markup: 0,
-      basiccost: 9900,
-      gst: 495,
-      totalcost: 12895,
+      basiccost: 0,
+      gst: 0,
+      totalcost: 0,
       createdby: user.username,
       modifiedby: user.username,
       ipaddress: ipAddress,
@@ -591,6 +584,18 @@ const NewPackageForm = ({ isOpen, onClose }) => {
       isdelete: 0,
       packid: 4
     }
+
+
+    await axios.post(`${api.baseUrl}/packageprice/create`, pricePackge, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then((response) => {
+        setPackageItinerayData(response.data)
+      })
+      .catch(error => console.error(error));
   }
 
 
@@ -620,12 +625,17 @@ const NewPackageForm = ({ isOpen, onClose }) => {
       }
     }
 
+    console.log(formItinaryData)
+
 
     for (let i = 0; i < formItinaryData.length; i++) {
       // for (let i = 0; i < 0; i++) {
 
       const val = [...formItinaryData[i].hotel]
       const updateVal = val.filter(item => item.hotelName !== null)
+
+      console.log(val)
+      console.log(updateVal)
 
       let siteSee = formItinaryData[i].siteSeeing.map(item => item.value)
       let itiActivity = formItinaryData[i].activities.map(item => ({ id: item.value }))
@@ -640,42 +650,41 @@ const NewPackageForm = ({ isOpen, onClose }) => {
       if (formItinaryData[i].dinner) {
         meald = meald + (formItinaryData[i].breakfast ? ', Dinner' : 'Dinner')
       }
-      let payload = {
-        daynumber: i + 1,
-        cityname: formItinaryData[i].cityname,
-        daytitle: formItinaryData[i].daytitle.label,
-        program: formItinaryData[i].program,
-        meals: meald,
-        createdby: user.username,
-        modifiedby: user.username,
-        ipaddress: ipAddress,
-        status: 1,
-        isdelete: 0,
-        transport: {
-          id: formItinaryData[i].transport.value
+      const payload = {
+        "daynumber": i + 1,
+        "cityname": formItinaryData[i].cityname,
+        "daytitle": formItinaryData[i].daytitle.label,
+        "program": formItinaryData[i].program,
+        "meals": meald,
+        "createdby": user.username,
+        "modifiedby": user.username,
+        "ipaddress": ipAddress,
+        "status": 1,
+        "isdelete": 0,
+        "transport": {
+          "id": formItinaryData[i].transport.value
         },
-        packid: {
-          id: packageData.id
-        }
+        // "packid": packageData.id
+        "packid": 101
       }
-      console.log(payload)
+      // console.log(payload)
 
-      await axios.post(`${api.baseUrl}/packageitinerary/create`, payload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Access-Control-Allow-Origin': '*'
-        }
-      })
-        .then((response) => {
-          setPackageItinerayData(response.data)
-        })
-        .catch(error => console.error(error));
+      // await axios.post(`${api.baseUrl}/packageitinerary/create`, payload, {
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Access-Control-Allow-Origin': '*'
+      //   }
+      // })
+      //   .then((response) => {
+      //     setPackageItinerayData(response.data)
+      //   })
+      //   .catch(error => console.error(error));
 
       for (let j = 0; j < updateVal.length; j++) {
         // let hotelIds = updateVal.map((item) => item.hotelName.value)
 
         let upd = formItinaryData.map((item, l) => i === l ? { ...item, hotel: updateVal } : item)
-        // console.log(upd)
+        console.log(upd)
 
         // let mel = 
         setFormItinaryData(upd)
@@ -687,7 +696,8 @@ const NewPackageForm = ({ isOpen, onClose }) => {
           modifiedby: user.username,
           category: formItinaryData[i].hotel[j].category,
           packitid: {
-            id: packageItinerayData.id
+            id: 501
+            // id: packageItinerayData.id
           },
           activities: itiActivity,
           sightseeingIds: siteSee,
@@ -698,103 +708,102 @@ const NewPackageForm = ({ isOpen, onClose }) => {
             id: formItinaryData[i].hotel[j].mealType.value
           }]
         }
-        console.log(packageItinerayDetails)
+        console.log(payloadItineararyDetails)
 
-        await axios.post(`${api.baseUrl}/packageitinerarydetails/create`, payloadItineararyDetails, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Access-Control-Allow-Origin': '*'
-          }
-        })
-          .then((response) => {
-            setPackageItinerayDetails(response.data)
-            alert('created...')
-          })
-          .catch(error => console.error(error));
+        // await axios.post(`${api.baseUrl}/packageitinerarydetails/create`, payloadItineararyDetails, {
+        //   headers: {
+        //     'Authorization': `Bearer ${token}`,
+        //     'Access-Control-Allow-Origin': '*'
+        //   }
+        // })
+        //   .then((response) => {
+        //     setPackageItinerayDetails(response.data)
+        //     alert('created...')
+        //   })
+        //   .catch(error => console.error(error));
       }
     }
-    setPage(3)
+    // setPage(3)
   }
 
   const handlePageChange = async (e) => {
     e.preventDefault();
 
-
     // destinationCoveredId
-    const destinationCoveredStr = selectedDestinations.map((option) => option.value).join(",")
-    const selectedPackagesStr = selectedPackageTheme.map((option) => option.value).join(",");
-    const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
-    const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
-    const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
-    const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.value).join(",");
-    const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
+    // const destinationCoveredStr = selectedDestinations.map((option) => option.value).join(",")
+    // const selectedPackagesStr = selectedPackageTheme.map((option) => option.label).join(",");
+    // const selectedInclusionsStr = selectedInclusions.map((option) => option.value).join(",");
+    // const selectedExclusionsStr = selectedExclusions.map((option) => option.value).join(",");
+    // const selectedDestinationDepartureStr = selectedDestinationDeparture.map((option) => option.label).join(", ");
+    // const selectedPackageThemeStr = selectedPackageTheme.map((option) => option.value).join(",");
+    // const packageCategoriesStr = packageCategories.map((option) => option).join(", ");
 
-    const formDataPackageMaster = new FormData()
+    // const formDataPackageMaster = new FormData()
 
 
-    if (formData.pkName === '' || selectedStartCity === null || selectedEndCity === null || destinationCoveredStr === '' || selectedPackagesStr === '' || packageSpecification === '' || formData.days === 0 || formData.nights === 0 || packageCategoriesStr === '' || formData.SupplierId === null ||
-      pkImage === null
-    ) {
-      toast.error("Please fill all the fields...", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return;
-    }
+    // if (formData.pkName === '' || selectedStartCity === null || selectedEndCity === null || destinationCoveredStr === '' || selectedPackagesStr === '' || packageSpecification === '' || formData.days === 0 || formData.nights === 0 || packageCategoriesStr === '' || formData.SupplierId === null ||
+    //   pkImage === null
+    // ) {
+    //   toast.error("Please fill all the fields...", {
+    //     position: "top-center",
+    //     autoClose: 5000,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //   });
+    //   return;
+    // }
 
-    formDataPackageMaster.append('pkName', formData.pkName)
+    // formDataPackageMaster.append('pkName', formData.pkName)
 
-    formDataPackageMaster.append('fromCityId', selectedStartCity.value)
-    formDataPackageMaster.append('toCityId', selectedEndCity.value)
-    formDataPackageMaster.append('destinationCoveredId', destinationCoveredStr)
-    formDataPackageMaster.append('description', editorData)
-    formDataPackageMaster.append('pkCategory', selectedPackagesStr)
-    formDataPackageMaster.append('pkSpecifications', packageSpecification)
-    formDataPackageMaster.append('days', formData.days)
-    formDataPackageMaster.append('nights', formData.nights)
-    formDataPackageMaster.append('is_fixed_departure', isFixedDeparture)
-    formDataPackageMaster.append('fixed_departure_destinations', isFixedDeparture ? selectedDestinationDepartureStr : '')
-    formDataPackageMaster.append('packageType', packageCategoriesStr)
-    formDataPackageMaster.append('created_by', user.username)
-    formDataPackageMaster.append('modified_by', user.username)
-    formDataPackageMaster.append('ipaddress', ipAddress)
-    formDataPackageMaster.append('status', formData.status)
-    formDataPackageMaster.append('isdelete', 0)
-    formDataPackageMaster.append('inclusionid', selectedInclusionsStr)
-    formDataPackageMaster.append('exclusionid', selectedExclusionsStr)
-    formDataPackageMaster.append('SupplierId', formData.SupplierId)
-    formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
-    formDataPackageMaster.append('image', pkImage)
+    // formDataPackageMaster.append('fromCityId', selectedStartCity.value)
+    // formDataPackageMaster.append('toCityId', selectedEndCity.value)
+    // formDataPackageMaster.append('destinationCoveredId', destinationCoveredStr)
+    // formDataPackageMaster.append('description', editorData)
+    // formDataPackageMaster.append('pkCategory', selectedPackagesStr)
+    // formDataPackageMaster.append('pkSpecifications', packageSpecification)
+    // formDataPackageMaster.append('days', formData.days)
+    // formDataPackageMaster.append('nights', formData.nights)
+    // formDataPackageMaster.append('is_fixed_departure', isFixedDeparture)
+    // formDataPackageMaster.append('fixed_departure_destinations', isFixedDeparture ? selectedDestinationDepartureStr : ' ')
+    // formDataPackageMaster.append('packageType', packageCategoriesStr)
+    // formDataPackageMaster.append('created_by', user.username)
+    // formDataPackageMaster.append('modified_by', user.username)
+    // formDataPackageMaster.append('ipaddress', ipAddress)
+    // formDataPackageMaster.append('status', formData.status)
+    // formDataPackageMaster.append('isdelete', 0)
+    // formDataPackageMaster.append('inclusionid', selectedInclusionsStr)
+    // formDataPackageMaster.append('exclusionid', selectedExclusionsStr)
+    // formDataPackageMaster.append('SupplierId', formData.SupplierId)
+    // formDataPackageMaster.append('pkthem', selectedPackageThemeStr)
+    // formDataPackageMaster.append('image', pkImage)
 
-    for (var pair of formDataPackageMaster.entries()) {
-      console.log(pair[0] + ' = ' + pair[1]);
-    }
+    // for (var pair of formDataPackageMaster.entries()) {
+    //   console.log(pair[0] + ' = ' + pair[1]);
+    // }
 
-    await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-        'Access-Control-Allow-Origin': '*'
-      }
-    })
-      .then((response) => {
-        setPackageData(response.data)
-        toast.success("Package Created...", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      })
-      .catch(error => console.error(error));
+    // await axios.post(`${api.baseUrl}/packages/create`, formDataPackageMaster, {
+    //   headers: {
+    //     'Authorization': `Bearer ${token}`,
+    //     'Content-Type': 'multipart/form-data',
+    //     'Access-Control-Allow-Origin': '*'
+    //   }
+    // })
+    //   .then((response) => {
+    //     setPackageData(response.data)
+    //     toast.success("Package Created...", {
+    //       position: "top-center",
+    //       autoClose: 5000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //       progress: undefined,
+    //     });
+    //   })
+    //   .catch(error => console.error(error));
 
     setPage(2);
   };
@@ -820,8 +829,19 @@ const NewPackageForm = ({ isOpen, onClose }) => {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
-
   };
+
+  const handleInputDayChange = (e) => {
+    const { name, value } = e.target
+
+    if (name === 'days') {
+      setFormData({ ...formData, days: e.target.value, nights: e.target.value !== 0 || e.target.value !== null ? Number(e.target.value) - 1 : 0 })
+    }
+    else if (name === 'nights') {
+      setFormData({ ...formData, nights: e.target.value, days: Number(e.target.value) + 1 })
+    }
+
+  }
 
   const handleChange = (selectedOptions) => {
     setSelectedDestinations(selectedOptions);
@@ -1179,7 +1199,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
                   value={formData.days}
                   min={0}
                   // onChange={(e) => setNights(e.target.value)}
-                  onChange={handleInputChange}
+                  onChange={handleInputDayChange}
                   className="mt-1 h-[38px] p-2 w-full border border-1 border-[#e5e7eb] rounded"
                   placeholder="No. of night..."
                 />
@@ -1198,7 +1218,7 @@ const NewPackageForm = ({ isOpen, onClose }) => {
                   name="nights"
                   value={formData.nights}
                   min={0}
-                  onChange={handleInputChange}
+                  onChange={handleInputDayChange}
                   className="mt-1 h-[38px] p-2 w-full border border-1 border-[#e5e7eb] rounded"
                   placeholder="No. of night..."
                 />

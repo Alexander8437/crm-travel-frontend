@@ -164,7 +164,7 @@ const Dashboard = () => {
   return (
     <div className="w-full mt-0">
       <BodyHeader />
-      <div className="bg-[#e2e8f0] m-0 py-4 h-full">
+      <div className="bg-gray-200 m-0 py-4 h-full">
         <div className="dashboard ml-10 mr-10">
           {/* Period Dropdown */}
           <div className="dashboard-periods relative mb-8" style={{ zIndex: "1" }}>
@@ -220,7 +220,7 @@ const Dashboard = () => {
           </div>
           {/* Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-md">
+            <div className="bg-pink-100 border-l-4 border-pink-500 p-4 rounded-md">
               <p className="text-gray-600 font-bold">Total Bookings</p>
               <p className="text-lg">65 / 93</p>
             </div>
@@ -228,7 +228,7 @@ const Dashboard = () => {
               <p className="text-gray-600 font-bold">Total Sales</p>
               <p className="text-lg">65 / 93</p>
             </div>
-            <div className="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-md">
+            <div className="bg-pink-100 border-l-4 border-pink-500 p-4 rounded-md">
               <p className="text-gray-600 font-bold">Total Leads</p>
               <p className="text-lg">65 / 93</p>
             </div>

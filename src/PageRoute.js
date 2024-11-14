@@ -54,6 +54,7 @@ import HotelMaster from './pages/HotelMaster'
 import Bookings from './pages/Bookings'
 import HotelMasterAddRoom from './pages/HotelMasterAddRoom'
 import MasterList from './pages/masterlis'
+import AllMembers from './pages/AllMembers'
 
 const PageRoute = () => {
 
@@ -75,6 +76,7 @@ const PageRoute = () => {
             <Route path='/master-list/hotel/:id' element={<HotelMasterAddRoom />} />
             {/* <Route path="/package-view" element={<CustomerProfile />} /> */}
             <Route path="/booking-dashboard" element={<Bookings />} />
+            <Route path="/all-members" element={<AllMembers />} />
             <Route path='/' />
             {/* Add other routes as needed */}
           </Routes>

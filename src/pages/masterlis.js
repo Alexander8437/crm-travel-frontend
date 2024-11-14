@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Table from './TableComponent';
 import { useNavigate } from 'react-router-dom';
 import api from '../apiConfig/config';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import NewVendorForm from "../pages/NewVendorForm";
+import NewPackageForm from "../pages/NewPacakgeForm";
+import NewTransportationForm from "../pages/NewTransportationForm";
+import NewMember from "../pages/NewMember";
+
 
 
 const MasterList = () => {
@@ -14,21 +19,27 @@ const MasterList = () => {
   const [hotelData, setHotelData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
+  const [addData, setAddData] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate()
 
   // Reusable ToggleSwitch Component
   const ToggleSwitch = ({ isOn, handleToggle }) => {
     return (
-      <div
-        className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${isOn ? 'bg-green-500' : 'bg-gray-300'
-          }`}
-        onClick={handleToggle}
-      >
+      <div className="flex justify-center items-center w-full h-full">
         <div
-          className={`w-3 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6' : 'translate-x-0'
+          className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${isOn ? 'bg-green-500' : 'bg-gray-300'
             }`}
-        />
+          onClick={handleToggle}
+        >
+          <div
+            className={`w-3 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isOn ? 'translate-x-6' : 'translate-x-0'
+              }`}
+          />
+        </div>
       </div>
+
     );
   };
 
@@ -57,7 +68,7 @@ const MasterList = () => {
   const fetchData = async (endpoint, setData, updateStatus) => {
     try {
       const response = await axios.get(`${api.baseUrl}/${endpoint}`);
-      const formattedData = response.data.map((item) => ({
+      const formattedData = await response.data.map((item) => ({
         ...item,
         status: item.status ? 'Active' : 'Inactive',
       }));
@@ -81,6 +92,18 @@ const MasterList = () => {
     console.log('Deleting:', item);
     // Add delete logic here
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     switch (activeTab) {
@@ -109,6 +132,7 @@ const MasterList = () => {
 
 
   const tabs = [
+    { header: 'S.No.', accessor: 'S.No.' },
     { key: 'country', label: 'Country' },
     { key: 'state', label: 'State' },
     { key: 'destination', label: 'Destination' },
@@ -120,6 +144,7 @@ const MasterList = () => {
   const tableData = {
     country: {
       columns: [
+        { header: 'S.No.', accessor: 'index' },
         { header: 'Country Name', accessor: 'countryName' },
         { header: 'Code', accessor: 'code' },
         { header: 'Phone Code', accessor: 'pCode' },
@@ -130,6 +155,7 @@ const MasterList = () => {
     },
     state: {
       columns: [
+        { header: 'S.No.', accessor: 'index' },
         { header: 'State Name', accessor: 'stateName' },
         { header: 'Country Name', accessor: 'countryName' },
         { header: 'Code', accessor: 'code' },
@@ -140,6 +166,7 @@ const MasterList = () => {
     },
     destination: {
       columns: [
+        { header: 'S.No.', accessor: 'index' },
         { header: 'Destination Name', accessor: 'destinationName' },
         { header: 'State Name', accessor: 'stateName' },
         { header: 'Country Name', accessor: 'countryName' },
@@ -151,6 +178,7 @@ const MasterList = () => {
     },
     hotel: {
       columns: [
+        { header: 'S.No.', accessor: 'index' },
         { header: 'Hotel Name', accessor: 'hname' },
         { header: 'Country', accessor: 'countryName' },
         { header: 'State', accessor: 'stateName' },
@@ -163,6 +191,7 @@ const MasterList = () => {
     },
     customer: {
       columns: [
+        { header: 'S.No.', accessor: 'index' },
         { header: 'First Name', accessor: 'firstName' },
         { header: 'Last Name', accessor: 'lastName' },
         { header: 'E-mail', accessor: 'email' },
@@ -174,6 +203,7 @@ const MasterList = () => {
     },
     vendor: {
       columns: [
+        { header: 'S.No.', accessor: 'index' },
         { header: 'Name', accessor: 'vendorName' },
         { header: 'E-Mail', accessor: 'vendorEmail' },
         { header: 'Contact', accessor: 'vendorContactNo' },
@@ -189,14 +219,18 @@ const MasterList = () => {
     const fetchCountryData = async () => {
       try {
         const response = await axios.get(`${api.baseUrl}/country/get`);
-        const formattedData = response.data.map((country) => ({
+        const formattedData = await response.data.map((country) => ({
           ...country,
           status: country.status ? 'Active' : 'Inactive'
         }));
-        const sortedData = formattedData.sort((a, b) => {
+        const sortedData = await formattedData.sort((a, b) => {
           return a.countryName.localeCompare(b.countryName);  // Replace 'name' with the key to sort by
         });
-        setCountryData(sortedData);
+        const newData = await sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setCountryData(newData);
       } catch (error) {
         console.error('Error fetching country data:', error);
       }
@@ -213,7 +247,11 @@ const MasterList = () => {
         const sortedData = formattedData.sort((a, b) => {
           return a.stateName.localeCompare(b.stateName);  // Replace 'name' with the key to sort by
         });
-        setStateData(sortedData);
+        const newData = sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setStateData(newData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }
@@ -231,7 +269,11 @@ const MasterList = () => {
         const sortedData = formattedData.sort((a, b) => {
           return a.destinationName.localeCompare(b.destinationName);  // Replace 'name' with the key to sort by
         });
-        setDestinationData(sortedData);
+        const newData = sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setDestinationData(newData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }
@@ -250,7 +292,11 @@ const MasterList = () => {
         const sortedData = formattedData.sort((a, b) => {
           return a.hname.localeCompare(b.hname);  // Replace 'name' with the key to 
         });
-        setHotelData(sortedData);
+        const newData = sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setHotelData(newData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }
@@ -270,7 +316,11 @@ const MasterList = () => {
         const sortedData = formattedData.sort((a, b) => {
           return a.firstName.localeCompare(b.firstName);  // Replace 'name' with the key to 
         });
-        setCustomerData(sortedData);
+        const newData = sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setCustomerData(newData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }
@@ -290,7 +340,11 @@ const MasterList = () => {
         const sortedData = response.data.sort((a, b) => {
           return a.vendorName.localeCompare(b.vendorName);  // Replace 'name' with the key to 
         });
-        setVendorData(sortedData);
+        const newData = sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setVendorData(newData);
       } catch (error) {
         console.error('Error fetching state data:', error);
       }
@@ -314,34 +368,130 @@ const MasterList = () => {
   }, [activeTab]);
 
   return (
-    <div className="h-24 mb-10 w-full p-4 bg-gray-50">
-      <div className="pb-1">
-        <h2 className="text-2xl p-1">Master List</h2>
-      </div>
-      <div className="relative inline-block w-full  border-b">
-        <ul className="flex gap-4 py-0 border-gray-300 mb-6">
-          {tabs.map((tab) => (
-            <li
-              key={tab.key}
-              className={`cursor-pointer text-sm text-gray-700 border-b-2 ${activeTab === tab.key ? 'border-red-700' : 'border-transparent'
-                }`}
-              onClick={() => setActiveTab(tab.key)}
+    <>
+
+      <div className="h-24 mb-10 w-full p-4 bg-gray-50">
+        <div className="pb-1 flex justify-between">
+          <h2 className="text-xl font-bold mb-6">Master List</h2>
+          <div className="relative" ref={dropdownRef}>
+            <span
+              className="text-black text-3xl md:text-3xl cursor-pointer flex"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              {tab.label}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="mt-4 mb-6">
-        <hr />
-        <div className='w-full  overflow-auto'>
-          <Table
-            columns={tableData[activeTab].columns}
-            data={tableData[activeTab].data}
-          />
+              +
+            </span>
+            {dropdownOpen && (
+              <div className="absolute top-10 right-0 w-48 bg-white shadow-lg rounded-md  text-black">
+                <ul className="space-y-2">
+                  <li
+                    className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                    onClick={() => {
+                      setAddData([]);
+                      setAddData(["Vendors"]);
+                    }}
+                  >
+                    New Vendors
+                  </li>
+                  <li className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer">
+                    New Customer
+                  </li>
+                  <li
+                    className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                    onClick={() => {
+                      setAddData([]);
+                      setAddData(["NewPackageForm"]);
+                    }}
+                  >
+                    New Package
+                  </li>
+                  <li
+                    className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                    onClick={() => {
+                      setAddData([]);
+                      setAddData(["Transportation"]);
+                    }}
+                  >
+                    New Transportation
+                  </li>
+                  <hr className="border-gray-300" />
+                  <li
+                    className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                    onClick={() => {
+                      setAddData([]);
+                      setAddData(["NewMember"]);
+                    }}
+                  >
+                    New Member
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+
+        </div>
+        <div className="relative inline-block w-full  border-b">
+          <ul className="flex gap-4 py-0 border-gray-300 mb-6">
+            {tabs.map((tab) => (
+              <li
+                key={tab.key}
+                className={`cursor-pointer text-sm text-gray-700 border-b-2 ${activeTab === tab.key ? 'border-red-700' : 'border-transparent'
+                  }`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-4 mb-6">
+          <hr />
+          <div className='w-full  overflow-auto'>
+            <Table
+              columns={tableData[activeTab].columns}
+              data={tableData[activeTab].data}
+            />
+          </div>
         </div>
       </div>
-    </div>
+      {/* Submenu Components */}
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "Vendors" ? "0" : "-100%" }}
+      >
+        <NewVendorForm
+          isOpen={addData[0] === "Vendors"}
+          onClose={() => setAddData([])}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "NewPackageForm" ? "0" : "-100%" }}
+      >
+        <NewPackageForm
+          isOpen={addData[0] === "NewPackageForm"}
+          onClose={() => setAddData([])}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "Transportation" ? "0" : "-100%" }}
+      >
+        <NewTransportationForm
+          isOpen={addData[0] === "Transportation"}
+          onClose={() => setAddData([])}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "NewMember" ? "0" : "-100%" }}
+      >
+        <NewMember
+          isOpen={addData[0] === "NewMember"}
+          onClose={() => setAddData([])}
+        />
+      </div>
+    </>
   );
 };
 

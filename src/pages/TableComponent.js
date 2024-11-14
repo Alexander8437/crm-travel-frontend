@@ -4,7 +4,7 @@ const TableComponent = ({ columns, data, isSelectable }) => {
   return (
     // <table className="min-w-full bg-white border">
     <table className="min-w-full bg-white">
-      <thead>
+      <thead className='bg-gray-200'>
         <tr className='truncate border-collapse'>
           {columns.map((column, index) => (
             <th key={index} className="py-2 px-4 border">
