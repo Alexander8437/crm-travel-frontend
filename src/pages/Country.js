@@ -113,9 +113,9 @@ const Country = ({ isOpen, onClose }) => {
     formDatasend.append('modifiedby', user.username);
     formDatasend.append('isdelete', false);
 
-    for (let [key, value] of formDatasend.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // for (let [key, value] of formDatasend.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
 
     if (formData.countryName === '' || formData.code === '' || formData.pCode === '' ||
       formData.image === null
@@ -152,7 +152,7 @@ const Country = ({ isOpen, onClose }) => {
           progress: undefined,
         });
         setFormData({
-          countryName: "", code: "", pCode: "", ipAddress: "",
+          countryName: "", code: "", pCode: "",
           image: null,
         })
         if (fileInputRef.current) {

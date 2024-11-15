@@ -251,7 +251,7 @@ const Destination = ({ isOpen, onClose }) => {
         setFormData({
           destinationName: "",
           status: true,
-          image: null, // Image file
+          image: null,
         });
         setTags([]);
         setSelectedOption(null);

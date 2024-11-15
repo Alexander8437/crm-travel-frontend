@@ -183,7 +183,7 @@ const State = ({ isOpen, onClose }) => {
           progress: undefined,
         });
         setFormData({
-          stateName: "", code: "", ipAddress: "",
+          stateName: "", code: "",
           image: null
         });
         if (fileInputRef.current) {
