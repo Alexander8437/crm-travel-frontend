@@ -411,6 +411,7 @@ const Hotel = ({ isOpen, onClose }) => {
           }
         })
           .then((response) => {
+            console.log(response.data)
             roomTypeId.push(response.data.id)
           })
           .catch(error => console.error(error));
@@ -490,15 +491,15 @@ const Hotel = ({ isOpen, onClose }) => {
     formDataHotelMaster.append('haddress', hotelAddress)
     formDataHotelMaster.append('hpincode', hotelPincode)
     formDataHotelMaster.append('ipaddress', ipAddress)
-    formDataHotelMaster.append('status', status.value)
-    formDataHotelMaster.append('isdelete', Boolean(false))
+    formDataHotelMaster.append('status', Boolean(status.value))
+    formDataHotelMaster.append('isdelete', Boolean(0))
     formDataHotelMaster.append('created_by', user.username)
     formDataHotelMaster.append('modified_by', user.username)
     formDataHotelMaster.append('image', hImage)
 
-    // for (var pair of formDataHotelMaster.entries()) {
-    //   console.log(pair[0] + ', ' + pair[1] + ' ' + typeof (pair[1]));
-    // }
+    for (var pair of formDataHotelMaster.entries()) {
+      console.log(pair[0] + ', ' + pair[1]);
+    }
 
 
     await axios.post(`${api.baseUrl}/hotel/create`, formDataHotelMaster, {

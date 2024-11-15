@@ -7,8 +7,8 @@ import NewPackageForm from "../pages/NewPacakgeForm";
 import NewTransportationForm from "../pages/NewTransportationForm";
 import NewMember from "../pages/NewMember";
 // Import Settings component at the top of AllMembers.js
-import Settings from "../pages/Settings";
 import { FaCaretDown } from "react-icons/fa"; // Import the dropdown icon
+import Settings from "./Settings";
 
 const AllMembers = () => {
   const [showDropdown, setShowDropdown] = useState(false); // State for showing the dropdown
@@ -21,6 +21,20 @@ const AllMembers = () => {
   const [activeTab, setActiveTab] = useState("list"); // State to manage active tab
   const dropdownRef = useRef(null);
   const [currentTable, setCurrentTable] = useState("list"); // State to track the selected table
+  const [selectedMemberColumns, setSelectedMemberColumns] = useState({
+    name: true,
+    email: false,
+    phone: true,
+    roles: false,
+    status: true,
+  });
+
+  const [selectedRolesColumns, setSelectedRolesColumns] = useState({
+    name: true,
+    description: false,
+    numOfUsers: true,
+    status: true,
+  })
 
   const toggleDropdown = () => setShowDropdown(!showDropdown);
 
@@ -38,17 +52,18 @@ const AllMembers = () => {
     setStatus(!status);
   };
   // Inside AllMembers component
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMemberSettingsOpen, setIsMemberSettingsOpen] = useState(false);
+  const [isRolesSettingsOpen, setIsRolesSettingsOpen] = useState(false);
 
-  const openSettings = () => {
-    setIsSettingsOpen(true);
+  const handleMembersSaveSettings = (columns) => {
+    setSelectedMemberColumns(columns);
   };
 
-  const closeSettings = () => {
-    setIsSettingsOpen(false);
+  const handleRolesSaveSettings = (columns) => {
+    setSelectedRolesColumns(columns);
   };
 
-  const columns = [
+  const memberColumns = [
     {
       header: "Select",
       render: () => (
@@ -103,7 +118,11 @@ const AllMembers = () => {
     },
   ];
 
-  const data = [
+  const filteredMemberColumns = memberColumns.filter(
+    (col) => selectedMemberColumns[col.accessor] || col.accessor === undefined
+  );
+
+  const membersData = [
     {
       name: "Aditi",
       email: "aditishahi2000@gmail.com",
@@ -164,6 +183,10 @@ const AllMembers = () => {
     },
   ];
 
+  const filteredRolesColumns = roleColumns.filter(
+    (col) => selectedRolesColumns[col.accessor] || col.accessor === undefined
+  );
+
   const roleData = [
     {
       name: "Admin",
@@ -217,8 +240,8 @@ const AllMembers = () => {
       <div className="flex items-center border-b border-gray-200 mb-4">
         <p
           className={`pb-2 mr-6 cursor-pointer ${activeTab === "list"
-              ? "border-b-4 border-red-700 text-black"
-              : "hover:border-b-4 hover:border-red-400"
+            ? "border-b-4 border-red-700 text-black"
+            : "hover:border-b-4 hover:border-red-400"
             }`}
           onClick={() => setActiveTab("list")}
         >
@@ -226,8 +249,8 @@ const AllMembers = () => {
         </p>
         <p
           className={`pb-2 cursor-pointer ${activeTab === "roles"
-              ? "border-b-4 border-red-700 text-black"
-              : "hover:border-b-4 hover:border-red-400"
+            ? "border-b-4 border-red-700 text-black"
+            : "hover:border-b-4 hover:border-red-400"
             }`}
           onClick={() => setActiveTab("roles")}
         >
@@ -312,17 +335,52 @@ const AllMembers = () => {
           <FaCog
             className="text-gray-500 text-xl cursor-pointer hover:text-gray-700"
             title="Settings"
-            onClick={openSettings}
+            onClick={
+              activeTab === "list"
+                ? () => setIsMemberSettingsOpen(true)
+                : () => setIsRolesSettingsOpen(true)
+            }
           />
 
-          {isSettingsOpen && <Settings onClose={closeSettings} />}
+          {
+            isMemberSettingsOpen &&
+            <Settings
+              onClose={
+                activeTab === "list"
+                  ? () => setIsMemberSettingsOpen(false)
+                  : () => setIsRolesSettingsOpen(false)
+              }
+              onSave={
+                activeTab === "list"
+                  ? handleMembersSaveSettings
+                  : handleRolesSaveSettings
+              }
+              initialColumns={selectedMemberColumns}
+            />
+          }
+          {
+            isRolesSettingsOpen &&
+            <Settings
+              onClose={
+                activeTab === "list"
+                  ? () => setIsMemberSettingsOpen(false)
+                  : () => setIsRolesSettingsOpen(false)
+              }
+              onSave={
+                activeTab === "list"
+                  ? handleMembersSaveSettings
+                  : handleRolesSaveSettings
+              }
+              initialColumns={selectedRolesColumns}
+            />
+          }
         </div>
       </div>
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         {activeTab === "list" ? (
-          <Table columns={columns} data={data} />
+          <Table columns={filteredMemberColumns} data={membersData} />
         ) : (
-          <Table columns={roleColumns} data={roleData} />
+          <Table columns={filteredRolesColumns} data={roleData} />
         )}
       </div>
       {/* Submenu Components */}

@@ -2,15 +2,8 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify"; // Import toast
 
-const Settings = ({ onClose }) => {
-  const [selectedColumns, setSelectedColumns] = useState({
-    name: true,
-    email: false,
-    phone: true,
-    role: false,
-    status: true,
-    action: false,
-  });
+const Settings = ({ onClose, onSave, initialColumns }) => {
+  const [selectedColumns, setSelectedColumns] = useState(initialColumns);
 
   const handleCheckboxChange = (column) => {
     setSelectedColumns((prevColumns) => ({
@@ -26,7 +19,6 @@ const Settings = ({ onClose }) => {
       phone: true,
       role: true,
       status: true,
-      action: true,
     });
   };
 
@@ -37,15 +29,20 @@ const Settings = ({ onClose }) => {
       phone: false,
       role: false,
       status: false,
-      action: false,
     });
   };
 
   const handleSave = () => {
     console.log("Settings saved:", selectedColumns);
+    onSave(selectedColumns);
     toast.success("Settings saved successfully!"); // Show success toast
     onClose();
   };
+
+  // const handleCancel = () => {
+  //   toast.info("Settings change canceled"); // Show cancel toast
+  //   onClose();
+  // };
 
   const handleCancel = () => {
     toast.info("Settings change canceled"); // Show cancel toast
@@ -75,7 +72,9 @@ const Settings = ({ onClose }) => {
           <button className="text-blue-500 border-b-2 border-blue-500 pb-1">
             Columns
           </button>
-          <button className="text-gray-500 pb-1">View</button>
+          <button className="text-gray-500 pb-1">
+            View
+          </button>
         </div>
       </div>
 
@@ -92,20 +91,22 @@ const Settings = ({ onClose }) => {
         </div>
 
         <div className="space-y-2 mb-6">
-          {Object.keys(selectedColumns).map((column) => (
-            <div key={column} className="flex items-center">
-              <input
-                type="checkbox"
-                checked={selectedColumns[column]}
-                onChange={() => handleCheckboxChange(column)}
-                className="form-checkbox h-4 w-4 text-blue-600"
-              />
-              <label className="ml-2 text-gray-700">
-                {column.charAt(0).toUpperCase() +
-                  column.slice(1).replace(/([A-Z])/g, " $1")}
-              </label>
-            </div>
-          ))}
+          {/* {Object.keys(selectedColumns).map((column) => ( */}
+          <div className="flex gap-2 flex-col">
+            {Object.keys(selectedColumns).map((column) => (
+              <label key={column} className="ml-2 text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={selectedColumns[column]}
+                  onChange={() => handleCheckboxChange(column)}
+                  className="form-checkbox h-4 w-4 mr-2 text-blue-600"
+                />
+                {/* {column.charAt(0).toUpperCase() +
+                    column.slice(1).replace(/([A-Z])/g, " $1")} */}
+                {column.charAt(0).toUpperCase() + column.slice(1)}
+              </label>))}
+          </div>
+          {/* ))} */}
         </div>
       </div>
 

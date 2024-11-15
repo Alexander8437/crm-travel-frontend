@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import api from "../apiConfig/config";
 import Select from "react-select";
+import { toast } from "react-toastify";
 
 const NewQuery = ({ isOpen, onClose }) => {
   const [customer, setCustomer] = useState([]);
@@ -241,7 +242,6 @@ const NewQuery = ({ isOpen, onClose }) => {
 
     let vH = catHote.filter(item => item.roomtypes !== null)
 
-    console.log(vH)
     let viewdat = vH.map(item => ({ category: item.category, hotel: item.roomtypes?.hotel, roomtypes: item.roomtypes }))
     let viewcat = vH.map(item => item.category)
     var newH = new Set(viewcat)
@@ -378,7 +378,7 @@ const NewQuery = ({ isOpen, onClose }) => {
       });
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
@@ -418,7 +418,28 @@ const NewQuery = ({ isOpen, onClose }) => {
       }
     }
 
-    console.log(formData)
+    await axios.post(`${api.baseUrl}/query/create`, payload, {
+      headers: {
+        // 'Authorization': `Bearer ${token}`,
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then((response) => {
+        // setPackageItinerayData(response.data)
+        toast.success("Query saved Successfully.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch(error => console.error(error));
+
+
+
   }
 
   return (

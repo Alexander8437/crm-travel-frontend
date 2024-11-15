@@ -7,13 +7,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const Destination = ({ isOpen, onClose }) => {
-  const [editorData, setEditorData] = useState('');
   const [countryDetails, setCountryDetails] = useState([])
   const [stateDetails, setStateDetails] = useState([])
-  const [country, setCountry] = useState("Select");
-  const [state, setState] = useState("Select");
-  const [destination, setDestination] = useState("");
-  const [description, setDescription] = useState("");
   const [inputKeyValue, setInputKeyValue] = useState('');
   const [selectedOption, setSelectedOption] = useState(null);
   const [stateSelected, setStateSlected] = useState(null);
@@ -21,9 +16,9 @@ const Destination = ({ isOpen, onClose }) => {
   const [stateId, setStateId] = useState()
   const [tags, setTags] = useState([]);
   const [newImage, setNewImage] = useState('')
-  const [user, setUser] = useState({})
   const fileInputRef = useRef(null);
 
+  const [user, setUser] = useState({})
   const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
@@ -36,7 +31,6 @@ const Destination = ({ isOpen, onClose }) => {
       key,
       encryptedToken
     );
-
     return dec.decode(new Uint8Array(decrypted));
   }
 
@@ -81,9 +75,7 @@ const Destination = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     destinationName: "",
     ipAddress: "",
-    status: true,
-    country,  // Example country ID
-    state,    // Example state ID
+    status: true
   });
 
   const handleChange = (selectedOption) => {
@@ -150,8 +142,7 @@ const Destination = ({ isOpen, onClose }) => {
   };
 
   useEffect(() => {
-    axios.get(`${api.baseUrl}/country/get`
-    )
+    axios.get(`${api.baseUrl}/country/get`)
       .then(response => {
         const formattedOptions = response.data.map(item => ({
           value: item.id, // or any unique identifier
@@ -178,6 +169,7 @@ const Destination = ({ isOpen, onClose }) => {
 
   const handleReset = () => {
     setFormData({
+      ...formData,
       destinationName: "",
       status: true,
       image: null,
@@ -192,14 +184,11 @@ const Destination = ({ isOpen, onClose }) => {
 
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     const tagsString = tags.join(', ');
 
-
     const formDataToSend = new FormData()
-
 
     formDataToSend.append("destinationName", formData.destinationName)
     formDataToSend.append("ipaddress", formData.ipAddress)
@@ -231,7 +220,6 @@ const Destination = ({ isOpen, onClose }) => {
     // }
 
     await axios.post(`${api.baseUrl}/destination/create`, formDataToSend, {
-
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
@@ -249,6 +237,7 @@ const Destination = ({ isOpen, onClose }) => {
           progress: undefined,
         });
         setFormData({
+          ...formData,
           destinationName: "",
           status: true,
           image: null,
@@ -256,7 +245,9 @@ const Destination = ({ isOpen, onClose }) => {
         setTags([]);
         setSelectedOption(null);
         setStateSlected(null)
-
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";  // Clear the file input
+        }
       })
       .catch(error => console.error(error));
   }

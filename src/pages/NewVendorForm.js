@@ -1,34 +1,16 @@
 import React, { useState } from "react";
-import Select, { components } from 'react-select';
+import { toast } from "react-toastify";
+import api from "../apiConfig/config";
+import axios from "axios";
 
 const NewVendorForm = ({ isOpen, onClose }) => {
-  const [selectedDestinations, setSelectedDestinations] = useState([]);
-  const [selectedItineraries, setSelectedItineraries] = useState([]);
-  const [selectedInclusions, setSelectedInclusions] = useState([]);
-  const [selectedExclusions, setSelectedExclusions] = useState([]);
   const [formData, setFormData] = useState({
     vendorName: "",
     vendorContactNo: "",
     vendorEmail: "",
-    vendorContact: "",
     vendorAddress: "",
-    vendorStatus: false,
+    status: true,
   });
-
-  // Custom Option Component
-  const CustomOption = (props) => {
-    return (
-      <components.Option {...props}>
-        <input
-          type="checkbox"
-          checked={props.isSelected}
-          onChange={() => null}
-          style={{ marginRight: 10 }}
-        />
-        {props.label}
-      </components.Option>
-    );
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,25 +20,35 @@ const NewVendorForm = ({ isOpen, onClose }) => {
     });
   }
 
-  const handleChange = (selectedOptions) => {
-    setSelectedDestinations(selectedOptions);
-  };
-
-  const handleItineraryChange = (selectedOptions) => {
-    setSelectedItineraries(selectedOptions);
-  };
-
-  const handleInclusionChange = (selectedOptions) => {
-    setSelectedInclusions(selectedOptions);
-  };
-
-  const handleExclusionChange = (selectedOptions) => {
-    setSelectedExclusions(selectedOptions);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    selectedDestinations.map(option => option.label).join(', ');
+
+    await axios.post(`${api.baseUrl}/destination/create`, {
+      headers: {
+        // 'Authorization': `Bearer ${token}`,
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
+      .then(async (response) => {
+        toast.success('Vendor saved Successfully.', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        setFormData({
+          ...formData,
+          vendorName: "",
+          vendorContactNo: "",
+          vendorEmail: "",
+          vendorAddress: "",
+          status: true,
+        })
+      })
+      .catch(error => console.error(error));
   };
 
   return (
@@ -96,7 +88,7 @@ const NewVendorForm = ({ isOpen, onClose }) => {
               placeholder="Enter Vendor Contact No"
             />
           </div>
-          <div className="w-1/2">
+          <div className="w-1/2 mr-2">
             <label htmlFor="destinations" className="block text-sm font-medium">Vendor Email</label>
             <input
               type="email"
@@ -107,6 +99,15 @@ const NewVendorForm = ({ isOpen, onClose }) => {
               className="mt-1 p-2 w-full border rounded"
               placeholder="Enter Vendor Email"
             />
+          </div>
+          <div className="w-1/2 mb-4">
+            <label htmlFor="status" className="block text-sm font-medium">
+              Status
+            </label>
+            <select id="status" className="mt-1 p-2 w-full border rounded" name="status" value={formData.status} onChange={handleInputChange}>
+              <option value={true}>Active</option>
+              <option value={false}>Inactive</option>
+            </select>
           </div>
         </div>
         <div>

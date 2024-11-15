@@ -6,25 +6,20 @@ import { toast } from "react-toastify";
 
 const State = ({ isOpen, onClose }) => {
   const [countryDetails, setCountryDetails] = useState([])
-  const [stateName, setStateName] = useState();
-  const [code, setCode] = useState();
   const [selectedOption, setSelectedOption] = useState(null);
   const [countryId, setCountryId] = useState(null)
-  const [status, setStatus] = useState(true)
 
   const fileInputRef = useRef(null);
 
   const [user, setUser] = useState({})
-
   const [token, setTokens] = useState(null)
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
 
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: iv,
-      },
+    const decrypted = await crypto.subtle.decrypt({
+      name: "AES-GCM",
+      iv: iv,
+    },
       key,
       encryptedToken
     );
@@ -37,7 +32,6 @@ const State = ({ isOpen, onClose }) => {
     const keyData = JSON.parse(localStorage.getItem('encryptionKey'));
     const ivBase64 = localStorage.getItem('iv');
     const encryptedTokenBase64 = localStorage.getItem('encryptedToken');
-
 
     if (!keyData || !ivBase64 || !encryptedTokenBase64) {
       throw new Error('No token found');
@@ -113,7 +107,7 @@ const State = ({ isOpen, onClose }) => {
   };
 
   const [formData, setFormData] = useState({
-    stateName: "", code: "", ipAddress: "", status,
+    stateName: "", code: "", ipAddress: "", status: true,
     image: null, created_by: "", modified_by: ""
   });
 
@@ -183,7 +177,8 @@ const State = ({ isOpen, onClose }) => {
           progress: undefined,
         });
         setFormData({
-          stateName: "", code: "",
+          ...formData,
+          stateName: "", code: "", status: true,
           image: null
         });
         if (fileInputRef.current) {

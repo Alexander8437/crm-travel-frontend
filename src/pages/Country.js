@@ -4,10 +4,6 @@ import api from "../apiConfig/config";
 import { toast } from "react-toastify";
 
 const Country = ({ isOpen, onClose }) => {
-  const [countryName, setCountryName] = useState();
-  const [code, setCode] = useState();
-  const [pCode, setPCode] = useState('');
-  const [status, setStatus] = useState(true)
   const fileInputRef = useRef(null);
 
   const [user, setUser] = useState({})
@@ -69,7 +65,7 @@ const Country = ({ isOpen, onClose }) => {
 
 
   const [formData, setFormData] = useState({
-    countryName: "", code: "", pCode: "", ipAddress: "", status,
+    countryName: "", code: "", pCode: "", ipAddress: "", status: true,
     image: null,
   });
 
@@ -152,6 +148,7 @@ const Country = ({ isOpen, onClose }) => {
           progress: undefined,
         });
         setFormData({
+          ...formData,
           countryName: "", code: "", pCode: "",
           image: null,
         })

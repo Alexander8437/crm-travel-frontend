@@ -137,114 +137,117 @@ const Navbar = () => {
                 className="w-auto h-6 md:w-auto md:h-6 filter brightness-0 invert"
               />
             </Link>
-            <div className="relative" ref={dropdownRef}>
-              <span
-                className="text-[#B4B4B8] hover:text-white text-3xl md:text-3xl cursor-pointer"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+            <div className="flex items-center space-x-2">
+              <div className="relative" ref={dropdownRef}>
+                <span
+                  className="text-[#B4B4B8] hover:text-white text-3xl md:text-3xl cursor-pointer"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  +
+                </span>
+                {dropdownOpen && (
+                  <div className="absolute top-10 left-0 w-48 bg-white shadow-lg rounded-md  text-black">
+                    <ul className="space-y-2">
+                      <li
+                        className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2  rounded cursor-pointer"
+                        onClick={() => {
+                          setAddData([]);
+                          setAddData(["Vendors"]);
+                        }}
+                      >
+                        New Vendors
+                      </li>
+                      <li className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer">
+                        New Customer
+                      </li>
+                      <li
+                        className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                        onClick={() => {
+                          setAddData([]);
+                          setAddData(["NewPackageForm"]);
+                        }}
+                      >
+                        New Package
+                      </li>
+                      <li
+                        className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                        onClick={() => {
+                          setAddData([]);
+                          setAddData(["Transportation"]);
+                        }}
+                      >
+                        New Transportation
+                      </li>
+                      <hr className="border-gray-300" />
+                      <li
+                        className="hover:bg-gray-200 hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
+                        onClick={() => {
+                          setAddData([]);
+                          setAddData(["NewMember"]);
+                        }}
+                      >
+                        New Member
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+              {/* Submenu Components */}
+              <div
+                className="submenu-menu"
+                style={{ right: addData[0] === "Vendors" ? "0" : "-100%" }}
               >
-                +
-              </span>
-              {dropdownOpen && (
-                <div className="absolute top-10 left-0 w-48 bg-white shadow-lg rounded-md  text-black">
-                  <ul className="space-y-2">
-                    <li
-                      className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2  rounded cursor-pointer"
-                      onClick={() => {
-                        setAddData([]);
-                        setAddData(["Vendors"]);
-                      }}
-                    >
-                      New Vendors
-                    </li>
-                    <li className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer">
-                      New Customer
-                    </li>
-                    <li
-                      className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
-                      onClick={() => {
-                        setAddData([]);
-                        setAddData(["NewPackageForm"]);
-                      }}
-                    >
-                      New Package
-                    </li>
-                    <li
-                      className="hover:bg-gray-200  hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
-                      onClick={() => {
-                        setAddData([]);
-                        setAddData(["Transportation"]);
-                      }}
-                    >
-                      New Transportation
-                    </li>
-                    <hr className="border-gray-300" />
-                    <li
-                      className="hover:bg-gray-200 hover:border-l-4  border-blue-500 p-2 rounded cursor-pointer"
-                      onClick={() => {
-                        setAddData([]);
-                        setAddData(["NewMember"]);
-                      }}
-                    >
-                      New Member
-                    </li>
-                  </ul>
-                </div>
+                <NewVendorForm
+                  isOpen={addData[0] === "Vendors"}
+                  onClose={() => setAddData([])}
+                />
+              </div>
+              <div
+                className="submenu-menu"
+                style={{
+                  right: addData[0] === "NewPackageForm" ? "0" : "-100%",
+                }}
+              >
+                <NewPackageForm
+                  isOpen={addData[0] === "NewPackageForm"}
+                  onClose={() => setAddData([])}
+                />
+              </div>
+              <div
+                className="submenu-menu"
+                style={{
+                  right: addData[0] === "Transportation" ? "0" : "-100%",
+                }}
+              >
+                <NewTransportationForm
+                  isOpen={addData[0] === "Transportation"}
+                  onClose={() => setAddData([])}
+                />
+              </div>
+              <div
+                className="submenu-menu"
+                style={{ right: addData[0] === "NewMember" ? "0" : "-100%" }}
+              >
+                <NewMember
+                  isOpen={addData[0] === "NewMember"}
+                  onClose={() => setAddData([])}
+                />
+              </div>
+              <div
+                className="hidden md:flex items-center cursor-pointer"
+                onClick={() => setShowSearchField(!showSearchField)}
+              >
+                <IoSearch className="text-[#B4B4B8] hover:text-white w-6 h-6" />
+              </div>
+              {showSearchField && (
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className="border-2 border-gray-300 rounded-md p-1"
+                />
               )}
             </div>
-            {/* Submenu Components */}
-            <div
-              className="submenu-menu"
-              style={{ right: addData[0] === "Vendors" ? "0" : "-100%" }}
-            >
-              <NewVendorForm
-                isOpen={addData[0] === "Vendors"}
-                onClose={() => setAddData([])}
-              />
-            </div>
-            <div
-              className="submenu-menu"
-              style={{ right: addData[0] === "NewPackageForm" ? "0" : "-100%" }}
-            >
-              <NewPackageForm
-                isOpen={addData[0] === "NewPackageForm"}
-                onClose={() => setAddData([])}
-              />
-            </div>
-            <div
-              className="submenu-menu"
-              style={{ right: addData[0] === "Transportation" ? "0" : "-100%" }}
-            >
-              <NewTransportationForm
-                isOpen={addData[0] === "Transportation"}
-                onClose={() => setAddData([])}
-              />
-            </div>
-            <div
-              className="submenu-menu"
-              style={{ right: addData[0] === "NewMember" ? "0" : "-100%" }}
-            >
-              <NewMember
-                isOpen={addData[0] === "NewMember"}
-                onClose={() => setAddData([])}
-              />
-            </div>
-            <div
-              className="hidden md:flex items-center cursor-pointer"
-              onClick={
-                () => setShowSearchField(!showSearchField)
-              }
-            >
-              <IoSearch className="text-[#B4B4B8] hover:text-white w-6 h-6" />
-            </div>
-            {showSearchField && (
-              <input
-                type="text"
-                placeholder="Search"
-                className="border-2 border-gray-300 rounded-md p-1"
-              />
-            )}
           </div>
-
           {/* Hamburger Menu */}
           <div className="md:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="text-white">
@@ -285,9 +288,10 @@ const Navbar = () => {
                 rounded-lg shadow-lg mt-2 mr-4"
                 >
                   <div className="flex items-center space-x-2 border-b border-red-500 p-2">
-                    <div className="bg-green-500 h-8 w-8 text-white text-center rounded-full">
+                    <div className="bg-green-500 h-8 w-8 text-white flex items-center justify-center rounded-full">
                       {getFirstCharacter(user.username)}
                     </div>
+
                     <div>
                       <p>{user.email}</p>
                       <p className="text-sm">{user.roles}</p>
@@ -296,9 +300,12 @@ const Navbar = () => {
 
                   {/* Dropdown Links */}
                   <div className="flex flex-col p-2 space-y-2">
-                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer">
+                    <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer" onClick={
+                      () => navigate('/home/profile-page')
+                    }>
                       <FaUserAlt />
                       <p>My Profile</p>
+                      {/* <Profile/> */}
                     </div>
                     <div className="flex items-center space-x-2 hover:bg-red-500 p-2 rounded cursor-pointer">
                       <FaCog />

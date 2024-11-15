@@ -172,7 +172,7 @@ const NewPolicyForm = ({ isOpen, onClose }) => {
 
       {/* Form Section */}
       <form onSubmit={formik.handleSubmit} className="p-4">
-        <div className="mb-6 mt-4 p-2">
+        <div className="mb-4">
           <h3 className="bg-red-700 text-white p-2 rounded">Policy Details</h3>
         </div>
 
