@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../apiConfig/config";
 import axios from "axios";
@@ -10,7 +10,62 @@ const NewVendorForm = ({ isOpen, onClose }) => {
     vendorEmail: "",
     vendorAddress: "",
     status: true,
+    ipAddress: ""
   });
+
+  const [user, setUser] = useState({})
+  const [token, setTokens] = useState(null)
+  async function decryptToken(encryptedToken, key, iv) {
+    const dec = new TextDecoder();
+
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encryptedToken
+    );
+    return dec.decode(new Uint8Array(decrypted));
+  }
+
+  // Function to retrieve and decrypt the token
+  async function getDecryptedToken() {
+    const keyData = JSON.parse(localStorage.getItem('encryptionKey'));
+    const ivBase64 = localStorage.getItem('iv');
+    const encryptedTokenBase64 = localStorage.getItem('encryptedToken');
+
+
+    if (!keyData || !ivBase64 || !encryptedTokenBase64) {
+      throw new Error('No token found');
+    }
+
+    // Convert back from base64
+    const key = await crypto.subtle.importKey('jwk', keyData, { name: "AES-GCM" }, true, ['encrypt', 'decrypt']);
+    const iv = new Uint8Array(atob(ivBase64).split('').map(char => char.charCodeAt(0)));
+    const encryptedToken = new Uint8Array(atob(encryptedTokenBase64).split('').map(char => char.charCodeAt(0)));
+
+    return await decryptToken(encryptedToken, key, iv);
+  }
+
+  // Example usage to make an authenticated request
+  useEffect(() => {
+    getDecryptedToken()
+      .then(token => {
+        setTokens(token);
+
+        return axios.get(`${api.baseUrl}/getbytoken`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      })
+      .then(response => {
+        setUser(response.data);
+      })
+      .catch(error => console.error('Error fetching protected resource:', error))
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,10 +75,34 @@ const NewVendorForm = ({ isOpen, onClose }) => {
     });
   }
 
+  useEffect(() => {
+    axios.get(`${api.baseUrl}/ipAddress`)
+      .then((response) => {
+        setFormData({
+          ...formData, ipAddress: response.data
+        })
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios.post(`${api.baseUrl}/destination/create`, {
+    const payload = {
+      "vendorName": formData.vendorName,
+      "vendorEmail": formData.vendorEmail,
+      "vendorContactNo": formData.vendorContactNo,
+      "vendorAddress": formData.vendorAddress,
+      "ipAddress": "14.11.223.21",
+      "status": formData.status,
+      "isdelete": 0,
+      "createdby": user.username,
+      "modifiedby": user.username
+    }
+
+    await axios.post(`${api.baseUrl}/vendor/create`, payload, {
       headers: {
         // 'Authorization': `Bearer ${token}`,
         'Access-Control-Allow-Origin': '*'
