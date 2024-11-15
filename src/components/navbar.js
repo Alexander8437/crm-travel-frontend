@@ -28,7 +28,7 @@ const Navbar = () => {
   const [addData, setAddData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for the "+" dropdown
   const [showSearchField, setShowSearchField] = useState(false); // State for the "+" dropdown
-  const [user, setUser] = useState({ username: "Aditi", email: "AditiShahi@gmail.com", roles: "Admin" });
+  const [user, setUser] = useState({ username: "", email: "", roles: "" });
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const isOpenRef = useRef(null);
@@ -38,14 +38,59 @@ const Navbar = () => {
     return word ? word.charAt(0) : "";
   };
 
-  // Fetch User Data
+  const [token, setTokens] = useState(null)
+  async function decryptToken(encryptedToken, key, iv) {
+    const dec = new TextDecoder();
+
+    const decrypted = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      key,
+      encryptedToken
+    );
+
+    return dec.decode(new Uint8Array(decrypted));
+  }
+
+  // Function to retrieve and decrypt the token
+  async function getDecryptedToken() {
+    const keyData = JSON.parse(localStorage.getItem('encryptionKey'));
+    const ivBase64 = localStorage.getItem('iv');
+    const encryptedTokenBase64 = localStorage.getItem('encryptedToken');
+
+
+    if (!keyData || !ivBase64 || !encryptedTokenBase64) {
+      throw new Error('No token found');
+    }
+
+    // Convert back from base64
+    const key = await crypto.subtle.importKey('jwk', keyData, { name: "AES-GCM" }, true, ['encrypt', 'decrypt']);
+    const iv = new Uint8Array(atob(ivBase64).split('').map(char => char.charCodeAt(0)));
+    const encryptedToken = new Uint8Array(atob(encryptedTokenBase64).split('').map(char => char.charCodeAt(0)));
+
+    return await decryptToken(encryptedToken, key, iv);
+  }
+
+  // Example usage to make an authenticated request
   useEffect(() => {
-    // Fetching and setting user (Omitted for Brevity)
-  }, []);
-  useEffect(() => {
-    // Simulating fetching user data
-    setUser({ username: "Aditi", email: "AditiShahi@gmail.com", roles: "Admin" });
-  }, []);
+    getDecryptedToken()
+      .then(token => {
+        setTokens(token);
+
+        return axios.get(`${api.baseUrl}/getbytoken`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      })
+      .then(response => {
+        setUser(response.data);
+      })
+      .catch(error => console.error('Error fetching protected resource:', error))
+  }, [])
 
 
   const handleLogout = () => {

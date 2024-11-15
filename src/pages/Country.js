@@ -113,6 +113,10 @@ const Country = ({ isOpen, onClose }) => {
     formDatasend.append('modifiedby', user.username);
     formDatasend.append('isdelete', false);
 
+    for (let [key, value] of formDatasend.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
     if (formData.countryName === '' || formData.code === '' || formData.pCode === '' ||
       formData.image === null
     ) {
@@ -127,10 +131,6 @@ const Country = ({ isOpen, onClose }) => {
       });
       return;
     }
-
-    // for (let [key, value] of formDatasend.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
 
     await axios.post(`${api.baseUrl}/country/create`, formDatasend,
       {
