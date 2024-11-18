@@ -6,7 +6,7 @@ import Select from 'react-select'
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const Destination = ({ isOpen, onClose }) => {
+const Destination = ({ isOpen, onClose, destinationData, isFormEditEnabled, setIsFormEditEnabled }) => {
   const [countryDetails, setCountryDetails] = useState([])
   const [stateDetails, setStateDetails] = useState([])
   const [inputKeyValue, setInputKeyValue] = useState('');
@@ -167,6 +167,33 @@ const Destination = ({ isOpen, onClose }) => {
       });
   }, []);
 
+  useEffect(() => {
+    if (destinationData) {
+      setFormData({
+        destinationName: destinationData.destinationName || "",
+        ipAddress: destinationData.ipAddress || "",
+        status: destinationData.status || true,
+      });
+      setCountryId(destinationData.countryId || null);
+      setStateId(destinationData.stateId || null);
+      setTags(destinationData.keyofattractions ? destinationData.keyofattractions.split(", ") : []);
+      setSelectedOption({ value: destinationData.country.id, label: destinationData.countryName });
+      setStateSlected({ value: destinationData.stateId, label: destinationData.stateName });
+    } else {
+      setFormData({
+        destinationName: "",
+        ipAddress: "",
+        status: true,
+      });
+      setCountryId(null);
+      setStateId(null);
+      setTags([]);
+      setSelectedOption(null);
+      setStateSlected(null);
+    }
+  }, [destinationData]);
+
+
   const handleReset = () => {
     setFormData({
       ...formData,
@@ -188,19 +215,17 @@ const Destination = ({ isOpen, onClose }) => {
 
     const tagsString = tags.join(', ');
 
-    const formDataToSend = new FormData()
-
-    formDataToSend.append("destinationName", formData.destinationName)
-    formDataToSend.append("ipaddress", formData.ipAddress)
-    // formDataToSend.append("description", editorData)
-    formDataToSend.append("status", formData.status)
-    formDataToSend.append("country.id", countryId)
-    formDataToSend.append("state.id", stateId)
+    const formDataToSend = new FormData();
+    formDataToSend.append("destinationName", formData.destinationName);
+    formDataToSend.append("ipaddress", formData.ipAddress);
+    formDataToSend.append("status", formData.status);
+    formDataToSend.append("country.id", countryId);
+    formDataToSend.append("state.id", stateId);
     formDataToSend.append("keyofattractions", tagsString);
-    formDataToSend.append("image", newImage)
-    formDataToSend.append('created_by', user.username)
-    formDataToSend.append('modified_by', user.username)
-    formDataToSend.append('isdelete', false)
+    formDataToSend.append("image", newImage);
+    formDataToSend.append('created_by', user.username);
+    formDataToSend.append('modified_by', user.username);
+    formDataToSend.append('isdelete', false);
 
     if (formData.destinationName.length === 0) {
       toast.error("Please fill all the fields...", {
@@ -215,42 +240,55 @@ const Destination = ({ isOpen, onClose }) => {
       return;
     }
 
-    // for (let [key, value] of formDataToSend.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
-
-    await axios.post(`${api.baseUrl}/destination/create`, formDataToSend, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-        'Access-Control-Allow-Origin': '*'
-      }
-    })
-      .then(async (response) => {
-        toast.success('Destination saved Successfully.', {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        setFormData({
-          ...formData,
-          destinationName: "",
-          status: true,
-          image: null,
-        });
-        setTags([]);
-        setSelectedOption(null);
-        setStateSlected(null)
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";  // Clear the file input
-        }
+    if (isFormEditEnabled && destinationData) {
+      // Edit Mode: Update request
+      await axios.put(`${api.baseUrl}/destination/updatebyid/${destinationData.id}`, formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+          'Access-Control-Allow-Origin': '*',
+        },
       })
-      .catch(error => console.error(error));
-  }
+        .then(async (response) => {
+          toast.success('Destination updated successfully.', {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          handleReset();
+        })
+        .catch(error => {
+          toast.error('Error updating destination.');
+          console.error(error)
+        });
+    } else {
+      // Create Mode: Create request
+      await axios.post(`${api.baseUrl}/destination/create`, formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+          'Access-Control-Allow-Origin': '*',
+        },
+      })
+        .then(async (response) => {
+          toast.success('Destination added successfully.', {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          handleReset();
+        })
+        .catch(error => console.error(error));
+    }
+  };
 
   return (
     <div

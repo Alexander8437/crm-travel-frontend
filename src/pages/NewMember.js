@@ -60,26 +60,23 @@ const NewMember = ({ isOpen, onClose }) => {
 
 
   useEffect(() => {
-    axios.get(`${api.baseUrl}/rolesPermission`,
-      {
-        headers: {
-          "content-type": "text/html"
-        }
+    axios.get(`${api.baseUrl}/rolesPermission`, {
+      headers: {
+        "content-type": "text/html"
       }
-    )
-      .then(response => {
-        const formattedOptions = response.data.map(item => ({
-          value: item.id, // or any unique identifier
-          label: item.name // or any display label you want
-        }));
-        setRole(formattedOptions);
-        console.log()
-      })
+    }
+    ).then(response => {
+      const formattedOptions = response.data.map(item => ({
+        value: item.id, // or any unique identifier
+        label: item.name // or any display label you want
+      }));
+      setRole(formattedOptions);
+      console.log()
+    })
       .catch((error) => {
         console.error('Error fetching data:', error);
       })
-  }
-  )
+  }, [])
 
   const [formData, setFormData] = useState({
     username: "",

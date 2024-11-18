@@ -59,7 +59,7 @@ const NewTransportationForm = ({ isOpen, onClose }) => {
 
   return (
     <div className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-[850px]"} mt-4 sm:mt-8 md:mt-12 lg:w-[800px] sm:w-[400px] md:w-[500px] z-50`}>
-      <button onClick={() => onClose(true)} className="absolute top-[12px] left-[-22px] text-white bg-red-700 square w-10 h-10 py-auto border border-1 border-gray-500 hover:border-gray-900 hover:text-gray-900">X</button>
+      <button onClick={() => onClose(true)} className="absolute top-[12px] left-[-22px] font-semibold text-white text-sm bg-red-700 square px-3  py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700">X</button>
       <div className="flex justify-between items-center p-4 pl-8 bg-white shadow-md">
         <h2 className="text-lg font-bold text-black">New Transportation Mode</h2>
       </div>

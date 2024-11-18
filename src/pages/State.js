@@ -4,10 +4,12 @@ import api from "../apiConfig/config";
 import Select from 'react-select'
 import { toast } from "react-toastify";
 
-const State = ({ isOpen, onClose }) => {
+const State = ({ isOpen, onClose, stateData, isFormEditEnabled, setIsFormEditEnabled }) => {
   const [countryDetails, setCountryDetails] = useState([])
   const [selectedOption, setSelectedOption] = useState(null);
   const [countryId, setCountryId] = useState(null)
+
+  console.log(stateData);
 
   const fileInputRef = useRef(null);
 
@@ -62,6 +64,25 @@ const State = ({ isOpen, onClose }) => {
       })
       .catch(error => console.error('Error fetching protected resource:', error))
   }, [])
+
+  useEffect(() => {
+    if (stateData) {
+      setFormData({
+        stateName: stateData.stateName || "",
+        code: stateData.code || "",
+        ipAddress: stateData.ipAddress || "",
+        status: stateData.status || true,
+        image: null,
+        created_by: stateData.created_by || "",
+        modified_by: stateData.modified_by || "",
+      });
+      setSelectedOption({
+        value: stateData.country.id,
+        label: stateData.country.countryName,
+      });
+      setCountryId(stateData.country.id);
+    }
+  }, [stateData]);
 
   const handleChange = (selectedOption) => {
     setSelectedOption(selectedOption);
@@ -129,7 +150,7 @@ const State = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
+    // Create FormData to send to API
     const formDataToSend = new FormData();
     formDataToSend.append('stateName', formData.stateName);
     formDataToSend.append('code', formData.code);
@@ -137,14 +158,11 @@ const State = ({ isOpen, onClose }) => {
     formDataToSend.append('ipAddress', formData.ipAddress);
     formDataToSend.append('country.id', countryId);
     formDataToSend.append('image', formData.image); // Attach image file
-    formDataToSend.append('created_by', user.username)
-    formDataToSend.append('modified_by', user.username)
-    formDataToSend.append('isdelete', false)
+    formDataToSend.append('created_by', user.username);
+    formDataToSend.append('modified_by', user.username);
+    formDataToSend.append('isdelete', false);
 
-    // for (let [key, value] of formDataToSend.entries()) {
-    //   console.log(`${key}: ${value}`);
-    // }
-
+    // If state name or code is empty, show error
     if (formData.stateName.length === 0 || formData.code.length === 0) {
       toast.error("Please fill all the fields...", {
         position: "top-center",
@@ -158,36 +176,58 @@ const State = ({ isOpen, onClose }) => {
       return;
     }
 
-    await axios.post(`${api.baseUrl}/state/create`, formDataToSend,
-      {
+    if (isFormEditEnabled && stateData && stateData.id) {
+      await axios.put(`${api.baseUrl}/state/updatebyid/${stateData.id}`, formDataToSend, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
           'Access-Control-Allow-Origin': '*'
         }
       })
-      .then((response) => {
-        toast.success("State saved Successfully.", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+        .then((response) => {
+          toast.success("State updated successfully.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          // Reset the form
+          handleReset();
+        })
+        .catch(error => {
+          toast.error("Error updating state...");
+          console.error('Error updating state:', error)
         });
-        setFormData({
-          ...formData,
-          stateName: "", code: "", status: true,
-          image: null
-        });
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";  // Clear the file input
+
+    } else {
+      // Create state API call
+      await axios.post(`${api.baseUrl}/state/create`, formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+          'Access-Control-Allow-Origin': '*'
         }
-        setSelectedOption(null)
       })
-      .catch(error => console.error(error));
-  }
+        .then((response) => {
+          toast.success("State saved successfully.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          // Reset the form
+          handleReset();
+        })
+        .catch(error => console.error('Error creating state:', error));
+    }
+  };
+
 
   return (
     <div
@@ -196,7 +236,12 @@ const State = ({ isOpen, onClose }) => {
     >
       {/* "X" button positioned outside the form box */}
       <button
-        onClick={onClose}
+        onClick={
+          () => {
+            onClose(true);
+            setIsFormEditEnabled(false);
+          }
+        }
         className="absolute top-[12px] left-[-22px] font-semibold text-white text-sm bg-red-700 square px-3  py-1.5 border border-1 border-transparent hover:border-red-700 hover:bg-white hover:text-red-700"
       >
         X

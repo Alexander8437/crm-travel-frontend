@@ -387,9 +387,9 @@ const NewQuery = ({ isOpen, onClose }) => {
       nights: formData.nights,
       days: formData.days,
       totalTravellers: formData.totalTravellers,
-      adults: 2,
-      kids: 1,
-      infants: 1,
+      adults: formData.totalTravellers,
+      kids: 0,
+      infants: 0,
       salutation: formData.customer.salutation,
       fname: formData.customer.fname,
       lname: formData.customer.lname,
@@ -437,7 +437,6 @@ const NewQuery = ({ isOpen, onClose }) => {
         });
       })
       .catch(error => console.error(error));
-
 
 
   }

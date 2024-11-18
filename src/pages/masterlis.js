@@ -8,6 +8,10 @@ import NewVendorForm from "../pages/NewVendorForm";
 import NewPackageForm from "../pages/NewPacakgeForm";
 import NewTransportationForm from "../pages/NewTransportationForm";
 import NewMember from "../pages/NewMember";
+import Country from './Country';
+import State from './State';
+import Destination from './Destination';
+import { toast } from 'react-toastify';
 
 
 
@@ -19,9 +23,14 @@ const MasterList = () => {
   const [hotelData, setHotelData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
+  const [departmentData, setDepartmentData] = useState([]);
   const [addData, setAddData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
+  const [isFormEditEnabled, setIsFormEditEnabled] = useState(false);
   const navigate = useNavigate()
 
   // Reusable ToggleSwitch Component
@@ -56,7 +65,10 @@ const MasterList = () => {
         <div className="flex gap-2 justify-center">
           <FaEdit
             className="text-purple-600 cursor-pointer"
-            onClick={() => handleEdit(item)}
+            onClick={() => {
+              setIsFormEditEnabled(true);
+              handleEdit(item);
+            }}
           />
           <FaTrashAlt
             className="text-red-600 cursor-pointer"
@@ -78,14 +90,68 @@ const MasterList = () => {
     }
   };
 
-  const handleStatusToggle = (item) => {
-    // Logic to toggle the status (e.g., API call to update backend)
-    console.log('Toggling status for:', item);
+  const handleStatusToggle = async (item) => {
+    const updatedStatus = item.status === 'Active' ? 'Inactive' : 'Active';  // Toggle the status
+
+    const updatedItem = { ...item, status: updatedStatus };
+
+    if (activeTab === 'country') {
+      setCountryData(prevData => prevData.map(i => (i.id === item.id ? updatedItem : i)));
+    } else if (activeTab === 'state') {
+      setStateData(prevData => prevData.map(i => (i.id === item.id ? updatedItem : i)));
+    } else if (activeTab === 'destination') {
+      setDestinationData(prevData => prevData.map(i => (i.id === item.id ? updatedItem : i)));
+    } else if (activeTab === 'hotel') {
+      setHotelData(prevData => prevData.map(i => (i.id === item.id ? updatedItem : i)));
+    } else if (activeTab === 'customer') {
+      setCustomerData(prevData => prevData.map(i => (i.id === item.id ? updatedItem : i)));
+    } else if (activeTab === 'vendor') {
+      setVendorData(prevData => prevData.map(i => (i.id === item.id ? updatedItem : i)));
+    }
+
+    try {
+      const response = await axios.put(`${api.baseUrl}/${activeTab}/updatebyid/${item.id}`, {
+        status: updatedStatus
+      });
+
+      if (response.status === 200) {
+        toast.success(`Successfully updated ${activeTab} status for item with ID ${item.id}`);
+      } else {
+        toast.error(`Failed to update status for item with ID ${item.id}`);
+      }
+    } catch (error) {
+      toast.error('Error updating status:', error);
+
+      if (activeTab === 'country') {
+        setCountryData(prevData => prevData.map(i => (i.id === item.id ? { ...item } : i)));
+      } else if (activeTab === 'state') {
+        setStateData(prevData => prevData.map(i => (i.id === item.id ? { ...item } : i)));
+      } else if (activeTab === 'destination') {
+        setDestinationData(prevData => prevData.map(i => (i.id === item.id ? { ...item } : i)));
+      } else if (activeTab === 'hotel') {
+        setHotelData(prevData => prevData.map(i => (i.id === item.id ? { ...item } : i)));
+      } else if (activeTab === 'customer') {
+        setCustomerData(prevData => prevData.map(i => (i.id === item.id ? { ...item } : i)));
+      } else if (activeTab === 'vendor') {
+        setVendorData(prevData => prevData.map(i => (i.id === item.id ? { ...item } : i)));
+      }
+    }
   };
+
 
   const handleEdit = (item) => {
     console.log('Editing:', item);
-    navigate(`/edit/${item.id}`);
+
+    if (activeTab === 'country') {
+      setAddData(["Country"]);
+      setSelectedCountry(item);
+    } else if (activeTab === 'state') {
+      setSelectedState(item);
+      setAddData(["State"]);
+    } else if (activeTab === 'destination') {
+      setAddData(["Destination"]);
+      setSelectedDestination(item);
+    }
   };
 
   const handleDelete = (item) => {
@@ -139,6 +205,7 @@ const MasterList = () => {
     { key: 'hotel', label: 'Hotel' },
     { key: 'customer', label: 'Customer' },
     { key: 'vendor', label: 'Vendor' },
+    { key: 'department', label: 'Department' },
   ];
 
   const tableData = {
@@ -151,7 +218,7 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: addIconsToData(countryData),
+      data: addIconsToData(countryData, handleStatusToggle),
     },
     state: {
       columns: [
@@ -162,7 +229,7 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: addIconsToData(stateData),
+      data: addIconsToData(stateData, handleStatusToggle),
     },
     destination: {
       columns: [
@@ -174,7 +241,7 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: addIconsToData(destinationData),
+      data: addIconsToData(destinationData, handleStatusToggle),
     },
     hotel: {
       columns: [
@@ -187,7 +254,7 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: addIconsToData(hotelData),
+      data: addIconsToData(hotelData, handleStatusToggle),
     },
     customer: {
       columns: [
@@ -199,7 +266,7 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: addIconsToData(customerData),
+      data: addIconsToData(customerData, handleStatusToggle),
     },
     vendor: {
       columns: [
@@ -211,7 +278,16 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: addIconsToData(vendorData),
+      data: addIconsToData(vendorData, handleStatusToggle),
+    },
+    department: {
+      columns: [
+        { header: 'S.No.', accessor: 'index' },
+        { header: 'Name', accessor: 'departmentName' },
+        { header: 'Status', accessor: 'status' },
+        { header: 'Action', accessor: 'Action' },
+      ],
+      data: departmentData,
     },
   };
 
@@ -329,14 +405,6 @@ const MasterList = () => {
     const fetchVendorData = async () => {
       try {
         const response = await axios.get(`${api.baseUrl}/vendor/getAll`);
-        // const formattedData = response.data.map((item) => ({
-        //   ...item,
-        //   status: item.status ? 'Active' : 'Inactive',
-        //   firstName: item.fName,
-        //   lastName: item.lName,
-        //   email: item.emailId,
-        //   leadSource: item.leadSource,
-        // }));
         const sortedData = response.data.sort((a, b) => {
           return a.vendorName.localeCompare(b.vendorName);  // Replace 'name' with the key to 
         });
@@ -349,6 +417,27 @@ const MasterList = () => {
         console.error('Error fetching state data:', error);
       }
     }
+
+    const fetchDepartmentData = async () => {
+      try {
+        const response = await axios.get(`${api.baseUrl}/departments/getAll`);
+        const formattedData = await response.data.map((item) => ({
+          ...item,
+          status: item.status ? 'Active' : 'Inactive'
+        }));
+        const sortedData = await formattedData.sort((a, b) => {
+          return a.departmentName.localeCompare(b.departmentName);  // Replace 'name' with the key to sort by
+        });
+        console.log(sortedData)
+        const newData = await sortedData.map((item, index) => ({
+          ...item,
+          index: index + 1
+        }))
+        setDepartmentData(newData);
+      } catch (error) {
+        console.error('Error fetching country data:', error);
+      }
+    };
 
 
 
@@ -364,12 +453,13 @@ const MasterList = () => {
       fetchCustomerData()
     } else if (activeTab === 'vendor') {
       fetchVendorData()
+    } else if (activeTab === 'department') {
+      fetchDepartmentData()
     }
   }, [activeTab]);
 
   return (
     <>
-
       <div className="h-24 mb-10 w-full p-4 bg-gray-50">
         <div className="pb-1 flex justify-between">
           <h2 className="text-xl font-bold mb-6">Master List</h2>
@@ -489,6 +579,42 @@ const MasterList = () => {
         <NewMember
           isOpen={addData[0] === "NewMember"}
           onClose={() => setAddData([])}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "Country" ? "0" : "-100%" }}
+      >
+        <Country
+          isOpen={addData[0] === "Country"}
+          onClose={() => setAddData([])}
+          countryData={selectedCountry}
+          isFormEditEnabled={isFormEditEnabled}
+          setIsFormEditEnabled={setIsFormEditEnabled}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "State" ? "0" : "-100%" }}
+      >
+        <State
+          isOpen={addData[0] === "State"}
+          onClose={() => setAddData([])}
+          stateData={selectedState}
+          isFormEditEnabled={isFormEditEnabled}
+          setIsFormEditEnabled={setIsFormEditEnabled}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "Destination" ? "0" : "-100%" }}
+      >
+        <Destination
+          isOpen={addData[0] === "Destination"}
+          onClose={() => setAddData([])}
+          destinationData={selectedDestination}
+          isFormEditEnabled={isFormEditEnabled}
+          setIsFormEditEnabled={setIsFormEditEnabled}
         />
       </div>
     </>

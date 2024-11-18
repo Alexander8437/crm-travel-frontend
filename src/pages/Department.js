@@ -3,10 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import api from "../apiConfig/config";
 import { toast } from "react-toastify";
 
-const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEditEnabled }) => {
-  const fileInputRef = useRef(null);
-
-  // console.log(countryData);
+const Department = ({ isOpen, onClose, departmentData }) => {
 
   const [user, setUser] = useState({})
   const [token, setTokens] = useState(null)
@@ -64,22 +61,26 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
   }, [])
 
 
+  //   {
+  //     "departmentName": "Sales",
+  //     "createdBy": "Nilesh",
+  //     "modifiedBy": "Nilesh",
+  //     "ipaddress": "14.11.223.21",
+  //     "status": 1,
+  //     "isdelete": 0
+
+  // }
+
 
 
   const [formData, setFormData] = useState({
-    countryName: "", code: "", pCode: "", ipAddress: "", status: true,
-    createdBy: "", modifiedby: "",
-    image: null,
+    departmentName: "", status: true,
   });
 
   const handleReset = () => {
     setFormData({
-      countryName: "", code: "", pCode: "",
-      image: null,
+      departmentName: "", status: true
     })
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";  // Clear the file input
-    }
   }
 
   const handleInputChange = (event) => {
@@ -90,29 +91,12 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
     });
   };
 
-  const handleFileChange = (event) => {
-    setFormData({
-      ...formData,
-      image: event.target.files[0],
-    });
-  };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formDatasend = new FormData();
-    formDatasend.append('countryName', formData.countryName);
-    formDatasend.append('code', formData.code);
-    formDatasend.append('pCode', formData.pCode);
-    formDatasend.append('ipAddress', formData.ipAddress);
-    formDatasend.append('status', formData.status);
-    formDatasend.append('image', formData.image);
-
-    formDatasend.append('isdelete', false);
-
-    if (formData.countryName === '' || formData.code === '' || formData.pCode === '' || formData.image === null) {
-      toast.error("Please fill all the fields...", {
+    if (formData.departmentName === '') {
+      toast.error("Please fill the fields...", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -124,20 +108,25 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
       return;
     }
 
-    if (countryData && countryData.id) {
-      formDatasend.append('createdby', formData.createdBy);
-      formDatasend.append('modifiedby', user.username);
+    if (departmentData && departmentData.id) {
+      const payload = {
+        departmentName: formData.departmentName,
+        createdBy: formData.createdBy,
+        modifiedBy: user.username,
+        ipaddress: ipaddress,
+        status: formData.status,
+        isdelete: 0
+      }
 
 
-      await axios.put(`${api.baseUrl}/country/updateby/${countryData.id}`, formDatasend, {
+      await axios.put(`${api.baseUrl}/country/updateby/${departmentData.id}`, payload, {
         headers: {
           // 'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
           'Access-Control-Allow-Origin': '*'
         }
       })
         .then(response => {
-          toast.success("Country updated successfully.", {
+          toast.success("Department updated successfully.", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -147,30 +136,36 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
             progress: undefined,
           });
           setFormData({
-            ...formData,
-            countryName: "", code: "", pCode: "", image: null, status: true
-          });
-          if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-          }
+            departmentName: "", status: true
+          })
         })
         .catch(error => {
           toast.error("Error updating country...");
           console.log(error)
         });
     } else {
-      formDatasend.append('createdby', user.username);
-      formDatasend.append('modifiedby', user.username);
-      // Create new country
-      await axios.post(`${api.baseUrl}/country/create`, formDatasend, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-          'Access-Control-Allow-Origin': '*'
+
+      const payload = {
+        "departmentName": formData.departmentName,
+        "createdBy": user.username,
+        "modifiedBy": user.username,
+        "ipaddress": ipaddress,
+        "status": formData.status ? 1 : 0,
+        "isdelete": 0
+      }
+
+      console.log(payload)
+      await axios.post(`${api.baseUrl}/departments/create`, payload
+        , {
+          headers: {
+            // 'Authorization': `Bearer ${token}`,
+            'Accept': 'Application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
         }
-      })
+      )
         .then(response => {
-          toast.success("Country saved successfully.", {
+          toast.success("Department saved successfully.", {
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
@@ -180,38 +175,29 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
             progress: undefined,
           });
           setFormData({
-            ...formData,
-            countryName: "", code: "", pCode: "", image: null, status: true
-          });
-          if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-          }
+            departmentName: "", status: true
+          })
         })
         .catch(error => console.log(error));
     }
   };
 
   useEffect(() => {
-    if (countryData && countryData.id) {
+    if (departmentData && departmentData.id) {
       setFormData({
-        countryName: countryData.countryName || "",
-        code: countryData.code || "",
-        pCode: countryData.pCode || "",
-        ipAddress: countryData.ipAddress || "",
-        status: countryData.status || true,
-        image: null,
-        createdBy: countryData.createdBy || "",
-        modifiedBy: countryData.modifiedBy || "",
+        countryName: departmentData.departmentName || "",
+        status: departmentData.status || true,
+        createdBy: departmentData.createdBy || "",
+        modifiedBy: departmentData.modifiedBy || "",
       });
     }
-  }, [countryData]);
+  }, [departmentData]);
 
+  const [ipaddress, setIpAddress] = useState("")
   useEffect(() => {
     axios.get(`${api.baseUrl}/ipAddress`)
       .then((response) => {
-        setFormData({
-          ...formData, "ipAddress": response.data
-        })
+        setIpAddress(response.data)
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -221,8 +207,8 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 z-50 ${isOpen ? "translate-x-0" : "translate-x-[850px]"
-        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[800px]`}
+      className={`fixed top-0 right-0 h-full bg-gray-200 shadow-lg transform transition-transform duration-500 z-50 ${isOpen ? "translate-x-0" : "translate-x-[750px]"
+        } mt-4 sm:mt-8 md:mt-12 w-full sm:w-[calc(100%-120px)] md:w-[700px]`}
     >
       {/* "X" button positioned outside the form box */}
       <button
@@ -232,7 +218,7 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
         X
       </button>
       <div className="flex justify-between items-center p-4 pl-8 bg-white shadow-md">
-        <h2 className="text-lg font-bold text-black">New Country</h2>
+        <h2 className="text-lg font-bold text-black">New Department</h2>
       </div>
       {/* Line below the title with shadow */}
       <div className="border-b border-gray-300 shadow-sm"></div>
@@ -245,55 +231,24 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
         </div>
 
         <div className="flex gap-2 mb-4">
-          <div className="w-1/2">
+          <div className="w-full">
             <label htmlFor="countryName" className="block text-sm font-medium">
-              Country Name
+              Department Name
             </label>
             <input
               type="text"
               id="countryName"
               className="mt-1 p-2 w-full border rounded"
-              placeholder="eg., India, Russia..."
-              name="countryName"
-              value={formData.countryName}
+              placeholder="Enter Department Name..."
+              name="departmentName"
+              value={formData.departmentName}
               onChange={handleInputChange}
-            />
-          </div>
-
-          <div className="w-1/4">
-            <label htmlFor="code" className="block text-sm font-medium">
-              Country Code
-            </label>
-            <input
-              type="text"
-              id="code"
-              className="mt-1 p-2 w-full border rounded"
-              placeholder="eg., IND, AUS, or USA"
-              name="code"
-              value={formData.code}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="w-1/4">
-            <label htmlFor="countryName" className="block text-sm font-medium">
-              Country Ph Code
-            </label>
-            <input
-              type="text"
-              id="countryName"
-              className="mt-1 p-2 w-full border rounded"
-              placeholder="eg., +91, +1..."
-              name="pCode"
-              value={formData.pCode}
-              onChange={handleInputChange
-                // (e) => setCode(e.target.value)
-              }
             />
           </div>
         </div>
 
         <div className="flex gap-2">
-          <div className="w-1/2 mb-4">
+          <div className="w-full mb-4">
             <label htmlFor="status" className="block text-sm font-medium">
               Status
             </label>
@@ -301,19 +256,6 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
               <option value={true}>Active</option>
               <option value={false}>Inactive</option>
             </select>
-          </div>
-
-          <div className="w-1/2 mb-4">
-            <label htmlFor="image" className="block text-sm font-medium">
-              Image
-            </label>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="w-full text-gray-700 mt-1 p-[4.5px] bg-white rounded border border-gray-200"
-              name="image"
-              onChange={handleFileChange}
-            />
           </div>
         </div>
       </form>
@@ -338,4 +280,4 @@ const Country = ({ isOpen, onClose, countryData, isFormEditEnabled, setIsFormEdi
   );
 };
 
-export default Country;
+export default Department;
