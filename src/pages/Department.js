@@ -5,8 +5,6 @@ import { toast } from "react-toastify";
 
 const Department = ({ isOpen, onClose, departmentData }) => {
 
-  console.log(departmentData)
-
   const [user, setUser] = useState({})
   const [token, setTokens] = useState(null)
 
@@ -93,8 +91,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
     setFormData({
       ...formData,
       [name]: value
-    });
-    console.log(value)
+    })
   };
 
 
@@ -126,10 +123,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
         modifiedDate: current.getDate
       }
 
-      console.log(payload)
-      console.log(departmentData.id)
-
-      await axios.put(`${api.baseUrl}/country/updatebyid/${departmentData.id}`, payload, {
+      await axios.put(`${api.baseUrl}/departments/updatebyid/${departmentData.id}`, payload, {
         headers: {
           // 'Authorization': `Bearer ${token}`,
           'Accept': 'Application/json',

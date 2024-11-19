@@ -436,7 +436,6 @@ const MasterList = () => {
         const sortedData = await formattedData.sort((a, b) => {
           return a.departmentName.localeCompare(b.departmentName);  // Replace 'name' with the key to sort by
         });
-        console.log(sortedData)
         const newData = await sortedData.map((item, index) => ({
           ...item,
           index: index + 1
