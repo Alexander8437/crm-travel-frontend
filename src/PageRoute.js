@@ -13,7 +13,7 @@ import Bookings from './pages/Bookings'
 import HotelMasterAddRoom from './pages/HotelMasterAddRoom'
 import MasterList from './pages/masterlis'
 import AllMembers from './pages/AllMembers'
-// import ProfilePage from './pages/Profile'
+import ProfilePage from './pages/ProfilePage'
 
 const PageRoute = () => {
 
@@ -36,7 +36,7 @@ const PageRoute = () => {
             {/* <Route path="/package-view" element={<CustomerProfile />} /> */}
             <Route path="/booking-dashboard" element={<Bookings />} />
             <Route path="/all-members" element={<AllMembers />} />
-            {/* <Route path="/profile-page" element={<ProfilePage />} /> */}
+            <Route path="/profile-page" element={<ProfilePage />} />
             <Route path='/' />
             {/* Add other routes as needed */}
           </Routes>

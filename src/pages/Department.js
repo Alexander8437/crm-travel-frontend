@@ -7,6 +7,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
 
   const [user, setUser] = useState({})
   const [token, setTokens] = useState(null)
+
   async function decryptToken(encryptedToken, key, iv) {
     const dec = new TextDecoder();
 
@@ -74,7 +75,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
 
 
   const [formData, setFormData] = useState({
-    departmentName: "", status: true,
+    departmentName: "", status: true
   });
 
   const handleReset = () => {
@@ -87,8 +88,9 @@ const Department = ({ isOpen, onClose, departmentData }) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: value
     });
+    console.log(value)
   };
 
 
@@ -154,7 +156,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
         "isdelete": 0
       }
 
-      console.log(payload)
+      // console.log(payload)
       await axios.post(`${api.baseUrl}/departments/create`, payload
         , {
           headers: {
@@ -185,7 +187,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
   useEffect(() => {
     if (departmentData && departmentData.id) {
       setFormData({
-        countryName: departmentData.departmentName || "",
+        departmentName: departmentData.departmentName || "",
         status: departmentData.status || true,
         createdBy: departmentData.createdBy || "",
         modifiedBy: departmentData.modifiedBy || "",
@@ -237,7 +239,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
             </label>
             <input
               type="text"
-              id="countryName"
+              // id="countryName"
               className="mt-1 p-2 w-full border rounded"
               placeholder="Enter Department Name..."
               name="departmentName"

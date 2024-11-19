@@ -27,6 +27,7 @@ import NewPolicyForm from "../pages/NewPolicyForm";
 import { GiSettingsKnobs } from "react-icons/gi";
 import { CiSettings } from "react-icons/ci";
 import Department from "../pages/Department";
+import NewCompanyForm from "../pages/NewCompanyForm";
 
 const Sidebar = () => {
   const [homeStyle, setHomeStyle] = useState([]);
@@ -560,6 +561,22 @@ const Sidebar = () => {
                       </button>
                     </div>
                   </div>
+                  <div className="flex">
+                    <div className="w-1/2 mb-2">
+                      <button
+                        className="w-[90%] p-4 flex justify-between items-center bg-gradient-to-r from-[#FFF9F9] to-[#F7C6C6]  cursor-pointer border-none text-left shadow-md my-2"
+                        onClick={() => {
+                          setAddData([]);
+                          setAddData(["Company"]);
+                        }}
+                      >
+                        Company
+                        <span>
+                          <IoMdAdd size="16px" />
+                        </span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -686,6 +703,15 @@ const Sidebar = () => {
       >
         <Department
           isOpen={addData[0] === "Department"}
+          onClose={() => setAddData([])}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "Company" ? "0" : "-100%" }}
+      >
+        <NewCompanyForm
+          isOpen={addData[0] === "Company"}
           onClose={() => setAddData([])}
         />
       </div>

@@ -18,18 +18,13 @@ const Itinerary = ({ isOpen, onClose }) => {
         dinner: false,
       },
       program: "",
-      hotelOptionsIds: [],
+      hotelOptionsIds: [null, null, null, null],
       activities: {
         id: null
       },
       sightseeing: {
         id: null
-      },
-      ipaddress: "",
-      status: 1,
-      isdelete: 0,
-      // transportation: "",
-      // transportationDetails: "",
+      }
     }
   ]);
   const [user, setUser] = useState({});
@@ -123,35 +118,31 @@ const Itinerary = ({ isOpen, onClose }) => {
 
   // Handle input changes for the current day
   const handleInputChange = (event, dayIndex) => {
-    const { name, value } = event.target;
-    setFormData((prevState) => {
-      const updatedDays = [...prevState.days];
-      updatedDays[dayIndex] = {
-        ...updatedDays[dayIndex],
-        [name]: value,
-      };
-      return {
-        ...prevState,
-        days: updatedDays,
-      };
-    });
+    let updateData = [...formData]
+    updateData[dayIndex].daytitle = event.target.value
+    setFormData(updateData)
   };
+
   const handleMealChange = (event, dayIndex) => {
     const { name, checked } = event.target;
-    setFormData((prevState) => {
-      const updatedDays = [...prevState.days];
-      updatedDays[dayIndex] = {
-        ...updatedDays[dayIndex],
-        meals: {
-          ...updatedDays[dayIndex].meals,
-          [name]: checked,
-        },
-      };
-      return {
-        ...prevState,
-        days: updatedDays,
-      };
-    });
+
+    setFormData((prev, i) => dayIndex === i ? { ...prev, [name]: checked } : prev)
+    // setFormData((prevState) => {
+    //   const updatedDays = [...prevState.days];
+    //   updatedDays[dayIndex] = {
+    //     ...updatedDays[dayIndex],
+    //     meals: {
+    //       ...updatedDays[dayIndex].meals,
+    //       [name]: checked,
+    //     },
+    //   };
+    //   return {
+    //     ...prevState,
+    //     days: updatedDays,
+    //   };
+    // });
+
+
   };
 
   const [hotelList, setHotelList] = useState([])
@@ -161,8 +152,17 @@ const Itinerary = ({ isOpen, onClose }) => {
   const [siteSeeingList, setSiteSeeingList] = useState([])
   const [activityList, setActivityList] = useState([])
   const [mealTypeOptions, setMealTypeOptions] = useState([])
+  const [ipaddress, setIpAddress] = useState("")
 
   useEffect(() => {
+    axios.get(`${api.baseUrl}/ipAddress`)
+      .then((response) => {
+        setIpAddress(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      })
+
     axios.get(`${api.baseUrl}/hotel/getAll`)
       .then((response) => {
         const formattedData = response.data.map(item => ({
@@ -238,80 +238,92 @@ const Itinerary = ({ isOpen, onClose }) => {
     setViewHotelList(hotel)
   };
 
-  const handleHotelChange = (selected) => {
-    setViewRoomTypeList([])
-    let room = roomTypeList.filter(item => item.hotel.id === selected.value)
+  const handleHotelChange = (selected, hIndex, mainIndex) => {
+    let updateData = [...formData]
+    let hotelUpdate = [...updateData[mainIndex].hotelOptionsIds]
 
-    let newlist = new Set(room)
-    setViewRoomTypeList([...newlist])
+    hotelUpdate[hIndex] = selected
+
+    setFormData((prev, i) => mainIndex === i ? { ...prev, hotelOptionsIds: hotelUpdate } : prev)
   }
+
   // Add a new day form
   const addNewDay = () => {
-    setFormData((prevState) => ({
-      ...prevState,
-      days: [
-        ...prevState.days,
-        {
-          title: "",
-          meals: {
-            breakfast: false,
-            lunch: false,
-            dinner: false,
-          },
-          description: "",
-          activities: "",
-          transportation: "",
-          transportationDetails: "",
-        },
-      ],
-    }));
+    setFormData([...formData,
+    {
+      daytitle: "",
+      breakfast: false,
+      lunch: false,
+      dinner: false,
+      description: "",
+      activities: {
+        id: null
+      },
+      sightseeing: {
+        id: null
+      }
+    }
+    ]);
   };
 
   // Submit the form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    formData.map(item => {
+      let payload = {
+        ...item,
+        destination: {
+          id: selectedDestination.value
+        },
+        ipaddress: ipaddress,
+        status: 1,
+        isdelete: 0,
+      }
+
+      console.log(payload)
+    })
+
     const dataToSend = {
       destinationId: selectedDestination ? selectedDestination.value : null,
       createdby: user.username,
       modifiedby: user.username,
       isdelete: false,
+      ipaddress: ipaddress,
       itinerary: formData,
     };
 
-    console.log(dataToSend)
-    console.log(formData)
-    try {
-      await axios.post(`${api.baseUrl}/itinerary/create`, dataToSend, {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+    // console.log(dataToSend)
+    // console.log(formData)
+    // try {
+    //   await axios.post(`${api.baseUrl}/itinerary/create`, dataToSend, {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       "Access-Control-Allow-Origin": "*",
+    //     },
+    //   });
+
+    //   alert("Itinerary created successfully");
+
+    // Reset the form and selected destination after successful submission
+    setFormData([
+      {
+        daytitle: "",
+        meals: {
+          breakfast: false,
+          lunch: false,
+          dinner: false,
         },
-      });
+        program: "",
+        activities: ""
+      },
 
-      alert("Itinerary created successfully");
-
-      // Reset the form and selected destination after successful submission
-      setFormData([
-        {
-          daytitle: "",
-          meals: {
-            breakfast: false,
-            lunch: false,
-            dinner: false,
-          },
-          description: "",
-          activities: "",
-          transportation: "",
-          transportationDetails: "",
-        },
-
-      ]);
-      setSelectedDestination(null);
-    } catch (error) {
-      console.error("Error creating itinerary:", error);
-      alert("Error creating itinerary, please try again.");
-    }
+    ]);
+    //   setSelectedDestination(null);
+    // } catch (error) {
+    //   console.error("Error creating itinerary:", error);
+    //   alert("Error creating itinerary, please try again.");
+    // }
   };
 
   // Handle form reset
@@ -411,7 +423,7 @@ const Itinerary = ({ isOpen, onClose }) => {
                     type="text"
                     id={`title-${index}`}
                     className="mt-1 p-2 w-full border rounded bg-gray-200"
-                    name="title"
+                    name="daytitle"
                     value={item.daytitle}
                     onChange={(e) => handleInputChange(e, index)}
                   />
@@ -441,8 +453,9 @@ const Itinerary = ({ isOpen, onClose }) => {
                     }}
                     onChange={(event, editor) => {
                       const data = editor.getData();
-                      setEditorData(data);
-
+                      let updateData = [...formData]
+                      updateData[index].program = data
+                      setFormData(updateData)
                     }}
                   />
                 </div>
@@ -458,7 +471,7 @@ const Itinerary = ({ isOpen, onClose }) => {
                         <input
                           type="checkbox"
                           name="breakfast"
-                          checked={item.meals.breakfast}
+                          checked={item.breakfast}
                           onChange={(e) => handleMealChange(e, index)}
                           className="w-6 h-6 mr-2"
                         />{" "}
@@ -470,7 +483,7 @@ const Itinerary = ({ isOpen, onClose }) => {
                         <input
                           type="checkbox"
                           name="lunch"
-                          checked={item.meals.lunch}
+                          checked={item.lunch}
                           onChange={(e) => handleMealChange(e, index)}
                           className="w-6 h-6 mr-2"
                         />{" "}
@@ -482,7 +495,7 @@ const Itinerary = ({ isOpen, onClose }) => {
                         <input
                           type="checkbox"
                           name="dinner"
-                          checked={item.meals.dinner}
+                          checked={item.dinner}
                           onChange={(e) => handleMealChange(e, index)}
                           className="w-6 h-6 mr-2"
                         />{" "}
@@ -509,78 +522,46 @@ const Itinerary = ({ isOpen, onClose }) => {
                     <tbody>
                       <tr>
                         {/* Budget Column */}
-                        <td className="py-2 px-4 border-r">
-                          <div className="mb-2">
-                            <label className="block text-sm font-medium">
-                              Hotel Name
-                            </label>
-                            <Select
-                              id="destinationName"
-                              options={viewHotelList}
-                              onChange={handleHotelChange}
-                              placeholder="Select..."
-                              className="mt-1 border w-full h-[36px] rounded"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium">
-                              Room Type
-                            </label>
-                            <Select
-                              options={viewRoomTypeList}
-                              placeholder="Rating"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium">
-                              Meal Type
-                            </label>
-                            <Select
-                              options={mealTypeOptions}
-                              placeholder="Meals"
-                              className="mt-1"
-                            />
-                          </div>
-                        </td>
-
-                        {/* Deluxe Column */}
-                        <td className="py-2 px-4 border-r">
-                          <div className="mb-2">
-                            <label className="block text-sm font-medium">
-                              Hotel Name
-                            </label>
-                            <Select
-                              id="destinationName"
-                              options={viewHotelList}
-                              onChange={handleHotelChange}
-                              placeholder="Select..."
-                              className="mt-1 border w-full h-[36px] rounded"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium">
-                              Room Type
-                            </label>
-                            <Select
-                              options={RoomTypeOptions}
-                              placeholder="Rating"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium">
-                              Meal Type
-                            </label>
-                            <Select
-                              options={mealTypeOptions}
-                              placeholder="Meals"
-                              className="mt-1"
-                            />
-                          </div>
-                        </td>
-
-                        {/* Luxury Column */}
+                        {item.hotelOptionsIds.map((hotel, i) => (
+                          <td className="py-2 px-4 border-r">
+                            <>
+                              <div className="mb-2">
+                                <label className="block text-sm font-medium">
+                                  Hotel Name
+                                </label>
+                                <Select
+                                  id="destinationName"
+                                  options={viewHotelList}
+                                  value={hotel}
+                                  onChange={(e) => handleHotelChange(e, i, index)}
+                                  placeholder="Select..."
+                                  className="mt-1 border w-full h-[36px] rounded"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium">
+                                  Room Type
+                                </label>
+                                <Select
+                                  options={viewRoomTypeList}
+                                  placeholder="Rating"
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium">
+                                  Meal Type
+                                </label>
+                                <Select
+                                  options={mealTypeOptions}
+                                  placeholder="Meals"
+                                  className="mt-1"
+                                />
+                              </div>
+                            </>
+                          </td>
+                        ))}
+                        {/* 
                         <td className="py-2 px-4 border-r">
                           <div className="mb-2">
                             <label className="block text-sm font-medium">
@@ -616,7 +597,41 @@ const Itinerary = ({ isOpen, onClose }) => {
                           </div>
                         </td>
 
-                        {/* Standard Column */}
+                        <td className="py-2 px-4 border-r">
+                          <div className="mb-2">
+                            <label className="block text-sm font-medium">
+                              Hotel Name
+                            </label>
+                            <Select
+                              id="destinationName"
+                              options={viewHotelList}
+                              onChange={handleHotelChange}
+                              placeholder="Select..."
+                              className="mt-1 border w-full h-[36px] rounded"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium">
+                              Room Type
+                            </label>
+                            <Select
+                              options={RoomTypeOptions}
+                              placeholder="Rating"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium">
+                              Meal Type
+                            </label>
+                            <Select
+                              options={mealTypeOptions}
+                              placeholder="Meals"
+                              className="mt-1"
+                            />
+                          </div>
+                        </td>
+
                         <td className="py-2 px-4">
                           <div className="mb-2">
                             <label className="block text-sm font-medium">
@@ -650,7 +665,7 @@ const Itinerary = ({ isOpen, onClose }) => {
                               className="mt-1"
                             />
                           </div>
-                        </td>
+                        </td> */}
                       </tr>
                     </tbody>
                   </table>

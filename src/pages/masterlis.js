@@ -11,6 +11,7 @@ import NewMember from "../pages/NewMember";
 import Country from './Country';
 import State from './State';
 import Destination from './Destination';
+import Department from './Department'
 import { toast } from 'react-toastify';
 
 
@@ -30,6 +31,7 @@ const MasterList = () => {
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [isFormEditEnabled, setIsFormEditEnabled] = useState(false);
   const navigate = useNavigate()
 
@@ -151,6 +153,9 @@ const MasterList = () => {
     } else if (activeTab === 'destination') {
       setAddData(["Destination"]);
       setSelectedDestination(item);
+    } else if (activeTab === 'department') {
+      setAddData(["Department"]);
+      setSelectedDepartment(item);
     }
   };
 
@@ -190,6 +195,9 @@ const MasterList = () => {
         break;
       case 'vendor':
         fetchData('vendor/get', setVendorData, handleStatusToggle);
+        break;
+      case 'department':
+        fetchData('department/get', setVendorData, handleStatusToggle);
         break;
       default:
         break;
@@ -287,7 +295,7 @@ const MasterList = () => {
         { header: 'Status', accessor: 'status' },
         { header: 'Action', accessor: 'Action' },
       ],
-      data: departmentData,
+      data: addIconsToData(departmentData, handleStatusToggle)
     },
   };
 
@@ -613,6 +621,18 @@ const MasterList = () => {
           isOpen={addData[0] === "Destination"}
           onClose={() => setAddData([])}
           destinationData={selectedDestination}
+          isFormEditEnabled={isFormEditEnabled}
+          setIsFormEditEnabled={setIsFormEditEnabled}
+        />
+      </div>
+      <div
+        className="submenu-menu"
+        style={{ right: addData[0] === "Department" ? "0" : "-100%" }}
+      >
+        <Department
+          isOpen={addData[0] === "Department"}
+          onClose={() => setAddData([])}
+          departmentData={selectedDepartment}
           isFormEditEnabled={isFormEditEnabled}
           setIsFormEditEnabled={setIsFormEditEnabled}
         />
