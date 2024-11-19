@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 
 const Department = ({ isOpen, onClose, departmentData }) => {
 
+  console.log(departmentData)
+
   const [user, setUser] = useState({})
   const [token, setTokens] = useState(null)
 
@@ -84,6 +86,8 @@ const Department = ({ isOpen, onClose, departmentData }) => {
     })
   }
 
+  const current = new Date()
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData({
@@ -116,14 +120,19 @@ const Department = ({ isOpen, onClose, departmentData }) => {
         createdBy: formData.createdBy,
         modifiedBy: user.username,
         ipaddress: ipaddress,
-        status: formData.status,
-        isdelete: 0
+        status: formData.status ? 1 : 0,
+        isdelete: 0,
+        createdDate: departmentData.createdDate,
+        modifiedDate: current.getDate
       }
 
+      console.log(payload)
+      console.log(departmentData.id)
 
-      await axios.put(`${api.baseUrl}/country/updateby/${departmentData.id}`, payload, {
+      await axios.put(`${api.baseUrl}/country/updatebyid/${departmentData.id}`, payload, {
         headers: {
           // 'Authorization': `Bearer ${token}`,
+          'Accept': 'Application/json',
           'Access-Control-Allow-Origin': '*'
         }
       })
@@ -187,6 +196,7 @@ const Department = ({ isOpen, onClose, departmentData }) => {
   useEffect(() => {
     if (departmentData && departmentData.id) {
       setFormData({
+        ...departmentData,
         departmentName: departmentData.departmentName || "",
         status: departmentData.status || true,
         createdBy: departmentData.createdBy || "",
